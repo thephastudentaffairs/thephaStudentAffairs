@@ -1,3 +1,22 @@
 [
-  
+  {
+    "student_id": "14077",
+    "student_name": "กวีศิลป์  รักนุ่น",
+    "reason": "test",
+    "teacher": "นางสาวสมศรี กระโดดลงตึก",
+    "timestamp": "2026-01-31T05:32:45.542Z",
+    "status": "completed",
+    "completed_at": "2026-01-31T05:33:23.707Z",
+    "completed_by": "นางสาวสมศรี กระโดดลงตึก"
+  },
+  {
+    "student_id": "14076",
+    "student_name": "กฤตภาส  ดำฉวาง",
+    "reason": "test",
+    "teacher": "ครูสมชาย สายเสมอ",
+    "timestamp": "2026-01-31T07:10:29.163Z",
+    "status": "completed",
+    "completed_at": "2026-01-31T07:10:54.568Z",
+    "completed_by": "นางสาวสมศรี กระโดดลงตึก"
+  }
 ]

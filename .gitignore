@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# SSL Certificates (generated locally)
+ssl-key.pem
+ssl-cert.pem
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local

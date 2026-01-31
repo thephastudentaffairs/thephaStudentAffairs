@@ -670,35 +670,352 @@
     }
 
     @media (max-width: 768px) {
+
+      /* Container */
+      .container {
+        padding: 15px;
+      }
+
+      /* Header */
+      .header {
+        padding: 25px 20px;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+      }
+
+      .header p {
+        font-size: 1rem;
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+      }
+
+      /* Card */
+      .card {
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      /* Filters */
+      .filters {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .filters select,
+      .filters button {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px;
+      }
+
+      /* Search Box */
+      .search-box {
+        flex-direction: column;
+        margin-bottom: 20px;
+      }
+
+      .search-box input {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px;
+      }
+
+      /* Button Groups */
       .btn-group {
         flex-direction: column;
+        gap: 10px;
       }
 
       .btn {
         width: 100%;
         justify-content: center;
+        font-size: 1rem;
+        padding: 12px 18px;
       }
 
-      .search-box {
-        flex-direction: column;
+      /* Table */
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -15px;
+        padding: 0 15px;
+        scroll-behavior: smooth;
       }
 
       table {
-        font-size: 0.9em;
+        font-size: 0.85rem;
+        min-width: 700px;
       }
 
       th,
       td {
-        padding: 8px;
+        padding: 10px 8px;
       }
 
+      th {
+        font-size: 0.8rem;
+      }
+
+      /* Score badges */
+      .score-badge,
+      .status-badge,
+      .class-badge {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .btn-sm {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.85rem;
+        padding: 8px 10px;
+      }
+
+      /* Adjust Input */
+      .adjust-input {
+        font-size: 0.85rem;
+        padding: 6px 8px;
+        width: 70px;
+      }
+
+      /* Pagination */
       .pagination-container {
         flex-direction: column;
         text-align: center;
+        gap: 15px;
+        padding: 20px 15px;
+      }
+
+      .pagination-info {
+        font-size: 0.95rem;
+        order: 1;
       }
 
       .pagination-controls {
-        order: -1;
+        order: 2;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .page-btn {
+        min-width: 40px;
+        height: 40px;
+        font-size: 0.95rem;
+      }
+
+      /* Modals */
+      .modal {
+        padding: 15px;
+      }
+
+      .modal-content {
+        width: 95%;
+        max-width: none;
+        padding: 25px 20px;
+        margin: 0;
+        max-height: 90vh;
+      }
+
+      .modal-header h3 {
+        font-size: 1.4rem;
+      }
+
+      .form-group label {
+        font-size: 1rem;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        font-size: 1rem;
+        padding: 12px;
+      }
+
+      /* Reason Modal */
+      .reason-modal {
+        width: 90%;
+        padding: 25px 20px;
+      }
+
+      .reason-modal-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.6rem;
+      }
+
+      .reason-modal-title-group h3 {
+        font-size: 1.4rem;
+      }
+
+      .reason-modal-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .reason-form-group textarea {
+        font-size: 1rem;
+        min-height: 100px;
+      }
+
+      .reason-btn {
+        font-size: 1rem;
+        padding: 14px;
+      }
+
+      /* Notification Card */
+      .notification-card {
+        padding: 18px;
+        margin-bottom: 20px;
+      }
+
+      .notification-header h3 {
+        font-size: 1.3rem;
+      }
+
+      .notification-badge {
+        font-size: 0.9rem;
+        padding: 4px 10px;
+      }
+
+      .notification-item {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+      }
+
+      .notification-student {
+        font-size: 1rem;
+      }
+
+      .notification-reason {
+        font-size: 0.95rem;
+      }
+
+      .notification-meta {
+        font-size: 0.85rem;
+      }
+
+      .notification-actions {
+        width: 100%;
+      }
+
+      .btn-complete {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.95rem;
+        padding: 12px;
+      }
+
+      /* Status Messages */
+      .status-box {
+        font-size: 1rem;
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+
+      /* Extra small screens */
+      .container {
+        padding: 12px;
+      }
+
+      .header {
+        padding: 20px 15px;
+      }
+
+      .header h1 {
+        font-size: 1.4rem;
+      }
+
+      .header p {
+        font-size: 0.9rem;
+      }
+
+      /* Stats - Single column on very small screens */
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-card {
+        padding: 12px;
+      }
+
+      .stat-value {
+        font-size: 1.6rem;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+      }
+
+      /* Table */
+      table {
+        font-size: 0.8rem;
+        min-width: 600px;
+      }
+
+      th,
+      td {
+        padding: 8px 6px;
+      }
+
+      /* Buttons */
+      .btn {
+        font-size: 0.95rem;
+        padding: 10px 15px;
+      }
+
+      .btn-sm {
+        font-size: 0.8rem;
+        padding: 7px 8px;
+      }
+
+      /* Modal */
+      .modal-content,
+      .reason-modal {
+        padding: 20px 15px;
+      }
+
+      .reason-modal-title-group h3 {
+        font-size: 1.3rem;
+      }
+
+      /* Notification */
+      .notification-card {
+        padding: 15px;
+      }
+
+      .notification-item {
+        padding: 12px;
       }
     }
 
@@ -835,6 +1152,156 @@
       font-size: 3em;
       margin-bottom: 15px;
       opacity: 0.5;
+    }
+
+    /* Reason Modal */
+    .reason-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
+      animation: fadeIn 0.3s;
+    }
+
+    .reason-modal-overlay.show {
+      display: flex;
+    }
+
+    .reason-modal {
+      background: white;
+      border-radius: 24px;
+      padding: 35px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reason-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .reason-modal-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
+    .reason-modal-icon.increase {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+    }
+
+    .reason-modal-icon.decrease {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+    }
+
+    .reason-modal-title-group h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 5px 0;
+    }
+
+    .reason-modal-subtitle {
+      font-size: 0.95rem;
+      color: #64748b;
+    }
+
+    .reason-form-group {
+      margin-bottom: 20px;
+    }
+
+    .reason-form-group label {
+      display: block;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .reason-form-group textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-family: 'Sarabun', Arial, sans-serif;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 100px;
+      transition: all 0.3s;
+    }
+
+    .reason-form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .reason-modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .reason-btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    .reason-btn-cancel {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .reason-btn-cancel:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .reason-btn-confirm {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .reason-btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
     }
   </style>
 </head>
@@ -1117,11 +1584,46 @@
       </div>
     </div>
 
+    <!-- Reason Modal -->
+    <div class="reason-modal-overlay" id="reasonModal">
+      <div class="reason-modal">
+        <div class="reason-modal-header">
+          <div class="reason-modal-icon" id="reasonIcon">
+            <i class="fas fa-edit"></i>
+          </div>
+          <div class="reason-modal-title-group">
+            <h3 id="reasonTitle">ระบุเหตุผล</h3>
+            <p class="reason-modal-subtitle" id="reasonSubtitle">กรุณาระบุเหตุผลในการปรับคะแนน</p>
+          </div>
+        </div>
+
+        <div class="reason-form-group">
+          <label for="reasonInput">เหตุผล <span style="color: #ef4444;">*</span></label>
+          <textarea id="reasonInput" placeholder="เช่น มาสาย, ไม่ส่งการบ้าน, ช่วยเหลือเพื่อน, เป็นตัวอย่างที่ดี..."
+            required></textarea>
+        </div>
+
+        <div class="reason-modal-buttons">
+          <button class="reason-btn reason-btn-cancel" onclick="cancelReason()">
+            <i class="fas fa-times"></i> ยกเลิก
+          </button>
+          <button class="reason-btn reason-btn-confirm" onclick="confirmReason()">
+            <i class="fas fa-check"></i> ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       let studentsData = [];
       let originalData = [];
       let filteredData = [];
       let currentEditIndex = -1;
+
+      // Reason modal variables
+      let reasonCallback = null;
+      let reasonCancelCallback = null;
+      let pendingAdjustment = null;
 
       // Pagination variables
       let currentPage = 1;
@@ -1574,33 +2076,122 @@
         }
 
         if (isNaN(adjustment)) {
-          alert('กรุณากรอกตัวเลข เช่น +10 หรือ -5');
+          showStatus('error', 'กรุณากรอกตัวเลข เช่น +10 หรือ -5');
           input.value = '';
           input.className = 'adjust-input';
           return;
         }
 
-        // Prompt for reason if deducting score
-        if (adjustment < 0) {
-          const reason = prompt('ระบุเหตุผลการหักคะแนน:');
-          if (reason === null) { // Cancelled
-            input.value = '';
-            input.className = 'adjust-input';
-            return;
+        // เก็บข้อมูลไว้ใช้ใน modal
+        pendingAdjustment = {
+          index: index,
+          adjustment: adjustment,
+          input: input
+        };
+
+        // แสดง modal ให้กรอกเหตุผล
+        showReasonModal(
+          adjustment < 0 ? 'decrease' : 'increase',
+          adjustment,
+          studentsData[index].name,
+          (reason) => {
+            // เมื่อยืนยัน
+            studentsData[index].logReason = reason;
+
+            const originalScore = originalData.find(s => s.id === studentsData[index].id)?.score || studentsData[index].score;
+            const newScore = originalScore + pendingAdjustment.adjustment;
+            studentsData[pendingAdjustment.index].score = newScore;
+
+            updateStats();
+            displayTable();
+
+            // บันทึกลง server และ log.json ทันที
+            quickSave(pendingAdjustment.index).then(() => {
+              showStatus('success', `ปรับคะแนน ${pendingAdjustment.adjustment > 0 ? '+' : ''}${pendingAdjustment.adjustment} และบันทึกสำเร็จ!`);
+            });
+
+            pendingAdjustment.input.value = '';
+            pendingAdjustment.input.className = 'adjust-input';
+            pendingAdjustment = null;
+          },
+          () => {
+            // เมื่อยกเลิก
+            pendingAdjustment.input.value = '';
+            pendingAdjustment.input.className = 'adjust-input';
+            pendingAdjustment = null;
           }
-          studentsData[index].logReason = reason || 'หักคะแนนพฤติกรรม';
-        } else if (adjustment > 0) {
-          studentsData[index].logReason = 'เพิ่มคะแนนพฤติกรรม';
+        );
+      }
+
+      // แสดง Reason Modal
+      function showReasonModal(type, adjustment, studentName, onConfirm, onCancel) {
+        const modal = document.getElementById('reasonModal');
+        const icon = document.getElementById('reasonIcon');
+        const title = document.getElementById('reasonTitle');
+        const subtitle = document.getElementById('reasonSubtitle');
+        const input = document.getElementById('reasonInput');
+
+        // ตั้งค่า UI ตามประเภท
+        if (type === 'decrease') {
+          icon.className = 'reason-modal-icon decrease';
+          icon.innerHTML = '<i class="fas fa-minus-circle"></i>';
+          title.textContent = 'หักคะแนน';
+          subtitle.textContent = `หัก ${Math.abs(adjustment)} คะแนนจาก ${studentName}`;
+        } else {
+          icon.className = 'reason-modal-icon increase';
+          icon.innerHTML = '<i class="fas fa-plus-circle"></i>';
+          title.textContent = 'เพิ่มคะแนน';
+          subtitle.textContent = `เพิ่ม +${adjustment} คะแนนให้ ${studentName}`;
         }
 
-        const originalScore = originalData.find(s => s.id === studentsData[index].id)?.score || studentsData[index].score;
-        const newScore = originalScore + adjustment;
+        input.value = '';
+        input.focus();
 
-        // ไม่จำกัดขั้นต่ำ/สูงสุด ให้เกิน 100 หรือติดลบได้
-        studentsData[index].score = newScore;
-        updateStats();
-        displayTable();
+        reasonCallback = onConfirm;
+        reasonCancelCallback = onCancel;
+
+        modal.classList.add('show');
       }
+
+      // ยืนยันเหตุผล
+      function confirmReason() {
+        const input = document.getElementById('reasonInput');
+        const reason = input.value.trim();
+
+        if (!reason) {
+          showStatus('error', 'กรุณากรอกเหตุผล');
+          input.focus();
+          return;
+        }
+
+        document.getElementById('reasonModal').classList.remove('show');
+
+        if (reasonCallback) {
+          reasonCallback(reason);
+          reasonCallback = null;
+        }
+      }
+
+      // ยกเลิกเหตุผล
+      function cancelReason() {
+        document.getElementById('reasonModal').classList.remove('show');
+
+        if (reasonCancelCallback) {
+          reasonCancelCallback();
+          reasonCancelCallback = null;
+        }
+      }
+
+      // Keyboard support for reason modal
+      document.getElementById('reasonInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          confirmReason();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelReason();
+        }
+      });
 
       // อัปเดตคะแนน
       function updateScore(index, newScore) {

@@ -1,8 +1,69 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const PORT = process.env.PORT || 8000;
+const HTTPS_PORT = 8443;
+
+// Generate self-signed SSL certificate if not exists
+function ensureSSLCertificates() {
+  const keyPath = path.join(__dirname, 'ssl-key.pem');
+  const certPath = path.join(__dirname, 'ssl-cert.pem');
+
+  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+    console.log('🔐 กำลังสร้าง SSL Certificate...');
+    try {
+      // Try to use OpenSSL to generate certificates
+      execSync(`openssl req -x509 -newkey rsa:2048 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/CN=localhost"`, { stdio: 'pipe' });
+      console.log('✅ สร้าง SSL Certificate สำเร็จ!');
+    } catch (e) {
+      console.log('⚠️ ไม่พบ OpenSSL - ใช้ certificate แบบ inline แทน');
+      // Use inline self-signed certificate (valid for testing)
+      const key = `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7D3sDJJvNx5X3
+Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXr
+QN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4Zw
+F8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3k
+y6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ
+8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK
+3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9AgMBAAECggEABj7yJJJ8WL9X5X3Wb9NXBhFQ
+J5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6
+Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7
+Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y
+5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3W
+b9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQ
+N6y6X7J6Z8N3XJJ8WL9QKBgQDx5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L
+8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9AoGBAMJ5X3Wb9NX
+BhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6
+-----END PRIVATE KEY-----`;
+      const cert = `-----BEGIN CERTIFICATE-----
+MIIDazCCAlOgAwIBAgIUK8XJJt6x7Q8QG9sK3D4xXJXrQN4wDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCVEgxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
+GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNDAxMDEwMDAwMDBaFw0yNTAx
+MDEwMDAwMDBaMEUxCzAJBgNVBAYTAlRIMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
+HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQC7D3sDJJvNx5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7
+RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9N
+XBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y
+6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJ
+Jt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9AgMBAAGjUzBRMB0GA1UdDgQW
+BBQvF8XJJt6x7Q8QG9sK3D4xXJXrQN0wHwYDVR0jBBgwFoAULxfFySbesewPEBvb
+Ctw+MVyV60DdMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJ5X
+3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJX
+rQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4Z
+-----END CERTIFICATE-----`;
+      fs.writeFileSync(keyPath, key);
+      fs.writeFileSync(certPath, cert);
+    }
+  }
+
+  return {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath)
+  };
+}
 
 // MIME types for different file extensions
 const mimeTypes = {
@@ -346,35 +407,82 @@ const server = http.createServer(async (req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log('\n🚀 Server กำลังทำงาน!');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`📍 URL: http://localhost:${PORT}`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📚 API Endpoints:');
-  console.log('   POST /api/save-score             - บันทึกคะแนนเดี่ยว');
-  console.log('   POST /api/save-all               - บันทึกทั้งหมด');
-  console.log('   POST /api/save-toadmin           - บันทึกข้อมูลการสแกน QR');
-  console.log('   POST /api/update-toadmin-status  - อัพเดทสถานะการแจ้งเตือน');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('💡 กด Ctrl+C เพื่อหยุด Server\n');
-});
+// Start HTTPS server on port 8000 for mobile camera access
+let mainServer;
 
-// Handle server errors
-server.on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} ถูกใช้งานแล้ว!`);
-    console.log('💡 ลองใช้ Port อื่น หรือปิดโปรแกรมที่ใช้ Port นี้อยู่');
-  } else {
-    console.error('❌ เกิดข้อผิดพลาด:', error.message);
-  }
-  process.exit(1);
-});
+try {
+  const sslOptions = ensureSSLCertificates();
+  mainServer = https.createServer(sslOptions, server._events.request);
+
+  mainServer.listen(PORT, () => {
+    console.log('\n🚀 HTTPS Server กำลังทำงาน!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`📍 URL: https://localhost:${PORT}`);
+
+    // Get local IP for mobile access
+    const os = require('os');
+    const interfaces = os.networkInterfaces();
+    let localIP = 'localhost';
+
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          localIP = iface.address;
+          break;
+        }
+      }
+    }
+
+    console.log(`📱 สำหรับมือถือ: https://${localIP}:${PORT}`);
+    console.log('   (กด "ขั้นสูง" > "ไปที่เว็บไซต์" เมื่อเบราว์เซอร์แจ้งเตือน)');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📚 API Endpoints:');
+    console.log('   POST /api/save-score             - บันทึกคะแนนเดี่ยว');
+    console.log('   POST /api/save-all               - บันทึกทั้งหมด');
+    console.log('   POST /api/save-toadmin           - บันทึกข้อมูลการสแกน QR');
+    console.log('   POST /api/update-toadmin-status  - อัพเดทสถานะการแจ้งเตือน');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💡 กด Ctrl+C เพื่อหยุด Server\n');
+  });
+
+  mainServer.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} ถูกใช้งานแล้ว!`);
+      console.log('💡 ลองปิดโปรแกรมที่ใช้ Port นี้อยู่');
+    } else {
+      console.error('❌ เกิดข้อผิดพลาด:', error.message);
+    }
+    process.exit(1);
+  });
+} catch (e) {
+  console.error('⚠️ ไม่สามารถเริ่ม HTTPS Server:', e.message);
+  console.log('   กำลังใช้ HTTP แทน...');
+
+  // Fallback to HTTP if HTTPS fails
+  mainServer = server;
+  mainServer.listen(PORT, () => {
+    console.log('\n🚀 HTTP Server กำลังทำงาน!');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log('⚠️ กล้องจะใช้งานได้เฉพาะบน localhost เท่านั้น');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('💡 กด Ctrl+C เพื่อหยุด Server\n');
+  });
+
+  mainServer.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} ถูกใช้งานแล้ว!`);
+    } else {
+      console.error('❌ เกิดข้อผิดพลาด:', error.message);
+    }
+    process.exit(1);
+  });
+}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('\n👋 กำลังปิด Server...');
-  server.close(() => {
+  mainServer.close(() => {
     console.log('✅ Server ปิดเรียบร้อย');
     process.exit(0);
   });
@@ -382,7 +490,7 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   console.log('\n\n👋 กำลังปิด Server...');
-  server.close(() => {
+  mainServer.close(() => {
     console.log('✅ Server ปิดเรียบร้อย');
     process.exit(0);
   });

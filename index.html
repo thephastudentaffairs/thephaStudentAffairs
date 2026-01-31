@@ -650,27 +650,176 @@
       color: var(--black);
     }
 
-    /* Responsive */
-    @media(max-width:600px) {
+    /* ===== Responsive Design ===== */
+    @media (max-width: 768px) {
       .container {
         padding: 15px;
+        min-height: calc(100vh - 50px);
       }
 
       .header-box {
-        padding: 24px 16px;
+        padding: 25px 20px;
+        margin-bottom: 20px;
       }
 
       .header-box h1 {
         font-size: 1.4rem;
       }
 
+      .header-box p {
+        font-size: 0.95rem;
+      }
+
+      .logo img {
+        width: 70px;
+        height: 70px;
+      }
+
       .login-card {
-        padding: 36px 28px;
+        padding: 35px 25px;
+        border-radius: 28px;
+      }
+
+      .login-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 25px;
+      }
+
+      .tabs-wrapper {
+        margin-bottom: 28px;
       }
 
       .tab-btn {
-        font-size: .9rem;
-        padding: 12px 6px;
+        font-size: 0.95rem;
+        padding: 12px 8px;
+      }
+
+      .form-label {
+        font-size: 1rem;
+      }
+
+      .input-container input {
+        padding: 14px 50px 14px 14px;
+        font-size: 1rem;
+        border-radius: 14px;
+      }
+
+      .btn-login {
+        padding: 16px;
+        font-size: 1.1rem;
+        border-radius: 14px;
+        margin-top: 25px;
+      }
+
+      /* Toast */
+      .toast-container {
+        top: 15px;
+        right: 15px;
+        left: 15px;
+      }
+
+      .toast {
+        min-width: auto;
+        width: 100%;
+        padding: 15px;
+        border-radius: 14px;
+      }
+
+      .toast-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+      }
+
+      .toast-title {
+        font-size: 0.95rem;
+      }
+
+      .toast-message {
+        font-size: 0.85rem;
+      }
+
+      /* Error Modal */
+      .error-modal {
+        padding: 30px 25px;
+        border-radius: 20px;
+      }
+
+      .error-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 2.5rem;
+      }
+
+      .error-modal h3 {
+        font-size: 1.4rem;
+      }
+
+      .error-modal p {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+
+      /* Extra small screens */
+      .container {
+        padding: 12px;
+      }
+
+      .header-box {
+        padding: 20px 15px;
+      }
+
+      .header-box h1 {
+        font-size: 1.25rem;
+      }
+
+      .header-box p {
+        font-size: 0.9rem;
+      }
+
+      .logo img {
+        width: 60px;
+        height: 60px;
+      }
+
+      .login-card {
+        padding: 28px 20px;
+        border-radius: 24px;
+      }
+
+      .login-card h2 {
+        font-size: 1.35rem;
+      }
+
+      .tab-btn {
+        font-size: 0.85rem;
+        padding: 10px 6px;
+      }
+
+      .form-label {
+        font-size: 0.95rem;
+      }
+
+      .input-container input {
+        padding: 12px 45px 12px 12px;
+        font-size: 0.95rem;
+      }
+
+      .btn-login {
+        padding: 14px;
+        font-size: 1rem;
+      }
+
+      .toast {
+        padding: 12px;
+      }
+
+      .toast-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
       }
     }
   </style>

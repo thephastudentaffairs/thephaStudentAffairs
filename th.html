@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -191,6 +192,190 @@
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+
+        .action-btn .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .btn-enter-id {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-enter-id:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-enter-id:hover .btn-icon {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .btn-camera {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-camera:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-camera:hover .btn-icon {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Manual Input Modal */
+        .manual-input-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .manual-input-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .manual-input-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .manual-input-modal.show .manual-input-content {
+            transform: scale(1);
+        }
+
+        .manual-input-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .manual-input-content h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .manual-input-content p {
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        .manual-input-field {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 2px;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .manual-input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+        }
+
+        .manual-input-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .manual-input-buttons button {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
         }
 
         .search-input {
@@ -666,6 +851,262 @@
             background: #f1f5f9;
             color: #64748b;
         }
+
+        /* ===== Responsive Design ===== */
+        @media (max-width: 768px) {
+
+            /* Body */
+            body {
+                padding: 15px;
+            }
+
+            /* Navbar */
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .nav-brand {
+                font-size: 1.1rem;
+            }
+
+            .nav-info {
+                text-align: center;
+            }
+
+            .user-name {
+                font-size: 0.95rem;
+            }
+
+            .user-class {
+                font-size: 0.85rem;
+            }
+
+            /* Header */
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            /* Stats Grid - 2 columns on tablet */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+            }
+
+            .stat-icon {
+                font-size: 1.6rem;
+            }
+
+            /* Card */
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            /* Controls */
+            .controls {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .search-box input {
+                font-size: 1rem;
+                padding: 12px;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filter-group select,
+            .filter-group button {
+                width: 100%;
+                font-size: 1rem;
+                padding: 12px;
+            }
+
+            /* Table */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -15px;
+                padding: 0 15px;
+                scroll-behavior: smooth;
+            }
+
+            table {
+                font-size: 0.85rem;
+                min-width: 650px;
+            }
+
+            th,
+            td {
+                padding: 10px 8px;
+            }
+
+            th {
+                font-size: 0.8rem;
+            }
+
+            /* Badges */
+            .status-badge,
+            .class-badge {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+
+            /* Action Buttons */
+            .action-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            /* QR Scanner Modal */
+            .qr-modal {
+                width: 95%;
+                max-width: none;
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .qr-modal-header h2 {
+                font-size: 1.4rem;
+            }
+
+            .qr-form-group label {
+                font-size: 1rem;
+            }
+
+            .qr-form-group input,
+            .qr-form-group textarea {
+                font-size: 1rem;
+                padding: 12px;
+            }
+
+            .qr-form-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .qr-btn {
+                width: 100%;
+                font-size: 1rem;
+                padding: 12px;
+            }
+
+            /* Toast */
+            .toast {
+                min-width: auto;
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            /* Extra small screens */
+            body {
+                padding: 12px;
+            }
+
+            .navbar {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            /* Stats - Single column */
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
+            }
+
+            .stat-label {
+                font-size: 0.85rem;
+            }
+
+            /* Table */
+            table {
+                font-size: 0.8rem;
+                min-width: 550px;
+            }
+
+            th,
+            td {
+                padding: 8px 6px;
+            }
+
+            /* Buttons */
+            .action-btn {
+                font-size: 0.8rem;
+                padding: 7px 10px;
+            }
+
+            .filter-group button {
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+
+            /* QR Modal */
+            .qr-modal {
+                padding: 15px;
+            }
+
+            .qr-modal-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .qr-btn {
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 
@@ -728,13 +1169,28 @@
             </div>
 
             <div class="controls">
-                <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาชื่อ หรือ รหัสนักเรียน..."
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..."
                     oninput="handleSearch()">
-                <button class="btn-primary" onclick="openQRScanner()"
-                    style="margin-left: 10px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-qrcode"></i>
-                    <span>สแกน QR Code</span>
-                </button>
+
+                <div class="action-buttons">
+                    <!-- Manual ID Input Button -->
+                    <button class="action-btn btn-enter-id" onclick="openManualInput()">
+                        <div class="btn-icon">
+                            <i class="fas fa-keyboard"></i>
+                        </div>
+                        <span>กรอกรหัส</span>
+                    </button>
+
+                    <!-- Camera Capture Button -->
+                    <label class="action-btn btn-camera">
+                        <div class="btn-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <span>ถ่ายรูป QR</span>
+                        <input type="file" id="qrCameraInput" accept="image/*" capture="environment"
+                            style="display: none;" onchange="processQRImage(this)">
+                    </label>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -934,20 +1390,230 @@
             modal.classList.add('show');
             qrForm.classList.remove('show');
 
+            // Calculate responsive qrbox size based on screen
+            const screenWidth = window.innerWidth;
+            const qrboxSize = Math.min(screenWidth - 80, 250);
+
             // Initialize QR Scanner
             html5QrcodeScanner = new Html5Qrcode("qr-reader");
 
+            // Try to start with back camera first
             html5QrcodeScanner.start(
                 { facingMode: "environment" },
                 {
                     fps: 10,
-                    qrbox: { width: 250, height: 250 }
+                    qrbox: { width: qrboxSize, height: qrboxSize },
+                    aspectRatio: 1.0
                 },
                 onScanSuccess
             ).catch(err => {
-                console.error("Error starting QR scanner:", err);
-                showToast('error', 'ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบการอนุญาตใช้งานกล้อง');
+                console.error("Back camera error:", err);
+                // Try front camera if back camera fails
+                html5QrcodeScanner.start(
+                    { facingMode: "user" },
+                    {
+                        fps: 10,
+                        qrbox: { width: qrboxSize, height: qrboxSize },
+                        aspectRatio: 1.0
+                    },
+                    onScanSuccess
+                ).catch(err2 => {
+                    console.error("Front camera error:", err2);
+                    // Try any available camera
+                    Html5Qrcode.getCameras().then(cameras => {
+                        if (cameras && cameras.length > 0) {
+                            html5QrcodeScanner.start(
+                                cameras[0].id,
+                                {
+                                    fps: 10,
+                                    qrbox: { width: qrboxSize, height: qrboxSize }
+                                },
+                                onScanSuccess
+                            ).catch(err3 => {
+                                console.error("Camera start error:", err3);
+                                showToast('error', 'ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบการอนุญาตใช้งานกล้องในเบราว์เซอร์');
+                                closeQRScanner();
+                            });
+                        } else {
+                            showToast('error', 'ไม่พบกล้องในอุปกรณ์นี้');
+                            closeQRScanner();
+                        }
+                    }).catch(err3 => {
+                        console.error("Get cameras error:", err3);
+                        showToast('error', 'ไม่สามารถเข้าถึงกล้องได้ กรุณาอนุญาตการใช้งานกล้องในการตั้งค่าเบราว์เซอร์');
+                        closeQRScanner();
+                    });
+                });
             });
+        }
+
+        // Process QR image from camera capture - Simple version that works!
+        function processQRImage(inputElement) {
+            if (!inputElement.files || !inputElement.files[0]) {
+                return;
+            }
+
+            const file = inputElement.files[0];
+            console.log('Processing file:', file.name, file.size, 'bytes');
+            showToast('info', 'กำลังอ่าน QR Code...');
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const img = new Image();
+
+                img.onload = function () {
+                    console.log('Image loaded:', img.width, 'x', img.height);
+
+                    // Create canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Resize to reasonable size for processing
+                    const maxSize = 800;
+                    let w = img.width;
+                    let h = img.height;
+
+                    if (w > maxSize || h > maxSize) {
+                        const scale = maxSize / Math.max(w, h);
+                        w = Math.round(w * scale);
+                        h = Math.round(h * scale);
+                    }
+
+                    canvas.width = w;
+                    canvas.height = h;
+
+                    // Draw image
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    // Get image data
+                    const imageData = ctx.getImageData(0, 0, w, h);
+                    console.log('Processing', w, 'x', h);
+
+                    // Try to decode QR
+                    try {
+                        const qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: "attemptBoth"
+                        });
+
+                        if (qrCode && qrCode.data) {
+                            console.log('QR found:', qrCode.data);
+                            processScannedQR(qrCode.data);
+                        } else {
+                            console.log('QR not found, trying smaller size...');
+                            // Try smaller size
+                            trySmaller(img, inputElement);
+                        }
+                    } catch (err) {
+                        console.error('jsQR error:', err);
+                        showToast('error', 'เกิดข้อผิดพลาดในการอ่าน QR');
+                    }
+
+                    inputElement.value = '';
+                };
+
+                img.onerror = function () {
+                    console.error('Image load error');
+                    showToast('error', 'ไม่สามารถโหลดรูปภาพได้');
+                    inputElement.value = '';
+                };
+
+                img.src = e.target.result;
+            };
+
+            reader.onerror = function () {
+                console.error('FileReader error');
+                showToast('error', 'ไม่สามารถอ่านไฟล์ได้');
+                inputElement.value = '';
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Try smaller sizes
+        function trySmaller(img, inputElement) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const sizes = [600, 400, 300];
+
+            for (let size of sizes) {
+                const scale = size / Math.max(img.width, img.height);
+                const w = Math.round(img.width * scale);
+                const h = Math.round(img.height * scale);
+
+                canvas.width = w;
+                canvas.height = h;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, w, h);
+                ctx.drawImage(img, 0, 0, w, h);
+
+                const imageData = ctx.getImageData(0, 0, w, h);
+
+                try {
+                    const qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "attemptBoth"
+                    });
+
+                    if (qrCode && qrCode.data) {
+                        console.log('QR found at size', size, ':', qrCode.data);
+                        processScannedQR(qrCode.data);
+                        return;
+                    }
+                } catch (err) {
+                    console.error('jsQR error at size', size);
+                }
+            }
+
+            showToast('error', 'ไม่พบ QR Code กรุณาถ่ายรูปให้ชัดและ QR อยู่กลางภาพ');
+        }
+
+        // Manual ID input functions with beautiful modal
+        function openManualInput() {
+            const modal = document.getElementById('manualInputModal');
+            const input = document.getElementById('manualStudentId');
+            modal.classList.add('show');
+            input.value = '';
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeManualInput() {
+            const modal = document.getElementById('manualInputModal');
+            modal.classList.remove('show');
+        }
+
+        function submitManualInput() {
+            const input = document.getElementById('manualStudentId');
+            const studentId = input.value.trim();
+
+            if (studentId) {
+                closeManualInput();
+                processScannedQR(studentId);
+            } else {
+                showToast('error', 'กรุณากรอกรหัสนักเรียน');
+                input.focus();
+            }
+        }
+
+        // Shared function to process scanned QR code
+        async function processScannedQR(decodedText) {
+            // Find student by ID from ALL students
+            const student = window.allStudents.find(s => s.id === decodedText);
+
+            if (student) {
+                // Open the QR form modal
+                const modal = document.getElementById('qrScannerModal');
+                modal.classList.add('show');
+
+                document.getElementById('qrStudentId').value = student.id;
+                document.getElementById('qrStudentName').value = student.name;
+                document.getElementById('qrReason').value = '';
+                document.getElementById('qrForm').classList.add('show');
+                showToast('success', `พบนักเรียน: ${student.name}`);
+            } else {
+                showToast('error', `ไม่พบข้อมูลนักเรียน รหัส: ${decodedText}`);
+            }
         }
 
         async function onScanSuccess(decodedText) {
@@ -960,19 +1626,8 @@
                 console.log('Scanner already stopped');
             }
 
-            // Find student by ID from ALL students (not just teacher's class)
-            const student = window.allStudents.find(s => s.id === decodedText);
-
-            if (student) {
-                document.getElementById('qrStudentId').value = student.id;
-                document.getElementById('qrStudentName').value = student.name;
-                document.getElementById('qrReason').value = '';
-                document.getElementById('qrForm').classList.add('show');
-                showToast('success', 'สแกนสำเร็จ!');
-            } else {
-                showToast('error', 'ไม่พบข้อมูลนักเรียน');
-                closeQRScanner();
-            }
+            // Use shared function
+            await processScannedQR(decodedText);
         }
 
         async function submitQRForm() {
@@ -1055,6 +1710,25 @@
         window.onload = init;
     </script>
 
+    <!-- Manual Input Modal -->
+    <div class="manual-input-modal" id="manualInputModal">
+        <div class="manual-input-content">
+            <div class="manual-input-icon">
+                <i class="fas fa-keyboard"></i>
+            </div>
+            <h3>กรอกรหัสนักเรียน</h3>
+            <p>พิมพ์รหัสนักเรียนที่ต้องการเพิ่ม/ลดคะแนน</p>
+            <input type="text" class="manual-input-field" id="manualStudentId" placeholder="12345" maxlength="10"
+                autocomplete="off" onkeypress="if(event.key === 'Enter') submitManualInput()">
+            <div class="manual-input-buttons">
+                <button class="btn-cancel" onclick="closeManualInput()">ยกเลิก</button>
+                <button class="btn-confirm" onclick="submitManualInput()">
+                    <i class="fas fa-check"></i> ยืนยัน
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- QR Scanner Modal -->
     <div class="qr-scanner-modal" id="qrScannerModal">
         <div class="qr-scanner-content">
@@ -1064,6 +1738,7 @@
             </div>
 
             <div id="qr-reader" style="width: 100%;"></div>
+            <div id="qr-reader-hidden" style="display: none;"></div>
 
             <div class="qr-form" id="qrForm">
                 <div class="qr-form-group">
