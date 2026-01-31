@@ -259,6 +259,119 @@
             background: rgba(255, 255, 255, 0.35);
         }
 
+        .btn-scan-qr {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-scan-qr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn-scan-qr:hover .btn-icon {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        /* QR Scanner Modal */
+        .qr-scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .qr-scanner-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .qr-scanner-box {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .qr-scanner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-scanner-header h3 {
+            font-size: 1.4rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-scanner-header h3 i {
+            color: #f59e0b;
+        }
+
+        .qr-scanner-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .qr-scanner-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        #qr-reader-container {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #qr-reader-container video {
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .qr-scanner-status {
+            padding: 12px;
+            border-radius: 10px;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .qr-scanner-status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .qr-scanner-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         /* Manual Input Modal */
         .manual-input-modal {
             position: fixed;
@@ -1190,6 +1303,14 @@
                         <input type="file" id="qrCameraInput" accept="image/*" capture="environment"
                             style="display: none;" onchange="processQRImage(this)">
                     </label>
+
+                    <!-- Live QR Scanner Button -->
+                    <button class="action-btn btn-scan-qr" onclick="openQRScanner()">
+                        <div class="btn-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <span>สแกน QR</span>
+                    </button>
                 </div>
             </div>
 
