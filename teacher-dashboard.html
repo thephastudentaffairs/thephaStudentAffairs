@@ -2011,7 +2011,8 @@
           const statusMap = {
             'normal': { text: 'กำลังศึกษาอยู่', class: 'status-normal' },
             'Absent': { text: 'ขาดเรียนนาน', class: 'status-absent' },
-            'moved': { text: 'ย้ายแล้ว', class: 'status-moved' }
+            'moved': { text: 'ย้ายแล้ว', class: 'status-moved' },
+            'notnormal': { text: 'พักการเรียน', class: 'status-moved' }
           };
           const statusInfo = statusMap[student.status] || { text: student.status, class: '' };
 
