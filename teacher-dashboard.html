@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>จัดการข้อมูลนักเรียน</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    // Authentication check - redirect to login if not authenticated as admin
+    (function () {
+      const currentUser = sessionStorage.getItem('currentUser');
+      if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const user = JSON.parse(currentUser);
+        if (user.role !== 'admin') {
+          window.location.href = 'index.html';
+          return;
+        }
+      } catch (e) {
+        window.location.href = 'index.html';
+        return;
+      }
+    })();
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Sarabun', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f56565, #e53e3e);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #ed8936, #dd6b20);
+      color: white;
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, #4299e1, #3182ce);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.85em;
+    }
+
+    .status-box {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .status-box.show {
+      display: block;
+    }
+
+    .status-success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .status-info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: inherit;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: #f7fafc;
+      font-weight: 600;
+      color: #4a5568;
+      position: sticky;
+      top: 0;
+    }
+
+    tbody tr:hover {
+      background: #f7fafc;
+    }
+
+    .score-input {
+      width: 80px;
+      padding: 6px 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 5px;
+      font-size: 1em;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .score-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .score-input.changed {
+      border-color: #ed8936;
+      background: #fffaf0;
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    .score-high {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .score-medium {
+      background: #feebc8;
+      color: #7c2d12;
+    }
+
+    .score-low {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85em;
+    }
+
+    .status-normal {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .status-absent {
+      background: #fed7d7;
+      color: #742a2a;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .adjust-input {
+      width: 70px;
+      padding: 6px 8px;
+      border: 2px solid #e2e8f0;
+      border-radius: 5px;
+      font-size: 0.9em;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .adjust-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .adjust-input.positive {
+      border-color: #48bb78;
+      background: #f0fff4;
+    }
+
+    .adjust-input.negative {
+      border-color: #f56565;
+      background: #fff5f5;
+    }
+
+    .score-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-result {
+      font-weight: 700;
+      font-size: 1.1em;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .score-result.changed {
+      color: #ed8936;
+    }
+
+    .upload-area {
+      border: 3px dashed #cbd5e0;
+      border-radius: 15px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f7fafc;
+    }
+
+    .upload-area:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+
+    .upload-area.dragover {
+      border-color: #667eea;
+      background: #e8ecff;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      animation: slideDown 0.3s;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .modal-header h3 {
+      color: #667eea;
+      font-size: 1.5em;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      color: #999;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .info-display {
+      background: #f7fafc;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #f7fafc;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-card .label {
+      color: #718096;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .stat-card .value {
+      color: #667eea;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    /* Search Input Container */
+    .search-input-container {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input-container input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: inherit;
+    }
+
+    .search-input-container input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #667eea;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-dropdown.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 12px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: #f7fafc;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item .student-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dropdown-item .student-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .dropdown-item .student-id {
+      font-size: 0.85em;
+      color: #718096;
+    }
+
+    .dropdown-item .student-class {
+      font-size: 0.85em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 3px 10px;
+      border-radius: 15px;
+    }
+
+    /* Class Filter */
+    .class-filter {
+      padding: 12px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1em;
+      font-family: inherit;
+      background: white;
+      cursor: pointer;
+      min-width: 120px;
+      color: #333;
+    }
+
+    .class-filter:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* Pagination */
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-top: 15px;
+      border-top: 2px solid #f0f0f0;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .pagination-info {
+      color: #718096;
+      font-size: 0.95em;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pagination-controls .btn {
+      background: #f7fafc;
+      color: #4a5568;
+      border: 1px solid #e2e8f0;
+      min-width: 40px;
+      justify-content: center;
+    }
+
+    .pagination-controls .btn:hover {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: transparent;
+    }
+
+    .pagination-controls .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .page-numbers {
+      display: flex;
+      gap: 5px;
+    }
+
+    .page-number {
+      padding: 8px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: #f7fafc;
+      color: #4a5568;
+    }
+
+    .page-number:hover {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: transparent;
+    }
+
+    .page-number.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: transparent;
+    }
+
+    .items-per-page {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #718096;
+    }
+
+    .items-per-page select {
+      padding: 8px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .items-per-page select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* Class Badge */
+    .class-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+
+      table {
+        font-size: 0.9em;
+      }
+
+      th,
+      td {
+        padding: 8px;
+      }
+
+      .pagination-container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .pagination-controls {
+        order: -1;
+      }
+    }
+
+    /* Notification Card */
+    .notification-card {
+      background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+      border-left: 5px solid #ed8936;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(237, 131, 54, 0.2);
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .notification-header h3 {
+      color: #c05621;
+      font-size: 1.3em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notification-badge {
+      background: #ed8936;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    .notification-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .notification-item {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+      animation: slideInNotification 0.4s ease-out;
+    }
+
+    @keyframes slideInNotification {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .notification-item:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .notification-info {
+      flex: 1;
+    }
+
+    .notification-student {
+      font-weight: 600;
+      color: #333;
+      font-size: 1.05em;
+      margin-bottom: 5px;
+    }
+
+    .notification-reason {
+      color: #718096;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+
+    .notification-meta {
+      display: flex;
+      gap: 15px;
+      font-size: 0.85em;
+      color: #a0aec0;
+    }
+
+    .notification-meta i {
+      margin-right: 5px;
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-complete {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9em;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-complete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+    }
+
+    .notification-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #a0aec0;
+    }
+
+    .notification-empty i {
+      font-size: 3em;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1><i class="fas fa-edit"></i> จัดการและแก้ไขคะแนนนักเรียน</h1>
+      <p>แก้ไขคะแนนได้โดยตรง พร้อมบันทึกอัตโนมัติ</p>
+    </div>
+
+    <!-- การแจ้งเตือน -->
+    <div class="notification-card" id="notificationCard" style="display: none;">
+      <div class="notification-header">
+        <h3>
+          <i class="fas fa-bell"></i>
+          การแจ้งเตือนจากครู
+        </h3>
+        <span class="notification-badge" id="notificationCount">0</span>
+      </div>
+      <div class="notification-list" id="notificationList">
+        <!-- Notifications will be rendered here -->
+      </div>
+    </div>
+
+    <!-- สถิติ -->
+    <div class="card">
+      <h2><i class="fas fa-chart-bar"></i> สถิติคะแนน</h2>
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="label">นักเรียนทั้งหมด</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">คะแนนเฉลี่ย</div>
+          <div class="value" id="statAvg">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">คะแนนสูง (≥80)</div>
+          <div class="value" id="statHigh">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">คะแนนต่ำ (<60)< /div>
+              <div class="value" id="statLow">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ตารางแก้ไขคะแนน -->
+      <div class="card">
+        <h2><i class="fas fa-table"></i> แก้ไขคะแนนนักเรียน</h2>
+
+        <div id="statusMessage" class="status-box"></div>
+
+        <div class="search-box">
+          <div class="search-input-container">
+            <input type="text" id="searchInput" placeholder="ค้นหาชื่อหรือรหัสนักเรียน...">
+            <div id="searchDropdown" class="search-dropdown"></div>
+          </div>
+          <select id="classFilter" class="class-filter" onchange="filterByClass()">
+            <option value="">ทุกห้อง</option>
+          </select>
+          <select id="reportMonth" class="class-filter">
+            <option value="1">มกราคม</option>
+            <option value="2">กุมภาพันธ์</option>
+            <option value="3">มีนาคม</option>
+            <option value="4">เมษายน</option>
+            <option value="5">พฤษภาคม</option>
+            <option value="6">มิถุนายน</option>
+            <option value="7">กรกฎาคม</option>
+            <option value="8">สิงหาคม</option>
+            <option value="9">กันยายน</option>
+            <option value="10">ตุลาคม</option>
+            <option value="11">พฤศจิกายน</option>
+            <option value="12">ธันวาคม</option>
+          </select>
+          <select id="academicYear" class="class-filter">
+            <option value="2567">2567</option>
+            <option value="2568">2568</option>
+            <option value="2569">2569</option>
+            <option value="2570">2570</option>
+          </select>
+          <button class="btn btn-success" onclick="exportToExcel()">
+            <i class="fas fa-file-excel"></i> ส่งออก Excel
+          </button>
+          <button class="btn btn-primary" onclick="loadData()">
+            <i class="fas fa-sync"></i> โหลดข้อมูล
+          </button>
+          <button class="btn btn-success" onclick="saveAll()">
+            <i class="fas fa-save"></i> บันทึกทั้งหมด
+          </button>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-info btn-sm" onclick="setAllScores(100)">
+            <i class="fas fa-star"></i> ตั้งเป็น 100 ทุกคน
+          </button>
+          <button class="btn btn-warning btn-sm" onclick="addToAll(5)">
+            <i class="fas fa-plus"></i> +5 ทุกคน
+          </button>
+          <button class="btn btn-warning btn-sm" onclick="addToAll(-5)">
+            <i class="fas fa-minus"></i> -5 ทุกคน
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="resetChanges()">
+            <i class="fas fa-undo"></i> ยกเลิกการเปลี่ยนแปลง
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ลำดับ</th>
+                <th>รหัส</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th>ห้องเรียน</th>
+                <th>สถานะ</th>
+                <th>คะแนนเดิม</th>
+                <th>ปรับ (+/-)</th>
+                <th>คะแนนใหม่</th>
+                <th>เครื่องมือ</th>
+              </tr>
+            </thead>
+            <tbody id="studentTable">
+              <tr>
+                <td colspan="9" style="text-align: center; padding: 40px;">
+                  <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #cbd5e0;"></i>
+                  <p style="margin-top: 10px; color: #a0aec0;">กำลังโหลดข้อมูล...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" id="paginationContainer">
+          <div class="pagination-info">
+            แสดง <span id="showingFrom">0</span> - <span id="showingTo">0</span> จาก <span id="showingTotal">0</span>
+            รายการ
+          </div>
+          <div class="pagination-controls">
+            <button class="btn btn-sm" onclick="goToPage(1)" id="btnFirst"><i
+                class="fas fa-angle-double-left"></i></button>
+            <button class="btn btn-sm" onclick="goToPage(currentPage - 1)" id="btnPrev"><i
+                class="fas fa-angle-left"></i></button>
+            <div class="page-numbers" id="pageNumbers"></div>
+            <button class="btn btn-sm" onclick="goToPage(currentPage + 1)" id="btnNext"><i
+                class="fas fa-angle-right"></i></button>
+            <button class="btn btn-sm" onclick="goToPage(totalPages)" id="btnLast"><i
+                class="fas fa-angle-double-right"></i></button>
+          </div>
+          <div class="items-per-page">
+            <label>แสดง:</label>
+            <select id="itemsPerPage" onchange="changeItemsPerPage()">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>รายการ</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- จัดการไฟล์ -->
+      <div class="card">
+        <h2><i class="fas fa-file-export"></i> จัดการไฟล์</h2>
+        <div class="btn-group">
+          <button class="btn btn-success" onclick="downloadJSON()">
+            <i class="fas fa-download"></i> ดาวน์โหลด JSON
+          </button>
+          <button class="btn btn-warning" onclick="downloadBackup()">
+            <i class="fas fa-history"></i> ดาวน์โหลดไฟล์สำรอง (คะแนน 100)
+          </button>
+        </div>
+      </div>
+
+      <!-- อัปโหลด Excel -->
+      <div class="card">
+        <h2><i class="fas fa-file-excel"></i> อัปโหลดไฟล์ Excel และแปลงเป็น JSON</h2>
+        <p style="color: #718096; margin-bottom: 15px;">เลือกไฟล์ Excel (.xlsx) ที่มีคอลัมน์: id, name, password,
+          status, score, class (ห้องเรียน)</p>
+
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="excelFile" accept=".xlsx,.xls" style="display: none;"
+            onchange="handleExcelUpload(event)">
+          <div class="upload-content" onclick="document.getElementById('excelFile').click()">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3em; color: #667eea; margin-bottom: 15px;"></i>
+            <p style="font-size: 1.1em; font-weight: 600; color: #333;">คลิกเพื่อเลือกไฟล์ Excel</p>
+            <p style="color: #718096;">หรือลากไฟล์มาที่นี่</p>
+          </div>
+        </div>
+
+        <div id="excelStatus" class="status-box" style="margin-top: 15px;"></div>
+
+        <div id="excelPreview" style="display: none; margin-top: 20px;">
+          <h3 style="margin-bottom: 15px;"><i class="fas fa-eye"></i> ตัวอย่างข้อมูล (<span id="previewCount">0</span>
+            รายการ)</h3>
+          <div class="table-container" style="max-height: 300px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>ลำดับ</th>
+                  <th>รหัส (id)</th>
+                  <th>ชื่อ (name)</th>
+                  <th>ห้องเรียน (class)</th>
+                  <th>รหัสผ่าน (password)</th>
+                  <th>สถานะ (status)</th>
+                  <th>คะแนน (score)</th>
+                </tr>
+              </thead>
+              <tbody id="excelPreviewTable"></tbody>
+            </table>
+          </div>
+
+          <div class="form-group" style="margin-top: 20px;">
+            <label for="jsonFileName">ชื่อไฟล์ JSON ที่ต้องการบันทึก:</label>
+            <input type="text" id="jsonFileName" placeholder="เช่น students.json" style="margin-top: 8px;">
+          </div>
+
+          <div class="btn-group" style="margin-top: 15px;">
+            <button class="btn btn-success" onclick="downloadExcelAsJSON()">
+              <i class="fas fa-download"></i> ดาวน์โหลดเป็น JSON
+            </button>
+            <button class="btn btn-primary" onclick="useExcelData()">
+              <i class="fas fa-check"></i> ใช้ข้อมูลนี้ในตาราง
+            </button>
+            <button class="btn btn-danger" onclick="clearExcelData()">
+              <i class="fas fa-times"></i> ยกเลิก
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal แก้ไขนักเรียน -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-user-edit"></i> แก้ไขข้อมูลนักเรียน</h3>
+          <button class="close-btn" onclick="closeEditModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label>รหัสนักเรียน</label>
+          <div class="info-display" id="modalId">-</div>
+        </div>
+
+        <div class="form-group">
+          <label>ชื่อ-นามสกุล</label>
+          <div class="info-display" id="modalName">-</div>
+        </div>
+
+        <div class="form-group">
+          <label>คะแนนเดิม</label>
+          <div class="info-display" id="modalOldScore">-</div>
+        </div>
+
+        <div class="form-group">
+          <label>คะแนนใหม่ (0-100)</label>
+          <input type="number" id="modalScore" min="0" max="100" placeholder="กรอกคะแนนใหม่">
+        </div>
+
+        <div class="form-group">
+          <label>เหตุผล</label>
+          <textarea id="modalReason" rows="3" placeholder="ระบุเหตุผล (ถ้ามี)"></textarea>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-success" onclick="saveEdit()">
+            <i class="fas fa-save"></i> บันทึก
+          </button>
+          <button class="btn btn-danger" onclick="closeEditModal()">
+            <i class="fas fa-times"></i> ยกเลิก
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let studentsData = [];
+      let originalData = [];
+      let filteredData = [];
+      let currentEditIndex = -1;
+
+      // Pagination variables
+      let currentPage = 1;
+      let itemsPerPage = 20;
+      let totalPages = 1;
+      let selectedClass = '';
+
+      // Notification variables
+      let notificationsData = [];
+      let notificationRefreshInterval = null;
+
+      // โหลดการแจ้งเตือน
+      async function loadNotifications() {
+        try {
+          const response = await fetch('/toadmin.json');
+          const data = await response.json();
+
+          // กรองเฉพาะที่ยังไม่ได้ดำเนินการ
+          notificationsData = data.filter(item => item.status !== 'completed');
+
+          renderNotifications();
+        } catch (error) {
+          console.error('Error loading notifications:', error);
+          notificationsData = [];
+          renderNotifications();
+        }
+      }
+
+      // แสดงการแจ้งเตือน
+      function renderNotifications() {
+        const card = document.getElementById('notificationCard');
+        const list = document.getElementById('notificationList');
+        const count = document.getElementById('notificationCount');
+
+        if (notificationsData.length === 0) {
+          card.style.display = 'none';
+          return;
+        }
+
+        card.style.display = 'block';
+        count.textContent = notificationsData.length;
+
+        list.innerHTML = notificationsData.map((item, index) => {
+          const timestamp = formatDateTime(item.timestamp);
+          return `
+            <div class="notification-item">
+              <div class="notification-info">
+                <div class="notification-student">
+                  ${item.student_id} - ${item.student_name}
+                </div>
+                <div class="notification-reason">
+                  <i class="fas fa-comment-dots"></i> ${item.reason}
+                </div>
+                <div class="notification-meta">
+                  <span><i class="fas fa-user"></i> ${item.teacher}</span>
+                  <span><i class="fas fa-clock"></i> ${timestamp}</span>
+                </div>
+              </div>
+              <div class="notification-actions">
+                <button class="btn-complete" onclick="markAsCompleted(${index})">
+                  <i class="fas fa-check"></i> ดำเนินการแล้ว
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // ทำเครื่องหมายว่าดำเนินการแล้ว
+      async function markAsCompleted(index) {
+        try {
+          // Get current user
+          const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+          const adminName = currentUser ? currentUser.name : 'Admin';
+
+          // Find the original index in toadmin.json
+          const response = await fetch('/toadmin.json');
+          const allData = await response.json();
+
+          // Find the actual index of this notification in the full array
+          const notification = notificationsData[index];
+          const actualIndex = allData.findIndex(item =>
+            item.student_id === notification.student_id &&
+            item.timestamp === notification.timestamp
+          );
+
+          if (actualIndex === -1) {
+            showStatus('error', 'ไม่พบข้อมูลการแจ้งเตือน');
+            return;
+          }
+
+          // ลบออกจาก array ทันทีและ re-render (ไม่ต้องรอ server)
+          notificationsData.splice(index, 1);
+          renderNotifications();
+
+          // Send update to server in background
+          const updateResponse = await fetch('/api/update-toadmin-status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              index: actualIndex,
+              admin_name: adminName
+            })
+          });
+
+          const result = await updateResponse.json();
+
+          if (result.status === 'success') {
+            showStatus('success', 'ดำเนินการเรียบร้อยแล้ว');
+          } else {
+            // ถ้า server error ให้โหลดข้อมูลใหม่เพื่อ sync
+            showStatus('error', 'เกิดข้อผิดพลาด: ' + (result.message || 'Unknown error'));
+            loadNotifications();
+          }
+        } catch (error) {
+          console.error('Error marking as completed:', error);
+          showStatus('error', 'เกิดข้อผิดพลาดในการดำเนินการ');
+          // ถ้าเกิด error ให้โหลดข้อมูลใหม่เพื่อ sync
+          loadNotifications();
+        }
+      }
+
+      // แปลงวันที่และเวลา
+      function formatDateTime(isoString) {
+        if (!isoString) return '-';
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'เมื่อสักครู่';
+        if (diffMins < 60) return `${diffMins} นาทีที่แล้ว`;
+        if (diffHours < 24) return `${diffHours} ชั่วโมงที่แล้ว`;
+        if (diffDays < 7) return `${diffDays} วันที่แล้ว`;
+
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear() + 543; // พ.ศ.
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+      }
+
+      // แปลง class code เป็นชื่อห้องเรียน (201 -> ม.2/1)
+      function formatClassName(classCode) {
+        if (!classCode) return '-';
+        const codeStr = String(classCode);
+        if (codeStr.length >= 2) {
+          const grade = codeStr.charAt(0); // ชั้น
+          const room = codeStr.substring(1); // ห้อง
+          return `ม.${grade}/${parseInt(room)}`;
+        }
+        return codeStr;
+      }
+
+      // ดึงรายการห้องเรียนทั้งหมด
+      function getUniqueClasses() {
+        const classes = new Set();
+        studentsData.forEach(s => {
+          if (s.class) classes.add(s.class);
+        });
+        return Array.from(classes).sort((a, b) => a - b);
+      }
+
+      // อัปเดต dropdown ห้องเรียน
+      function updateClassFilter() {
+        const select = document.getElementById('classFilter');
+        const classes = getUniqueClasses();
+
+        select.innerHTML = '<option value="">ทุกห้อง</option>';
+        classes.forEach(classCode => {
+          const option = document.createElement('option');
+          option.value = classCode;
+          option.textContent = formatClassName(classCode);
+          select.appendChild(option);
+        });
+      }
+
+      // กรองตามห้องเรียน
+      function filterByClass() {
+        selectedClass = document.getElementById('classFilter').value;
+        currentPage = 1;
+        applyFilters();
+      }
+
+      // Apply all filters (search + class)
+      function applyFilters() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+
+        filteredData = studentsData.filter(s => {
+          const matchSearch = s.name.toLowerCase().includes(query) || s.id.includes(query);
+          const matchClass = !selectedClass || String(s.class) === selectedClass;
+          return matchSearch && matchClass;
+        });
+
+        updatePagination();
+        displayTable();
+      }
+
+      // Update pagination
+      function updatePagination() {
+        totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        if (totalPages < 1) totalPages = 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        renderPagination();
+      }
+
+      // Render pagination controls
+      function renderPagination() {
+        const from = filteredData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+        const to = Math.min(currentPage * itemsPerPage, filteredData.length);
+
+        document.getElementById('showingFrom').textContent = from;
+        document.getElementById('showingTo').textContent = to;
+        document.getElementById('showingTotal').textContent = filteredData.length;
+
+        // Page numbers
+        const pageNumbersDiv = document.getElementById('pageNumbers');
+        pageNumbersDiv.innerHTML = '';
+
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (currentPage <= 3) {
+          endPage = Math.min(5, totalPages);
+        }
+        if (currentPage >= totalPages - 2) {
+          startPage = Math.max(1, totalPages - 4);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+          const pageSpan = document.createElement('span');
+          pageSpan.className = 'page-number' + (i === currentPage ? ' active' : '');
+          pageSpan.textContent = i;
+          pageSpan.onclick = () => goToPage(i);
+          pageNumbersDiv.appendChild(pageSpan);
+        }
+
+        // Update button states
+        document.getElementById('btnFirst').disabled = currentPage === 1;
+        document.getElementById('btnPrev').disabled = currentPage === 1;
+        document.getElementById('btnNext').disabled = currentPage === totalPages;
+        document.getElementById('btnLast').disabled = currentPage === totalPages;
+      }
+
+      // Go to specific page
+      function goToPage(page) {
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        displayTable();
+        renderPagination();
+      }
+
+      // Change items per page
+      function changeItemsPerPage() {
+        itemsPerPage = parseInt(document.getElementById('itemsPerPage').value);
+        currentPage = 1;
+        updatePagination();
+        displayTable();
+      }
+
+      // Search dropdown
+      function showSearchDropdown(results) {
+        const dropdown = document.getElementById('searchDropdown');
+
+        if (results.length === 0) {
+          dropdown.classList.remove('show');
+          return;
+        }
+
+        dropdown.innerHTML = results.slice(0, 8).map(student => `
+          <div class="dropdown-item" onclick="selectStudent('${student.id}')">
+            <div class="student-info">
+              <span class="student-name">${student.name}</span>
+              <span class="student-id">รหัส: ${student.id}</span>
+            </div>
+            <span class="student-class">${formatClassName(student.class)}</span>
+          </div>
+        `).join('');
+
+        dropdown.classList.add('show');
+      }
+
+      function selectStudent(studentId) {
+        document.getElementById('searchInput').value = studentId;
+        document.getElementById('searchDropdown').classList.remove('show');
+        applyFilters();
+      }
+
+      // Hide dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-input-container')) {
+          document.getElementById('searchDropdown')?.classList.remove('show');
+        }
+      });
+
+      // โหลดข้อมูล
+      async function loadData() {
+        const statusMsg = document.getElementById('statusMessage');
+        statusMsg.className = 'status-box show status-info';
+        statusMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูล...';
+
+        const files = ['user2.1.json', 'user2_1.json'];
+        let foundFile = null;
+
+        for (let file of files) {
+          try {
+            const response = await fetch(file);
+            if (response.ok) {
+              foundFile = file;
+              const data = await response.json();
+              studentsData = JSON.parse(JSON.stringify(data)); // Copy
+              originalData = JSON.parse(JSON.stringify(data)); // Backup
+              filteredData = [...studentsData];
+              break;
+            }
+          } catch (e) {
+            console.log(`ไม่พบ ${file}`);
+          }
+        }
+
+        if (foundFile && studentsData.length > 0) {
+          statusMsg.className = 'status-box show status-success';
+          statusMsg.innerHTML = `<i class="fas fa-check-circle"></i> โหลดข้อมูลสำเร็จจากไฟล์: <strong>${foundFile}</strong> (${studentsData.length} คน)`;
+          updateClassFilter();
+          updateStats();
+          currentPage = 1;
+          updatePagination();
+          displayTable();
+        } else {
+          statusMsg.className = 'status-box show status-error';
+          statusMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ไม่พบไฟล์ข้อมูล! กรุณาตรวจสอบว่ามีไฟล์ user2.1.json หรือ user2_1.json';
+        }
+      }
+
+      // อัปเดตสถิติ
+      function updateStats() {
+        const total = studentsData.length;
+        const avg = studentsData.reduce((sum, s) => sum + s.score, 0) / total;
+        const high = studentsData.filter(s => s.score >= 80).length;
+        const low = studentsData.filter(s => s.score < 60).length;
+
+        document.getElementById('statTotal').textContent = total;
+        document.getElementById('statAvg').textContent = avg.toFixed(1);
+        document.getElementById('statHigh').textContent = high;
+        document.getElementById('statLow').textContent = low;
+      }
+
+      // แสดงตาราง
+      function displayTable() {
+        const tbody = document.getElementById('studentTable');
+
+        if (filteredData.length === 0) {
+          tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 40px; color: #a0aec0;">
+              <i class="fas fa-inbox" style="font-size: 3em; margin-bottom: 10px; display: block;"></i>
+              ไม่พบข้อมูล
+            </td>
+          </tr>
+        `;
+          return;
+        }
+
+        // Pagination slice
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageData = filteredData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = pageData.map((student, index) => {
+          const actualIndex = studentsData.findIndex(s => s.id === student.id);
+          const originalScore = originalData.find(s => s.id === student.id)?.score || student.score;
+          const isChanged = student.score !== originalScore;
+          const scoreClass = student.score >= 80 ? 'score-high' : student.score < 60 ? 'score-low' : 'score-medium';
+          const diff = student.score - originalScore;
+          const displayIndex = startIndex + index + 1;
+
+          // แปลสถานะเป็นภาษาไทย
+          const statusMap = {
+            'normal': { text: 'กำลังศึกษาอยู่', class: 'status-normal' },
+            'Absent': { text: 'ขาดเรียนนาน', class: 'status-absent' },
+            'moved': { text: 'ย้ายแล้ว', class: 'status-moved' }
+          };
+          const statusInfo = statusMap[student.status] || { text: student.status, class: '' };
+
+          return `
+          <tr>
+            <td>${displayIndex}</td>
+            <td>${student.id}</td>
+            <td>${student.name}</td>
+            <td><span class="class-badge">${formatClassName(student.class)}</span></td>
+            <td><span class="status-badge ${statusInfo.class}">${statusInfo.text}</span></td>
+            <td><span class="score-badge ${scoreClass}">${originalScore}</span></td>
+            <td>
+              <input 
+                type="text" 
+                class="adjust-input" 
+                id="adjust-${actualIndex}"
+                placeholder="+10 / -5"
+                onchange="adjustScore(${actualIndex}, this.value)"
+                onkeypress="if(event.key==='Enter') this.blur()"
+              >
+            </td>
+            <td>
+              <span class="score-result ${isChanged ? 'changed' : ''}">${student.score}</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-primary btn-sm" onclick="openEditModal(${actualIndex})" title="แก้ไข">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-success btn-sm" onclick="quickSave(${actualIndex})" title="บันทึกเดี่ยว">
+                  <i class="fas fa-check"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+        }).join('');
+      }
+
+      // ปรับคะแนนด้วย +/-
+      function adjustScore(index, value) {
+        const input = document.getElementById(`adjust-${index}`);
+        const trimmed = value.trim();
+
+        if (!trimmed) {
+          input.className = 'adjust-input';
+          return;
+        }
+
+        let adjustment = 0;
+
+        // รองรับรูปแบบ +10, -5, 10 (บวกโดยปริยาย)
+        if (trimmed.startsWith('+')) {
+          adjustment = parseInt(trimmed.substring(1));
+          input.className = 'adjust-input positive';
+        } else if (trimmed.startsWith('-')) {
+          adjustment = -parseInt(trimmed.substring(1));
+          input.className = 'adjust-input negative';
+        } else {
+          adjustment = parseInt(trimmed);
+          input.className = adjustment >= 0 ? 'adjust-input positive' : 'adjust-input negative';
+        }
+
+        if (isNaN(adjustment)) {
+          alert('กรุณากรอกตัวเลข เช่น +10 หรือ -5');
+          input.value = '';
+          input.className = 'adjust-input';
+          return;
+        }
+
+        // Prompt for reason if deducting score
+        if (adjustment < 0) {
+          const reason = prompt('ระบุเหตุผลการหักคะแนน:');
+          if (reason === null) { // Cancelled
+            input.value = '';
+            input.className = 'adjust-input';
+            return;
+          }
+          studentsData[index].logReason = reason || 'หักคะแนนพฤติกรรม';
+        } else if (adjustment > 0) {
+          studentsData[index].logReason = 'เพิ่มคะแนนพฤติกรรม';
+        }
+
+        const originalScore = originalData.find(s => s.id === studentsData[index].id)?.score || studentsData[index].score;
+        const newScore = originalScore + adjustment;
+
+        // ไม่จำกัดขั้นต่ำ/สูงสุด ให้เกิน 100 หรือติดลบได้
+        studentsData[index].score = newScore;
+        updateStats();
+        displayTable();
+      }
+
+      // อัปเดตคะแนน
+      function updateScore(index, newScore) {
+        const score = parseInt(newScore);
+        if (isNaN(score) || score < 0 || score > 100) {
+          alert('กรุณากรอกคะแนน 0-100');
+          displayTable();
+          return;
+        }
+        studentsData[index].score = score;
+        updateStats();
+        displayTable();
+      }
+
+      // ตั้งคะแนนทุกคน
+      function setAllScores(score) {
+        if (!confirm(`ต้องการตั้งคะแนนเป็น ${score} ทุกคนใช่หรือไม่?`)) return;
+
+        studentsData.forEach(s => s.score = score);
+        updateStats();
+        displayTable();
+
+        showMessage('success', `ตั้งคะแนนเป็น ${score} ทุกคนแล้ว`);
+      }
+
+      // เพิ่ม/ลดคะแนนทุกคน
+      function addToAll(amount) {
+        const action = amount > 0 ? 'เพิ่ม' : 'ลด';
+        if (!confirm(`ต้องการ${action}คะแนน ${Math.abs(amount)} ทุกคนใช่หรือไม่?`)) return;
+
+        studentsData.forEach(s => {
+          s.score = Math.max(0, Math.min(100, s.score + amount));
+        });
+        updateStats();
+        displayTable();
+
+        showMessage('success', `${action}คะแนน ${Math.abs(amount)} ทุกคนแล้ว`);
+      }
+
+      // ยกเลิกการเปลี่ยนแปลง
+      function resetChanges() {
+        if (!confirm('ต้องการยกเลิกการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?')) return;
+
+        studentsData = JSON.parse(JSON.stringify(originalData));
+        filteredData = [...studentsData];
+        updateStats();
+        displayTable();
+
+        showMessage('info', 'ยกเลิกการเปลี่ยนแปลงแล้ว');
+      }
+
+      // เปิด Modal แก้ไข
+      function openEditModal(index) {
+        currentEditIndex = index;
+        const student = studentsData[index];
+        const originalScore = originalData.find(s => s.id === student.id)?.score || student.score;
+
+        document.getElementById('modalId').textContent = student.id;
+        document.getElementById('modalName').textContent = student.name;
+        document.getElementById('modalOldScore').textContent = originalScore;
+        document.getElementById('modalScore').value = student.score;
+        document.getElementById('modalReason').value = '';
+
+        document.getElementById('editModal').classList.add('show');
+      }
+
+      function closeEditModal() {
+        document.getElementById('editModal').classList.remove('show');
+        currentEditIndex = -1;
+      }
+
+      // บันทึกจาก Modal
+      function saveEdit() {
+        const newScore = parseInt(document.getElementById('modalScore').value);
+        const reason = document.getElementById('modalReason').value.trim();
+
+        if (isNaN(newScore) || newScore < 0 || newScore > 100) {
+          alert('กรุณากรอกคะแนน 0-100');
+          return;
+        }
+
+        studentsData[currentEditIndex].score = newScore;
+
+        if (reason) {
+          if (!studentsData[currentEditIndex].history) {
+            studentsData[currentEditIndex].history = [];
+          }
+          studentsData[currentEditIndex].history.push({
+            date: new Date().toISOString(),
+            score: newScore,
+            reason: reason
+          });
+        }
+
+        updateStats();
+        displayTable();
+        closeEditModal();
+
+        showMessage('success', 'แก้ไขคะแนนสำเร็จ');
+      }
+
+      // บันทึกเดี่ยว
+      async function quickSave(index) {
+        const student = studentsData[index];
+
+        try {
+          const response = await fetch('/api/save-score', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id: student.id,
+              score: student.score,
+              reason: student.logReason || 'แก้ไขคะแนน'
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.status === 'success') {
+            originalData[index].score = student.score;
+            // Clear the reason after save
+            delete student.logReason;
+
+            showMessage('success', `บันทึกคะแนน ${student.name} สำเร็จ`);
+            displayTable();
+          } else {
+            showMessage('error', 'บันทึกไม่สำเร็จ: ' + result.message);
+          }
+        } catch (e) {
+          showMessage('error', 'ไม่สามารถเชื่อมต่อ Server ได้ กรุณาตรวจสอบว่า Node.js Server ทำงานอยู่');
+        }
+      }
+
+      // บันทึกทั้งหมด
+      async function saveAll() {
+        if (!confirm('ต้องการบันทึกการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?')) return;
+
+        const statusMsg = document.getElementById('statusMessage');
+        statusMsg.className = 'status-box show status-info';
+        statusMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+        try {
+          const response = await fetch('/api/save-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(studentsData)
+          });
+
+          const result = await response.json();
+
+          if (result.status === 'success') {
+            originalData = JSON.parse(JSON.stringify(studentsData));
+            statusMsg.className = 'status-box show status-success';
+            statusMsg.innerHTML = `<i class="fas fa-check-circle"></i> บันทึกสำเร็จ! (${result.students} คน)`;
+            displayTable();
+          } else {
+            statusMsg.className = 'status-box show status-error';
+            statusMsg.innerHTML = `<i class="fas fa-times-circle"></i> บันทึกไม่สำเร็จ: ${result.message}`;
+          }
+        } catch (e) {
+          statusMsg.className = 'status-box show status-error';
+          statusMsg.innerHTML = `
+          <i class="fas fa-times-circle"></i> ไม่สามารถเชื่อมต่อ Server ได้<br>
+          <small>วิธีแก้: รัน node server.js ก่อน หรือดาวน์โหลด JSON แล้วอัปโหลดทับไฟล์เดิม</small>
+        `;
+        }
+      }
+
+      // ดาวน์โหลด JSON
+      function downloadJSON() {
+        const dataStr = JSON.stringify(studentsData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        a.href = url;
+        a.download = `user2.1_edited_${timestamp}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showMessage('success', 'ดาวน์โหลดไฟล์สำเร็จ');
+      }
+
+      // ดาวน์โหลดไฟล์สำรอง
+      function downloadBackup() {
+        const backupData = originalData.map(s => ({ ...s, score: 100 }));
+        const dataStr = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'user2.1_backup_100.json';
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showMessage('success', 'ดาวน์โหลดไฟล์สำรอง (คะแนน 100 ทุกคน)');
+      }
+
+      // ค้นหา
+      document.getElementById('searchInput')?.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+
+        // Show dropdown suggestions
+        if (query.length >= 1) {
+          const suggestions = studentsData.filter(s =>
+            s.name.toLowerCase().includes(query) ||
+            s.id.includes(query)
+          );
+          showSearchDropdown(suggestions);
+        } else {
+          document.getElementById('searchDropdown').classList.remove('show');
+        }
+
+        // Apply filters with pagination reset
+        currentPage = 1;
+        applyFilters();
+      });
+
+      // =====================================================
+      // Excel Export Function
+      // =====================================================
+
+      const thaiMonths = [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+        'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+        'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+      ];
+
+      function exportToExcel() {
+        if (filteredData.length === 0) {
+          alert('ไม่มีข้อมูลที่จะส่งออก');
+          return;
+        }
+
+        showMessage('info', 'กำลังสร้างไฟล์ Excel...');
+
+        try {
+          // Get selected month and year
+          const monthSelect = document.getElementById('reportMonth');
+          const yearSelect = document.getElementById('academicYear');
+          const selectedMonthValue = monthSelect ? monthSelect.value : (new Date().getMonth() + 1);
+          const selectedYear = yearSelect ? yearSelect.value : '2568';
+          const selectedMonthName = thaiMonths[parseInt(selectedMonthValue) - 1];
+
+          // Get class name
+          const selectedClassName = selectedClass ? formatClassName(selectedClass) : 'ทุกห้อง';
+
+          // Calculate statistics
+          const avgScore = filteredData.reduce((sum, s) => sum + s.score, 0) / filteredData.length;
+          const highScore = filteredData.filter(s => s.score >= 80).length;
+          const lowScore = filteredData.filter(s => s.score < 60).length;
+
+          // Create workbook
+          const wb = XLSX.utils.book_new();
+
+          // Prepare data for Excel
+          const excelData = [];
+
+          // Title rows
+          excelData.push(['รายงานคะแนนพฤติกรรมนักเรียนโรงเรียนเทพา']);
+          excelData.push([`ประจำเดือน${selectedMonthName} ปีการศึกษา ${selectedYear}`]);
+          excelData.push([`ห้องเรียน: ${selectedClassName}`]);
+          excelData.push([]); // Empty row
+
+          // Table headers
+          excelData.push(['ลำดับ', 'รหัส', 'ชื่อ-นามสกุล', 'ห้อง', 'คะแนน']);
+
+          // Table data
+          filteredData.forEach((student, index) => {
+            excelData.push([
+              index + 1,
+              student.id,
+              student.name,
+              formatClassName(student.class),
+              student.score
+            ]);
+          });
+
+          // Empty row before summary
+          excelData.push([]);
+
+          // Summary
+          excelData.push(['สรุปข้อมูล']);
+          excelData.push(['จำนวนนักเรียนทั้งหมด:', `${filteredData.length} คน`]);
+          excelData.push(['คะแนนเฉลี่ย:', `${avgScore.toFixed(1)} คะแนน`]);
+          excelData.push(['คะแนนสูง (≥80):', `${highScore} คน`]);
+          excelData.push(['คะแนนต่ำ (<60):', `${lowScore} คน`]);
+
+          // Create worksheet
+          const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+          // Set column widths
+          ws['!cols'] = [
+            { wch: 8 },  // ลำดับ
+            { wch: 12 }, // รหัส
+            { wch: 30 }, // ชื่อ-นามสกุล
+            { wch: 10 }, // ห้อง
+            { wch: 10 }  // คะแนน
+          ];
+
+          // Merge cells for title
+          ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }, // Title row
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }, // Subtitle row
+            { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }  // Class info row
+          ];
+
+          // Add worksheet to workbook
+          XLSX.utils.book_append_sheet(wb, ws, 'รายงานคะแนน');
+
+          // Generate filename
+          const classFileStr = selectedClass ? `_${selectedClassName.replace('/', '-')}` : '_all';
+          const filename = `รายงานคะแนน_${selectedMonthName}_${selectedYear}${classFileStr}.xlsx`;
+
+          // Save file
+          XLSX.writeFile(wb, filename);
+
+          showMessage('success', `ส่งออก Excel สำเร็จ! (${filteredData.length} รายการ)`);
+
+        } catch (error) {
+          console.error('Excel Export Error:', error);
+          showMessage('error', 'เกิดข้อผิดพลาดในการสร้าง Excel: ' + error.message);
+        }
+      }
+
+      // แสดงข้อความ
+      function showMessage(type, message) {
+        const statusMsg = document.getElementById('statusMessage');
+        const icons = {
+          success: 'check-circle',
+          error: 'times-circle',
+          info: 'info-circle'
+        };
+
+        statusMsg.className = `status-box show status-${type}`;
+        statusMsg.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${message}`;
+
+        setTimeout(() => {
+          statusMsg.classList.remove('show');
+        }, 5000);
+      }
+
+      // =====================================================
+      // Excel Upload Functions
+      // =====================================================
+      let excelData = [];
+      let uploadedFileName = '';
+
+      // Handle Excel file upload
+      function handleExcelUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        uploadedFileName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+        const statusBox = document.getElementById('excelStatus');
+
+        statusBox.className = 'status-box show status-info';
+        statusBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังอ่านไฟล์ Excel...';
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            // Get first sheet
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+
+            // Convert to JSON
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            if (jsonData.length === 0) {
+              statusBox.className = 'status-box show status-error';
+              statusBox.innerHTML = '<i class="fas fa-times-circle"></i> ไฟล์ไม่มีข้อมูล';
+              return;
+            }
+
+            // Validate and normalize data
+            excelData = jsonData.map(row => ({
+              id: String(row.id || row.รหัส || ''),
+              name: String(row.name || row.ชื่อ || row['ชื่อ-นามสกุล'] || ''),
+              password: String(row.password || row.รหัสผ่าน || row.id || row.รหัส || ''),
+              status: String(row.status || row.สถานะ || 'normal'),
+              score: parseInt(row.score || row.คะแนน || 100) || 100,
+              class: parseInt(row.class || row.ห้องเรียน || row.ห้อง || '') || null
+            }));
+
+            // Update UI
+            document.getElementById('jsonFileName').value = uploadedFileName + '.json';
+            document.getElementById('previewCount').textContent = excelData.length;
+
+            // Display preview table
+            const tbody = document.getElementById('excelPreviewTable');
+            tbody.innerHTML = excelData.slice(0, 10).map((s, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${s.id}</td>
+                <td>${s.name}</td>
+                <td><span class="class-badge">${formatClassName(s.class)}</span></td>
+                <td>${s.password}</td>
+                <td>${s.status}</td>
+                <td>${s.score}</td>
+              </tr>
+            `).join('');
+
+            if (excelData.length > 10) {
+              tbody.innerHTML += `<tr><td colspan="7" style="text-align:center; color:#718096;">... และอีก ${excelData.length - 10} รายการ</td></tr>`;
+            }
+
+            document.getElementById('excelPreview').style.display = 'block';
+
+            statusBox.className = 'status-box show status-success';
+            statusBox.innerHTML = `<i class="fas fa-check-circle"></i> อ่านไฟล์สำเร็จ: <strong>${file.name}</strong> (${excelData.length} รายการ)`;
+
+          } catch (err) {
+            console.error(err);
+            statusBox.className = 'status-box show status-error';
+            statusBox.innerHTML = '<i class="fas fa-times-circle"></i> ไม่สามารถอ่านไฟล์ได้: ' + err.message;
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      // Download Excel data as JSON
+      function downloadExcelAsJSON() {
+        if (excelData.length === 0) {
+          alert('ไม่มีข้อมูล');
+          return;
+        }
+
+        let fileName = document.getElementById('jsonFileName').value.trim();
+        if (!fileName) fileName = 'students.json';
+        if (!fileName.endsWith('.json')) fileName += '.json';
+
+        const dataStr = JSON.stringify(excelData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        document.getElementById('excelStatus').className = 'status-box show status-success';
+        document.getElementById('excelStatus').innerHTML = `<i class="fas fa-check-circle"></i> ดาวน์โหลด ${fileName} สำเร็จ!`;
+      }
+
+      // Use Excel data in the table
+      function useExcelData() {
+        if (excelData.length === 0) {
+          alert('ไม่มีข้อมูล');
+          return;
+        }
+
+        if (!confirm('ต้องการใช้ข้อมูลจาก Excel แทนที่ข้อมูลปัจจุบันใช่หรือไม่?')) return;
+
+        studentsData = JSON.parse(JSON.stringify(excelData));
+        originalData = JSON.parse(JSON.stringify(excelData));
+        filteredData = [...studentsData];
+
+        updateStats();
+        displayTable();
+
+        showMessage('success', `โหลดข้อมูลจาก Excel สำเร็จ (${excelData.length} คน)`);
+      }
+
+      // Clear Excel data
+      function clearExcelData() {
+        excelData = [];
+        uploadedFileName = '';
+        document.getElementById('excelFile').value = '';
+        document.getElementById('excelPreview').style.display = 'none';
+        document.getElementById('excelStatus').className = 'status-box';
+      }
+
+      // Drag and drop support
+      document.addEventListener('DOMContentLoaded', function () {
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+          ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, e => {
+              e.preventDefault();
+              e.stopPropagation();
+            });
+          });
+
+          ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'));
+          });
+
+          ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'));
+          });
+
+          uploadArea.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+              document.getElementById('excelFile').files = files;
+              handleExcelUpload({ target: { files: files } });
+            }
+          });
+        }
+      });
+
+      // เริ่มต้น
+      window.onload = () => {
+        loadData();
+        loadNotifications();
+
+        // Auto-refresh notifications every 5 seconds (เช็คข้อมูลใหม่บ่อยขึ้น)
+        notificationRefreshInterval = setInterval(() => {
+          loadNotifications();
+        }, 5000); // เปลี่ยนจาก 30000 (30 วินาที) เป็น 5000 (5 วินาที)
+      };
+
+      // Cleanup on page unload
+      window.onbeforeunload = () => {
+        if (notificationRefreshInterval) {
+          clearInterval(notificationRefreshInterval);
+        }
+      };
+    </script>
+
+    <!-- Copyright Footer -->
+    <div
+      style="background: white; color: #718096; text-align: center; padding: 20px; font-size: 0.9rem; margin-top: 30px; border-top: 2px solid #f0f0f0; border-radius: 0 0 15px 15px;">
+      © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
+    </div>
+</body>
+
+</html>

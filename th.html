@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบครูที่ปรึกษา - จัดการคะแนน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            display: block;
+        }
+
+        .user-class {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #fee2e2;
+            color: var(--danger);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .header-section {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .icon-total {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .icon-avg {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .icon-high {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        .stat-info h4 {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Main Card */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-save-all {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-save-all:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 15px;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background: #fcfdfe;
+        }
+
+        .score-badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .score-high {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .score-mid {
+            background: #fefabc;
+            color: #a16207;
+        }
+
+        .score-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .adjust-input {
+            width: 80px;
+            padding: 8px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .adjust-input.negative {
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+        .adjust-input.positive {
+            color: var(--success);
+            border-color: #a7f3d0;
+        }
+
+        .btn-sm {
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-success-sm {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .btn-success-sm:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #e2e8f0;
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-success i {
+            color: var(--success);
+        }
+
+        .toast-error i {
+            color: var(--danger);
+        }
+
+        /* Logout Confirmation Modal */
+        .logout-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .logout-modal-overlay.show {
+            display: flex;
+        }
+
+        .logout-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 50px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .logout-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border: 3px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: checkmarkPop 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes checkmarkPop {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .logout-icon i {
+            font-size: 2.5rem;
+            color: #10b981;
+        }
+
+        .logout-modal h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .logout-modal p {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .logout-ok-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .logout-ok-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .logout-ok-btn:active {
+            transform: translateY(0);
+        }
+
+        .logout-warning-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 3px solid #f59e0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: checkmarkPop 0.5s ease-out 0.2s both;
+        }
+
+        .logout-warning-icon i {
+            font-size: 2.5rem;
+            color: #f59e0b;
+        }
+
+        .logout-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .logout-cancel-btn {
+            background: #f1f5f9;
+            color: #64748b;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-cancel-btn:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .modal-content-hidden {
+            display: none;
+        }
+
+        /* QR Scanner Modal */
+        .qr-scanner-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .qr-scanner-modal.show {
+            display: flex;
+        }
+
+        .qr-scanner-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .qr-scanner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-scanner-header h3 {
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .qr-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        #qr-reader {
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .qr-form {
+            display: none;
+        }
+
+        .qr-form.show {
+            display: block;
+        }
+
+        .qr-form-group {
+            margin-bottom: 15px;
+        }
+
+        .qr-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .qr-form-group input,
+        .qr-form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .qr-form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .qr-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .qr-btn-submit {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .qr-btn-cancel {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-school"></i>
+            <span>ระบบครูที่ปรึกษา</span>
+        </div>
+        <div class="nav-user">
+            <div class="user-info">
+                <span class="user-name" id="teacherName">กำลังโหลด...</span>
+                <span class="user-class" id="teacherClassDisplay">ห้อง -</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1 class="page-title">จัดการคะแนนพฤติกรรม</h1>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-total"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <h4>นักเรียนทั้งหมด</h4>
+                        <div class="value" id="statTotal">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-avg"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-info">
+                        <h4>คะแนนเฉลี่ย</h4>
+                        <div class="value" id="statAvg">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-high"><i class="fas fa-award"></i></div>
+                    <div class="stat-info">
+                        <h4>ดีเยี่ยม (>=80)</h4>
+                        <div class="value" id="statHigh">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-list-ul"></i> รายชื่อนักเรียนห้อง <span id="classTitle">-</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาชื่อ หรือ รหัสนักเรียน..."
+                    oninput="handleSearch()">
+                <button class="btn-primary" onclick="openQRScanner()"
+                    style="margin-left: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-qrcode"></i>
+                    <span>สแกน QR Code</span>
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>รหัส</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>คะแนน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable">
+                        <tr>
+                            <td colspan="3" style="text-align:center;">กำลังโหลดข้อมูล...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let teacher = null;
+        let students = [];
+        let originalStudents = [];
+        let filteredStudents = [];
+        let teacherClass = null;
+
+        // 1. Initial Load
+        async function init() {
+            const user = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!user || user.role !== 'teacher') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            showLoading(true);
+            try {
+                // Fetch th.json to get class
+                const thRes = await fetch('th.json');
+                const thData = await thRes.json();
+                const teacherProfile = thData.find(t => t.id === user.id);
+
+                if (!teacherProfile || !teacherProfile.class) {
+                    alert('ไม่พบข้อมูลห้องเรียนที่รับผิดชอบ');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                teacher = teacherProfile;
+                teacherClass = teacher.class;
+
+                // UI Update
+                document.getElementById('teacherName').textContent = teacher.name;
+                document.getElementById('teacherClassDisplay').textContent = 'ห้อง ' + formatClassName(teacherClass);
+                document.getElementById('classTitle').textContent = formatClassName(teacherClass);
+
+                // Fetch students
+                const stRes = await fetch('user2.1.json');
+                const stData = await stRes.json();
+
+                // เก็บนักเรียนทุกคนไว้สำหรับ QR Scanner
+                window.allStudents = stData;
+
+                // แสดงเฉพาะนักเรียนในห้องของครู
+                students = stData.filter(s => s.class == teacherClass);
+                originalStudents = JSON.parse(JSON.stringify(students));
+                filteredStudents = [...students];
+
+                updateStats();
+                renderTable();
+
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 2. Formatting
+        function formatClassName(code) {
+            if (!code) return '-';
+            const s = String(code);
+            if (s.length >= 2) return `ม.${s[0]}/${parseInt(s.substring(1))}`;
+            return s;
+        }
+
+        // 3. Stats
+        function updateStats() {
+            const total = students.length;
+            const avg = total > 0 ? students.reduce((sum, s) => sum + s.score, 0) / total : 0;
+            const high = students.filter(s => s.score >= 80).length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statAvg').textContent = avg.toFixed(1);
+            document.getElementById('statHigh').textContent = high;
+        }
+
+        // 4. Render Table
+        function renderTable() {
+            const tbody = document.getElementById('studentTable');
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#64748b;">ไม่พบข้อมูลนักเรียน</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredStudents.map((s, idx) => {
+                const scoreClass = s.score >= 80 ? 'score-high' : s.score < 60 ? 'score-low' : 'score-mid';
+
+                return `
+          <tr>
+            <td style="font-weight:600;">${s.id}</td>
+            <td>${s.name}</td>
+            <td><span class="score-badge ${scoreClass}">${s.score}</span></td>
+          </tr>
+        `;
+            }).join('');
+        }
+
+        // 5. Logic
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            filteredStudents = students.filter(s =>
+                s.name.toLowerCase().includes(query) || s.id.includes(query)
+            );
+            renderTable();
+        }
+
+        // Note: Score adjustment features removed as per request to make this a view-only dashboard
+
+        // UTILS
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('show', show);
+        }
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            const modal = document.getElementById('logoutModal');
+            const confirmStep = document.getElementById('confirmStep');
+            const successStep = document.getElementById('successStep');
+
+            // Reset to confirmation step
+            confirmStep.classList.remove('modal-content-hidden');
+            successStep.classList.add('modal-content-hidden');
+
+            modal.classList.add('show');
+        }
+
+        function cancelLogout() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('show');
+        }
+
+        function proceedLogout() {
+            const confirmStep = document.getElementById('confirmStep');
+            const successStep = document.getElementById('successStep');
+
+            // Show success step
+            confirmStep.classList.add('modal-content-hidden');
+            successStep.classList.remove('modal-content-hidden');
+        }
+
+        function confirmLogout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('logoutModal');
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+
+        // QR Scanner Functions
+        let html5QrcodeScanner = null;
+
+        function openQRScanner() {
+            const modal = document.getElementById('qrScannerModal');
+            const qrForm = document.getElementById('qrForm');
+
+            modal.classList.add('show');
+            qrForm.classList.remove('show');
+
+            // Initialize QR Scanner
+            html5QrcodeScanner = new Html5Qrcode("qr-reader");
+
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                onScanSuccess
+            ).catch(err => {
+                console.error("Error starting QR scanner:", err);
+                showToast('error', 'ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบการอนุญาตใช้งานกล้อง');
+            });
+        }
+
+        async function onScanSuccess(decodedText) {
+            // Stop scanner safely
+            try {
+                if (html5QrcodeScanner && html5QrcodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
+                    await html5QrcodeScanner.stop();
+                }
+            } catch (e) {
+                console.log('Scanner already stopped');
+            }
+
+            // Find student by ID from ALL students (not just teacher's class)
+            const student = window.allStudents.find(s => s.id === decodedText);
+
+            if (student) {
+                document.getElementById('qrStudentId').value = student.id;
+                document.getElementById('qrStudentName').value = student.name;
+                document.getElementById('qrReason').value = '';
+                document.getElementById('qrForm').classList.add('show');
+                showToast('success', 'สแกนสำเร็จ!');
+            } else {
+                showToast('error', 'ไม่พบข้อมูลนักเรียน');
+                closeQRScanner();
+            }
+        }
+
+        async function submitQRForm() {
+            try {
+                const studentId = document.getElementById('qrStudentId').value;
+                const studentName = document.getElementById('qrStudentName').value;
+                const reason = document.getElementById('qrReason').value.trim();
+
+                if (!reason) {
+                    showToast('error', 'กรุณาระบุสาเหตุ');
+                    return;
+                }
+
+                // Get current user
+                let currentUser = null;
+                try {
+                    const userStr = sessionStorage.getItem('currentUser');
+                    if (userStr) {
+                        currentUser = JSON.parse(userStr);
+                    }
+                } catch (e) {
+                    console.error('Error getting user:', e);
+                }
+
+                const data = {
+                    student_id: studentId,
+                    student_name: studentName,
+                    reason: reason,
+                    teacher: currentUser ? currentUser.name : 'Unknown',
+                    timestamp: new Date().toISOString()
+                };
+
+                // Send to server API
+                showLoading(true);
+                const response = await fetch('/api/save-toadmin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showLoading(false);
+
+                if (result.status === 'success') {
+                    console.log('Saved to server:', data);
+                    showToast('success', 'บันทึกข้อมูลสำเร็จ');
+                    closeQRScanner();
+                } else {
+                    showToast('error', 'เกิดข้อผิดพลาด: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                showLoading(false);
+                console.error('Submit error:', error);
+                const errorMsg = error && error.message ? error.message : String(error);
+                showToast('error', 'เกิดข้อผิดพลาด: ' + errorMsg);
+            }
+        }
+
+        function cancelQRForm() {
+            document.getElementById('qrForm').classList.remove('show');
+            openQRScanner(); // Restart scanner
+        }
+
+        function closeQRScanner() {
+            const modal = document.getElementById('qrScannerModal');
+            modal.classList.remove('show');
+
+            if (html5QrcodeScanner) {
+                try {
+                    html5QrcodeScanner.stop().catch(err => console.log('Scanner already stopped'));
+                } catch (e) {
+                    console.log('Scanner cleanup:', e.message);
+                }
+                html5QrcodeScanner = null;
+            }
+        }
+
+        window.onload = init;
+    </script>
+
+    <!-- QR Scanner Modal -->
+    <div class="qr-scanner-modal" id="qrScannerModal">
+        <div class="qr-scanner-content">
+            <div class="qr-scanner-header">
+                <h3><i class="fas fa-qrcode"></i> สแกน QR Code นักเรียน</h3>
+                <button class="qr-close-btn" onclick="closeQRScanner()">×</button>
+            </div>
+
+            <div id="qr-reader" style="width: 100%;"></div>
+
+            <div class="qr-form" id="qrForm">
+                <div class="qr-form-group">
+                    <label>รหัสนักเรียน</label>
+                    <input type="text" id="qrStudentId" readonly>
+                </div>
+                <div class="qr-form-group">
+                    <label>ชื่อนักเรียน</label>
+                    <input type="text" id="qrStudentName" readonly>
+                </div>
+                <div class="qr-form-group">
+                    <label>สาเหตุ/หมายเหตุ</label>
+                    <textarea id="qrReason" rows="3" placeholder="กรุณาระบุสาเหตุหรือหมายเหตุ..." required></textarea>
+                </div>
+                <div class="qr-form-buttons">
+                    <button class="qr-btn qr-btn-cancel" onclick="cancelQRForm()">ยกเลิก</button>
+                    <button class="qr-btn qr-btn-submit" onclick="submitQRForm()">ส่ง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="logout-modal-overlay" id="logoutModal">
+        <div class="logout-modal">
+            <!-- Confirmation Step -->
+            <div id="confirmStep">
+                <div class="logout-warning-icon">
+                    <i class="fas fa-exclamation"></i>
+                </div>
+                <h3>ยืนยันการออกจากระบบ</h3>
+                <p>คุณต้องการออกจากระบบหรือไม่?</p>
+                <div class="logout-buttons">
+                    <button class="logout-cancel-btn" onclick="cancelLogout()">ยกเลิก</button>
+                    <button class="logout-ok-btn" onclick="proceedLogout()">ตกลง</button>
+                </div>
+            </div>
+
+            <!-- Success Step -->
+            <div id="successStep" class="modal-content-hidden">
+                <div class="logout-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3>สำเร็จ</h3>
+                <p>ออกจากระบบสำเร็จ</p>
+                <button class="logout-ok-btn" onclick="confirmLogout()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copyright Footer -->
+    <div
+        style="background: white; color: #64748b; text-align: center; padding: 15px 20px; font-size: 0.85rem; margin-top: 30px; border-top: 2px solid #f1f5f9;">
+        © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
+    </div>
+</body>
+
+</html>

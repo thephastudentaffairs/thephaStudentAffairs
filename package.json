@@ -1,0 +1,18 @@
+{
+  "name": "student-behavior-system",
+  "version": "1.0.0",
+  "description": "ระบบคะแนนพฤติกรรมนักเรียน - โรงเรียนเทพา",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "student",
+    "behavior",
+    "school",
+    "login"
+  ],
+  "author": "โรงเรียนเทพา",
+  "license": "ISC"
+}
