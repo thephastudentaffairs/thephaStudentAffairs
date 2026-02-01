@@ -1740,7 +1740,8 @@
                 studentHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
                 listContainer.innerHTML = studentHistory.map(h => {
-                    const scoreChange = h.score_change || 0;
+                    // รองรับหลาย field names สำหรับคะแนน
+                    const scoreChange = h.change || h.score_change || h.scoreChange || h.score || h.point || h.points || 0;
                     const isPositive = scoreChange > 0;
                     const scoreText = isPositive ? `+${scoreChange}` : scoreChange.toString();
                     const timestamp = formatTimestamp(h.timestamp);
@@ -1753,7 +1754,6 @@
                             <div class="history-content">
                                 <div class="history-reason">${h.reason || 'ไม่ระบุสาเหตุ'}</div>
                                 <div class="history-meta">
-                                    <span><i class="fas fa-user-tie"></i> ${h.teacher || 'ไม่ระบุ'}</span>
                                     <span><i class="fas fa-clock"></i> ${timestamp}</span>
                                 </div>
                             </div>
