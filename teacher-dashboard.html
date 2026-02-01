@@ -1351,6 +1351,37 @@
         </div>
       </div>
 
+      <!-- ดาวน์โหลดข้อมูล JSON -->
+      <div class="card">
+        <h2><i class="fas fa-download"></i> ดาวน์โหลดข้อมูล JSON</h2>
+        <p style="color: #718096; margin-bottom: 20px;">ดาวน์โหลดไฟล์ข้อมูลทั้งหมดในระบบ</p>
+
+        <div class="btn-group" style="flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="downloadJSON('user2.1.json')">
+            <i class="fas fa-users"></i> user2.1.json (นักเรียน)
+          </button>
+          <button class="btn btn-success" onclick="downloadJSON('th.json')">
+            <i class="fas fa-chalkboard-teacher"></i> th.json (ครูที่ปรึกษา)
+          </button>
+          <button class="btn btn-warning" onclick="downloadJSON('log.json')">
+            <i class="fas fa-history"></i> log.json (ประวัติคะแนน)
+          </button>
+          <button class="btn btn-info" onclick="downloadJSON('toadmin.json')">
+            <i class="fas fa-bell"></i> toadmin.json (แจ้งเตือน)
+          </button>
+          <button class="btn btn-danger" onclick="downloadJSON('TPAC.json')">
+            <i class="fas fa-user-shield"></i> TPAC.json (แอดมิน)
+          </button>
+        </div>
+
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #f0f0f0;">
+          <button class="btn btn-primary" onclick="downloadAllJSON()"
+            style="background: linear-gradient(135deg, #1a202c, #2d3748);">
+            <i class="fas fa-file-archive"></i> ดาวน์โหลดทั้งหมด (ZIP)
+          </button>
+        </div>
+      </div>
+
       <!-- ตารางแก้ไขคะแนน -->
       <div class="card">
         <h2><i class="fas fa-table"></i> แก้ไขคะแนนนักเรียน</h2>
@@ -2717,6 +2748,95 @@
           clearInterval(notificationRefreshInterval);
         }
       };
+
+      // Download single JSON file
+      async function downloadJSON(filename) {
+        try {
+          showMessage('info', `กำลังดาวน์โหลด ${filename}...`);
+
+          const response = await fetch(filename);
+          if (!response.ok) {
+            throw new Error(`ไม่พบไฟล์ ${filename}`);
+          }
+
+          const data = await response.json();
+          const jsonStr = JSON.stringify(data, null, 2);
+          const blob = new Blob([jsonStr], { type: 'application/json' });
+
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          showMessage('success', `ดาวน์โหลด ${filename} สำเร็จ!`);
+        } catch (error) {
+          console.error('Download error:', error);
+          showMessage('error', `เกิดข้อผิดพลาด: ${error.message}`);
+        }
+      }
+
+      // Download all JSON files as ZIP
+      async function downloadAllJSON() {
+        const files = ['user2.1.json', 'th.json', 'log.json', 'toadmin.json', 'TPAC.json'];
+
+        try {
+          showMessage('info', 'กำลังเตรียมไฟล์ทั้งหมด...');
+
+          // Load JSZip dynamically if not already loaded
+          if (typeof JSZip === 'undefined') {
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+          }
+
+          const zip = new JSZip();
+          const timestamp = new Date().toISOString().slice(0, 10);
+
+          // Fetch all files
+          for (const filename of files) {
+            try {
+              const response = await fetch(filename);
+              if (response.ok) {
+                const data = await response.json();
+                zip.file(filename, JSON.stringify(data, null, 2));
+              }
+            } catch (err) {
+              console.warn(`Could not fetch ${filename}:`, err);
+            }
+          }
+
+          // Generate ZIP
+          const content = await zip.generateAsync({ type: 'blob' });
+
+          // Download
+          const url = URL.createObjectURL(content);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ข้อมูลระบบ_${timestamp}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          showMessage('success', 'ดาวน์โหลดไฟล์ทั้งหมดสำเร็จ!');
+        } catch (error) {
+          console.error('ZIP download error:', error);
+          showMessage('error', `เกิดข้อผิดพลาด: ${error.message}`);
+        }
+      }
+
+      // Helper function to load external script
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
     </script>
 
     <!-- Copyright Footer -->
