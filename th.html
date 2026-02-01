@@ -965,6 +965,248 @@
             color: #64748b;
         }
 
+        /* History Button */
+        .btn-history {
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-history:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* History Modal */
+        .history-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .history-modal-overlay.show {
+            display: flex;
+        }
+
+        .history-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .history-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .history-modal-header h3 {
+            font-size: 1.4rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-modal-header h3 i {
+            color: #3b82f6;
+        }
+
+        .history-close-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            color: #64748b;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-close-btn:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .history-student-info {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .history-student-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .history-student-details h4 {
+            font-size: 1.1rem;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .history-student-details span {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .history-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .history-item.positive {
+            border-left-color: #10b981;
+        }
+
+        .history-item.negative {
+            border-left-color: #ef4444;
+        }
+
+        .history-score-badge {
+            min-width: 70px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .history-score-badge.positive {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .history-score-badge.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-reason {
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .history-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .history-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .history-empty i {
+            font-size: 3rem;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .history-empty p {
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .history-modal {
+                padding: 20px;
+                max-height: 90vh;
+            }
+
+            .history-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .history-score-badge {
+                align-self: flex-start;
+            }
+        }
+
         /* ===== Responsive Design ===== */
         @media (max-width: 768px) {
 
@@ -1321,11 +1563,12 @@
                             <th>รหัส</th>
                             <th>ชื่อ-นามสกุล</th>
                             <th>คะแนน</th>
+                            <th style="text-align: center;">ประวัติ</th>
                         </tr>
                     </thead>
                     <tbody id="studentTable">
                         <tr>
-                            <td colspan="3" style="text-align:center;">กำลังโหลดข้อมูล...</td>
+                            <td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1341,6 +1584,7 @@
         let originalStudents = [];
         let filteredStudents = [];
         let teacherClass = null;
+        let scoreHistory = []; // Store score history from log.json
 
         // 1. Initial Load
         async function init() {
@@ -1383,6 +1627,9 @@
                 originalStudents = JSON.parse(JSON.stringify(students));
                 filteredStudents = [...students];
 
+                // Load score history from log.json
+                await loadScoreHistory();
+
                 updateStats();
                 renderTable();
 
@@ -1417,18 +1664,27 @@
         function renderTable() {
             const tbody = document.getElementById('studentTable');
             if (filteredStudents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#64748b;">ไม่พบข้อมูลนักเรียน</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#64748b;">ไม่พบข้อมูลนักเรียน</td></tr>';
                 return;
             }
 
             tbody.innerHTML = filteredStudents.map((s, idx) => {
                 const scoreClass = s.score >= 80 ? 'score-high' : s.score < 60 ? 'score-low' : 'score-mid';
+                const studentHistory = scoreHistory.filter(h => h.student_id === s.id);
+                const historyCount = studentHistory.length;
 
                 return `
           <tr>
             <td style="font-weight:600;">${s.id}</td>
             <td>${s.name}</td>
             <td><span class="score-badge ${scoreClass}">${s.score}</span></td>
+            <td style="text-align: center;">
+              <button class="btn-history" onclick="viewStudentHistory('${s.id}', '${s.name.replace(/'/g, "\\'")}')"
+                title="ดูประวัติคะแนน">
+                <i class="fas fa-history"></i>
+                ${historyCount > 0 ? `<span>(${historyCount})</span>` : ''}
+              </button>
+            </td>
           </tr>
         `;
             }).join('');
@@ -1441,6 +1697,95 @@
                 s.name.toLowerCase().includes(query) || s.id.includes(query)
             );
             renderTable();
+        }
+
+        // Load score history from log.json
+        async function loadScoreHistory() {
+            try {
+                const response = await fetch('log.json');
+                const data = await response.json();
+                // Filter history for students in teacher's class
+                scoreHistory = data.filter(h => {
+                    const student = students.find(s => s.id === h.student_id);
+                    return student !== undefined;
+                });
+                console.log('Loaded score history:', scoreHistory.length, 'records');
+            } catch (err) {
+                console.error('Error loading score history:', err);
+                scoreHistory = [];
+            }
+        }
+
+        // View student score history
+        function viewStudentHistory(studentId, studentName) {
+            const modal = document.getElementById('historyModal');
+            const studentHistory = scoreHistory.filter(h => h.student_id === studentId);
+
+            // Update student info in modal
+            document.getElementById('historyStudentName').textContent = studentName;
+            document.getElementById('historyStudentId').textContent = `รหัส: ${studentId}`;
+
+            // Render history list
+            const listContainer = document.getElementById('historyList');
+
+            if (studentHistory.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="history-empty">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>ยังไม่มีประวัติการปรับคะแนน</p>
+                    </div>
+                `;
+            } else {
+                // Sort by timestamp (newest first)
+                studentHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                listContainer.innerHTML = studentHistory.map(h => {
+                    const scoreChange = h.score_change || 0;
+                    const isPositive = scoreChange > 0;
+                    const scoreText = isPositive ? `+${scoreChange}` : scoreChange.toString();
+                    const timestamp = formatTimestamp(h.timestamp);
+
+                    return `
+                        <div class="history-item ${isPositive ? 'positive' : 'negative'}">
+                            <div class="history-score-badge ${isPositive ? 'positive' : 'negative'}">
+                                ${scoreText}
+                            </div>
+                            <div class="history-content">
+                                <div class="history-reason">${h.reason || 'ไม่ระบุสาเหตุ'}</div>
+                                <div class="history-meta">
+                                    <span><i class="fas fa-user-tie"></i> ${h.teacher || 'ไม่ระบุ'}</span>
+                                    <span><i class="fas fa-clock"></i> ${timestamp}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            modal.classList.add('show');
+        }
+
+        // Format timestamp to Thai locale
+        function formatTimestamp(isoString) {
+            if (!isoString) return 'ไม่ระบุเวลา';
+            try {
+                const date = new Date(isoString);
+                return date.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return isoString;
+            }
+        }
+
+        // Close history modal
+        function closeHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            modal.classList.remove('show');
         }
 
         // Note: Score adjustment features removed as per request to make this a view-only dashboard
@@ -1906,6 +2251,30 @@
                 <h3>สำเร็จ</h3>
                 <p>ออกจากระบบสำเร็จ</p>
                 <button class="logout-ok-btn" onclick="confirmLogout()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score History Modal -->
+    <div class="history-modal-overlay" id="historyModal">
+        <div class="history-modal">
+            <div class="history-modal-header">
+                <h3><i class="fas fa-history"></i> ประวัติคะแนนพฤติกรรม</h3>
+                <button class="history-close-btn" onclick="closeHistoryModal()">×</button>
+            </div>
+            <div class="history-student-info">
+                <div class="history-student-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="history-student-details">
+                    <h4 id="historyStudentName">-</h4>
+                    <span id="historyStudentId">รหัส: -</span>
+                </div>
+            </div>
+            <div class="history-list-container">
+                <div class="history-list" id="historyList">
+                    <!-- History items will be rendered here -->
+                </div>
             </div>
         </div>
     </div>
