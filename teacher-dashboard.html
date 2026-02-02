@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
   <script>
     // Authentication check - redirect to login if not authenticated as admin
     (function () {
@@ -2046,6 +2048,8 @@
         <button class="btn btn-success" onclick="saveAll()">
           <i class="fas fa-save"></i> บันทึกทั้งหมด
         </button>
+        <button class="btn btn-danger" onclick="exportLowScorePDF()">
+          <i class="fas fa-file-pdf"></i> ส่งออก PDF (คะแนน<100) </button>
       </div>
 
       <div class="btn-group">
@@ -3707,6 +3711,116 @@
     document.addEventListener('DOMContentLoaded', function () {
       loadScoreHistory();
     });
+
+    // ========== PDF Export Function ==========
+
+    // Export students with score < 100 to PDF
+    function exportLowScorePDF() {
+      // Get current date in Thai
+      const now = new Date();
+      const thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+      const currentMonth = thaiMonths[now.getMonth()];
+      const currentYear = now.getFullYear() + 543; // Convert to Buddhist Era
+      const currentDay = now.getDate();
+
+      // Filter students with score < 100
+      const lowScoreStudents = studentsData.filter(s => s.score < 100);
+
+      if (lowScoreStudents.length === 0) {
+        showStatus('warning', 'ไม่มีนักเรียนที่คะแนนต่ำกว่า 100 คะแนน');
+        return;
+      }
+
+      // Sort by class then by score (ascending)
+      lowScoreStudents.sort((a, b) => {
+        if (a.class !== b.class) return a.class - b.class;
+        return a.score - b.score;
+      });
+
+      // Create PDF content as HTML
+      const pdfContent = document.createElement('div');
+      pdfContent.style.fontFamily = 'Sarabun, Arial, sans-serif';
+      pdfContent.style.padding = '20px';
+      pdfContent.style.backgroundColor = 'white';
+      pdfContent.style.color = 'black';
+
+      pdfContent.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="font-size: 22px; margin-bottom: 10px; color: #1a202c;">รายงานนักเรียนที่คะแนนพฤติกรรมต่ำกว่า 100 คะแนน</h1>
+          <p style="font-size: 16px; color: #4a5568;">ประจำเดือน ${currentMonth} พ.ศ. ${currentYear}</p>
+          <p style="font-size: 14px; color: #718096;">วันที่พิมพ์: ${currentDay} ${currentMonth} ${currentYear}</p>
+        </div>
+
+        <div style="margin-bottom: 20px; padding: 15px; background: #f7fafc; border-radius: 10px; border-left: 4px solid #e53e3e;">
+          <p style="margin: 0; font-size: 14px;">
+            <strong>สรุป:</strong> จำนวนนักเรียนที่คะแนนต่ำกว่า 100 คะแนน ทั้งหมด <strong style="color: #e53e3e;">${lowScoreStudents.length}</strong> คน
+          </p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+              <th style="padding: 12px; text-align: center; border: 1px solid #e2e8f0;">ลำดับ</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #e2e8f0;">รหัส</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #e2e8f0;">ชื่อ-นามสกุล</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #e2e8f0;">ห้องเรียน</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #e2e8f0;">คะแนน</th>
+              <th style="padding: 12px; text-align: center; border: 1px solid #e2e8f0;">หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lowScoreStudents.map((student, index) => {
+        const scoreColor = student.score < 60 ? '#e53e3e' : student.score < 80 ? '#dd6b20' : '#d69e2e';
+        const rowBg = index % 2 === 0 ? '#ffffff' : '#f7fafc';
+        return `
+                <tr style="background: ${rowBg};">
+                  <td style="padding: 10px; text-align: center; border: 1px solid #e2e8f0;">${index + 1}</td>
+                  <td style="padding: 10px; text-align: center; border: 1px solid #e2e8f0;">${student.id}</td>
+                  <td style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">${student.name}</td>
+                  <td style="padding: 10px; text-align: center; border: 1px solid #e2e8f0;">${formatClassName(student.class)}</td>
+                  <td style="padding: 10px; text-align: center; border: 1px solid #e2e8f0; font-weight: bold; color: ${scoreColor};">${student.score}</td>
+                  <td style="padding: 10px; text-align: center; border: 1px solid #e2e8f0; font-size: 12px; color: #718096;">
+                    ${student.score < 60 ? 'คะแนนวิกฤต' : student.score < 80 ? 'ต้องปรับปรุง' : 'ใกล้ปกติ'}
+                  </td>
+                </tr>
+              `;
+      }).join('')}
+          </tbody>
+        </table>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+          <div style="text-align: center;">
+            <p style="margin-bottom: 60px;">ลงชื่อ..................................</p>
+            <p>(.........................................)</p>
+            <p style="font-size: 12px; color: #718096;">ผู้รายงาน</p>
+          </div>
+          <div style="text-align: center;">
+            <p style="margin-bottom: 60px;">ลงชื่อ..................................</p>
+            <p>(.........................................)</p>
+            <p style="font-size: 12px; color: #718096;">ผู้อนุมัติ</p>
+          </div>
+        </div>
+      `;
+
+      // Use html2pdf to generate PDF
+      const opt = {
+        margin: 10,
+        filename: `รายงานคะแนนต่ำ_${currentMonth}_${currentYear}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      showStatus('info', 'กำลังสร้างไฟล์ PDF...');
+
+      html2pdf().set(opt).from(pdfContent).save().then(() => {
+        showStatus('success', `ส่งออก PDF สำเร็จ! (${lowScoreStudents.length} คน)`);
+      }).catch(err => {
+        console.error('PDF Error:', err);
+        showStatus('error', 'เกิดข้อผิดพลาดในการสร้าง PDF');
+      });
+    }
 
     // ========== All History Viewer Functions ==========
 
