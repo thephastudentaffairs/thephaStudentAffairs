@@ -1462,6 +1462,98 @@
                 padding: 10px;
             }
         }
+
+        /* Checkbox Group for Deduction Reasons */
+        .deduction-reasons-container {
+            margin-bottom: 15px;
+        }
+
+        .deduction-reasons-label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .deduction-reasons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .deduction-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .deduction-checkbox-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .deduction-checkbox-item.checked {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-color: #f87171;
+        }
+
+        .deduction-checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ef4444;
+        }
+
+        .deduction-checkbox-item label {
+            font-size: 0.85rem;
+            color: #334155;
+            cursor: pointer;
+            flex: 1;
+            margin: 0;
+        }
+
+        .other-reason-input {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .other-reason-input.show {
+            display: block;
+        }
+
+        .other-reason-input input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .other-reason-input input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        @media (max-width: 480px) {
+            .deduction-reasons-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -2075,11 +2167,81 @@
                 document.getElementById('qrStudentId').value = student.id;
                 document.getElementById('qrStudentName').value = student.name;
                 document.getElementById('qrReason').value = '';
+
+                // Reset checkboxes when opening form
+                resetQRDeductionCheckboxes();
+
                 document.getElementById('qrForm').classList.add('show');
                 showToast('success', `พบนักเรียน: ${student.name}`);
             } else {
                 showToast('error', `ไม่พบข้อมูลนักเรียน รหัส: ${decodedText}`);
             }
+        }
+
+        // Toggle checkbox visual state for QR form
+        function toggleQRDeductionCheckbox(item) {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            item.classList.toggle('checked', checkbox.checked);
+
+            // If it's the "other" checkbox, toggle the input field
+            if (checkbox.id === 'qrReasonOther') {
+                toggleQROtherReasonInput();
+            }
+
+            // Auto-populate the reason textarea
+            updateQRReasonFromCheckboxes();
+        }
+
+        // Toggle other reason input visibility for QR form
+        function toggleQROtherReasonInput() {
+            const otherCheckbox = document.getElementById('qrReasonOther');
+            const otherInput = document.getElementById('qrOtherReasonInput');
+
+            if (otherCheckbox.checked) {
+                otherInput.classList.add('show');
+                document.getElementById('qrOtherReasonText').focus();
+            } else {
+                otherInput.classList.remove('show');
+                document.getElementById('qrOtherReasonText').value = '';
+            }
+
+            updateQRReasonFromCheckboxes();
+        }
+
+        // Update reason textarea based on selected checkboxes for QR form
+        function updateQRReasonFromCheckboxes() {
+            const container = document.getElementById('qrDeductionReasonsContainer');
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            const reasons = [];
+
+            checkboxes.forEach(cb => {
+                if (cb.id === 'qrReasonOther') {
+                    const otherText = document.getElementById('qrOtherReasonText').value.trim();
+                    if (otherText) {
+                        reasons.push(otherText);
+                    }
+                } else {
+                    reasons.push(cb.value);
+                }
+            });
+
+            document.getElementById('qrReason').value = reasons.join(', ');
+        }
+
+        // Reset all deduction checkboxes for QR form
+        function resetQRDeductionCheckboxes() {
+            const container = document.getElementById('qrDeductionReasonsContainer');
+            const checkboxItems = container.querySelectorAll('.deduction-checkbox-item');
+
+            checkboxItems.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                checkbox.checked = false;
+                item.classList.remove('checked');
+            });
+
+            document.getElementById('qrOtherReasonInput').classList.remove('show');
+            document.getElementById('qrOtherReasonText').value = '';
         }
 
         async function onScanSuccess(decodedText) {
@@ -2215,9 +2377,78 @@
                     <label>ชื่อนักเรียน</label>
                     <input type="text" id="qrStudentName" readonly>
                 </div>
+                <!-- Checkbox group for deduction reasons -->
+                <div class="deduction-reasons-container" id="qrDeductionReasonsContainer">
+                    <label class="deduction-reasons-label">เลือกสาเหตุการหักคะแนน <span
+                            style="color: #ef4444;">*</span></label>
+                    <div class="deduction-reasons-grid">
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason1" value="มาสาย">
+                            <label for="qrReason1">1. มาสาย</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason2" value="ไม่สวมหมวกกันน็อค">
+                            <label for="qrReason2">2. ไม่สวมหมวกกันน็อค</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason3" value="หนีเรียน">
+                            <label for="qrReason3">3. หนีเรียน</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason4" value="สูบบุหรี่">
+                            <label for="qrReason4">4. สูบบุหรี่</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason5" value="สูบบุหรี่ไฟฟ้า">
+                            <label for="qrReason5">5. สูบบุหรี่ไฟฟ้า</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason6" value="การแต่งกายผิดระเบียบ">
+                            <label for="qrReason6">6. การแต่งกายผิดระเบียบ</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason7" value="ทะเลาะวิวาท">
+                            <label for="qrReason7">7. ทะเลาะวิวาท</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason8" value="ใช้สื่อโซเชียลไม่เหมาะสม">
+                            <label for="qrReason8">8. ใช้สื่อโซเชียลไม่เหมาะสม</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason9" value="เล่นการพนัน">
+                            <label for="qrReason9">9. เล่นการพนัน</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason10" value="สิงห้องน้ำ">
+                            <label for="qrReason10">10. สิงห้องน้ำ</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason11" value="บูลลี่">
+                            <label for="qrReason11">11. บูลลี่</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason12" value="ทำลายทรัพย์สินโรงเรียน">
+                            <label for="qrReason12">12. ทำลายทรัพย์สินโรงเรียน</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReason13" value="แอบถ่ายรูป">
+                            <label for="qrReason13">13. แอบถ่ายรูป</label>
+                        </div>
+                        <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                            <input type="checkbox" id="qrReasonOther" value="อื่นๆ">
+                            <label for="qrReasonOther">อื่นๆ (ระบุ)</label>
+                        </div>
+                    </div>
+                    <div class="other-reason-input" id="qrOtherReasonInput">
+                        <input type="text" id="qrOtherReasonText" placeholder="ระบุสาเหตุอื่นๆ..."
+                            oninput="updateQRReasonFromCheckboxes()">
+                    </div>
+                </div>
+
                 <div class="qr-form-group">
-                    <label>สาเหตุ/หมายเหตุ</label>
-                    <textarea id="qrReason" rows="3" placeholder="กรุณาระบุสาเหตุหรือหมายเหตุ..." required></textarea>
+                    <label>สาเหตุที่เลือก</label>
+                    <textarea id="qrReason" rows="3" placeholder="สาเหตุจะแสดงที่นี่เมื่อเลือกจากรายการด้านบน..."
+                        readonly></textarea>
                 </div>
                 <div class="qr-form-buttons">
                     <button class="qr-btn qr-btn-cancel" onclick="cancelQRForm()">ยกเลิก</button>
