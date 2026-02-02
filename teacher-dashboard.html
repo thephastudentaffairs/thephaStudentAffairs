@@ -2613,12 +2613,18 @@
     function showSearchDropdown(results) {
       const dropdown = document.getElementById('searchDropdown');
 
-      if (results.length === 0) {
+      // Filter results by selected class if a class is selected
+      let filteredResults = results;
+      if (selectedClass) {
+        filteredResults = results.filter(student => String(student.class) === selectedClass);
+      }
+
+      if (filteredResults.length === 0) {
         dropdown.classList.remove('show');
         return;
       }
 
-      dropdown.innerHTML = results.slice(0, 8).map(student => `
+      dropdown.innerHTML = filteredResults.slice(0, 8).map(student => `
           <div class="dropdown-item" onclick="selectStudent('${student.id}')">
             <div class="student-info">
               <span class="student-name">${student.name}</span>
