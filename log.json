@@ -1,12 +1,3 @@
 [
-  {
-    "action": "decrease",
-    "student_id": "13119",
-    "student_name": "กฤษฎากรณ์ สามารถ",
-    "old_score": 100,
-    "new_score": 90,
-    "change": -10,
-    "reason": "มาสาย",
-    "timestamp": "2026-02-02T14:53:23.486Z"
-  }
+  
 ]
