@@ -2763,9 +2763,6 @@
             </td>
             <td>
               <div class="action-buttons">
-                <button class="btn btn-primary btn-sm" onclick="openEditModal(${actualIndex})" title="แก้ไข">
-                  <i class="fas fa-edit"></i>
-                </button>
                 <button class="btn btn-success btn-sm" onclick="quickSave(${actualIndex})" title="บันทึกเดี่ยว">
                   <i class="fas fa-check"></i>
                 </button>
@@ -3714,9 +3711,20 @@
     // ========== All History Viewer Functions ==========
 
     // Open All History Modal
-    function openAllHistoryModal() {
+    async function openAllHistoryModal() {
       const modal = document.getElementById('allHistoryModalOverlay');
       modal.classList.add('show');
+
+      // Show loading state
+      document.getElementById('allHistoryList').innerHTML = `
+        <div class="history-empty">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>กำลังโหลดข้อมูล...</p>
+        </div>
+      `;
+
+      // Reload score history data from log.json every time
+      await loadScoreHistory();
 
       // Populate filters
       populateAllHistoryFilters();
