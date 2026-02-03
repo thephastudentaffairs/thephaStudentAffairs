@@ -211,6 +211,45 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // API: บันทึกสถานะนักเรียน
+  if (req.method === 'POST' && req.url === '/api/save-status') {
+    try {
+      const data = await readBody(req);
+      const file = 'user2.1.json';
+
+      // Read current data
+      let students = [];
+      if (fs.existsSync(file)) {
+        students = JSON.parse(fs.readFileSync(file, 'utf-8'));
+      }
+
+      // Find and update student
+      let found = false;
+      for (let s of students) {
+        if (s.id === data.id) {
+          s.status = data.status;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        sendJSON(res, 404, { status: 'error', message: 'ไม่พบนักเรียน' });
+        return;
+      }
+
+      // Save to file
+      fs.writeFileSync(file, JSON.stringify(students, null, 2));
+      console.log(`✅ อัปเดตสถานะ ${data.id}: ${data.status}`);
+
+      sendJSON(res, 200, { status: 'success' });
+    } catch (e) {
+      console.error('❌ Error:', e.message);
+      sendJSON(res, 500, { status: 'error', message: e.message });
+    }
+    return;
+  }
+
   // API: บันทึกทั้งหมด (แทน reset_scores.php)
   if (req.method === 'POST' && req.url === '/api/save-all') {
     try {
@@ -295,6 +334,75 @@ const server = http.createServer(async (req, res) => {
       sendJSON(res, 200, { status: 'success' });
     } catch (e) {
       console.error('❌ Error:', e.message);
+      sendJSON(res, 500, { status: 'error', message: e.message });
+    }
+    return;
+  }
+
+  // API: บันทึกการส่งงาน/แก้ไข
+  if (req.method === 'POST' && req.url === '/api/save-work') {
+    try {
+      const data = await readBody(req);
+      const studentId = data.student_id;
+      const timestamp = new Date().getTime();
+      const proflyDir = path.join(__dirname, 'profly');
+
+      // Ensure directory exists
+      if (!fs.existsSync(proflyDir)) {
+        fs.mkdirSync(proflyDir);
+      }
+
+      let beforeImagePath = null;
+      let afterImagePath = null;
+
+      // Save Before Image
+      if (data.image_before) {
+        const base64Data = data.image_before.replace(/^data:image\/\w+;base64,/, "");
+        const fileName = `${timestamp}_${studentId}_before.jpg`;
+        const filePath = path.join(proflyDir, fileName);
+        fs.writeFileSync(filePath, base64Data, 'base64');
+        beforeImagePath = `profly/${fileName}`;
+      }
+
+      // Save After Image
+      if (data.image_after) {
+        const base64Data = data.image_after.replace(/^data:image\/\w+;base64,/, "");
+        const fileName = `${timestamp}_${studentId}_after.jpg`;
+        const filePath = path.join(proflyDir, fileName);
+        fs.writeFileSync(filePath, base64Data, 'base64');
+        afterImagePath = `profly/${fileName}`;
+      }
+
+      // Prepare record for toadmin.json
+      const record = {
+        student_id: data.student_id,
+        student_name: data.student_name,
+        detail: data.detail,
+        image_before: beforeImagePath,
+        image_after: afterImagePath,
+        teacher: data.teacher,
+        timestamp: data.timestamp,
+        type: 'work_submission',
+        status: 'pending'
+      };
+
+      const file = 'toadmin.json';
+      let toadminData = [];
+      try {
+        if (fs.existsSync(file)) {
+          toadminData = JSON.parse(fs.readFileSync(file, 'utf-8'));
+        }
+      } catch (e) {
+        console.error('Error reading toadmin.json:', e);
+      }
+
+      toadminData.push(record);
+      fs.writeFileSync(file, JSON.stringify(toadminData, null, 2));
+
+      console.log(`✅ บันทึกการส่งงาน: ${data.student_id} - ${data.student_name}`);
+      sendJSON(res, 200, { status: 'success' });
+    } catch (e) {
+      console.error('❌ Error saving work:', e.message);
       sendJSON(res, 500, { status: 'error', message: e.message });
     }
     return;

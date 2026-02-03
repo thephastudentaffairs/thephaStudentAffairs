@@ -2426,6 +2426,28 @@
 
       list.innerHTML = notificationsData.map((item, index) => {
         const timestamp = formatDateTime(item.timestamp);
+        const reason = item.reason || item.detail || 'ไม่ระบุรายละเอียด';
+
+        let imagesHtml = '';
+        if (item.image_before || item.image_after) {
+          imagesHtml = '<div class="notification-images">';
+          if (item.image_before) {
+            imagesHtml += `
+              <div class="notification-img-wrapper">
+                <span class="img-label">Before</span>
+                <img src="${item.image_before}" onclick="viewImage('${item.image_before}')">
+              </div>`;
+          }
+          if (item.image_after) {
+            imagesHtml += `
+              <div class="notification-img-wrapper">
+                <span class="img-label">After</span>
+                <img src="${item.image_after}" onclick="viewImage('${item.image_after}')">
+              </div>`;
+          }
+          imagesHtml += '</div>';
+        }
+
         return `
             <div class="notification-item">
               <div class="notification-info">
@@ -2433,8 +2455,9 @@
                   ${item.student_id} - ${item.student_name}
                 </div>
                 <div class="notification-reason">
-                  <i class="fas fa-comment-dots"></i> ${item.reason}
+                  <i class="fas fa-comment-dots"></i> ${reason}
                 </div>
+                ${imagesHtml}
                 <div class="notification-meta">
                   <span><i class="fas fa-user"></i> ${item.teacher}</span>
                   <span><i class="fas fa-clock"></i> ${timestamp}</span>
@@ -2775,6 +2798,34 @@
       document.getElementById('statLow').textContent = low;
     }
 
+    // อัปเดตสถานะนักเรียน
+    async function updateStatus(studentId, newStatus) {
+      try {
+        const response = await fetch('/api/save-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: studentId, status: newStatus })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          // Update local data
+          const student = studentsData.find(s => s.id === studentId);
+          if (student) student.status = newStatus;
+
+          showStatus('success', `อัปเดตสถานะ ${studentId} เรียบร้อย`);
+        } else {
+          showStatus('error', 'อัปเดตไม่สำเร็จ: ' + result.message);
+          displayTable(); // Revert
+        }
+      } catch (e) {
+        console.error(e);
+        showStatus('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        displayTable(); // Revert
+      }
+    }
+
     // แสดงตาราง
     function displayTable() {
       const tbody = document.getElementById('studentTable');
@@ -2804,22 +2855,20 @@
         const diff = student.score - originalScore;
         const displayIndex = startIndex + index + 1;
 
-        // แปลสถานะเป็นภาษาไทย
-        const statusMap = {
-          'normal': { text: 'กำลังศึกษาอยู่', class: 'status-normal' },
-          'Absent': { text: 'ขาดเรียนนาน', class: 'status-absent' },
-          'moved': { text: 'ย้ายแล้ว', class: 'status-moved' },
-          'notnormal': { text: 'พักการเรียน', class: 'status-moved' }
-        };
-        const statusInfo = statusMap[student.status] || { text: student.status, class: '' };
-
         return `
           <tr>
             <td>${displayIndex}</td>
             <td>${student.id}</td>
             <td>${student.name}</td>
             <td><span class="class-badge">${formatClassName(student.class)}</span></td>
-            <td><span class="status-badge ${statusInfo.class}">${statusInfo.text}</span></td>
+            <td>
+              <select onchange="updateStatus('${student.id}', this.value)" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e0; background: white; font-family: inherit; font-size: 0.9em; cursor: pointer;">
+                <option value="normal" ${student.status === 'normal' ? 'selected' : ''}>กำลังศึกษาอยู่</option>
+                <option value="Absent" ${student.status === 'Absent' ? 'selected' : ''}>ขาดเรียนนาน</option>
+                <option value="moved" ${student.status === 'moved' ? 'selected' : ''}>ย้ายแล้ว</option>
+                <option value="notnormal" ${student.status === 'notnormal' ? 'selected' : ''}>พักการเรียน</option>
+              </select>
+            </td>
             <td><span class="score-badge ${scoreClass}">${originalScore}</span></td>
             <td>
               <input 
@@ -4175,6 +4224,69 @@
     style="background: white; color: #718096; text-align: center; padding: 20px; font-size: 0.9rem; margin-top: 30px; border-top: 2px solid #f0f0f0; border-radius: 0 0 15px 15px;">
     © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
   </div>
+
+  <!-- Image Viewer Modal -->
+  <div id="imageViewerModal" class="modal" onclick="closeImageViewer()">
+    <span class="close-btn"
+      style="position: absolute; top: 20px; right: 30px; color: white; font-size: 3em;">&times;</span>
+    <img class="modal-content" id="fullImage"
+      style="max-width: 90%; max-height: 90vh; object-fit: contain; background: transparent; padding: 0;">
+  </div>
+
+  <script>
+    function viewImage(src) {
+      const modal = document.getElementById('imageViewerModal');
+      const img = document.getElementById('fullImage');
+      img.src = src;
+      modal.classList.add('show');
+    }
+
+    function closeImageViewer() {
+      document.getElementById('imageViewerModal').classList.remove('show');
+    }
+  </script>
+
+  <style>
+    /* Notification Image Styles */
+    .notification-images {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .notification-img-wrapper {
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .notification-img-wrapper:hover {
+      transform: scale(1.05);
+    }
+
+    .notification-img-wrapper img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .img-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 0.7em;
+      text-align: center;
+      padding: 2px 0;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+  </style>
 </body>
 
 </html>
