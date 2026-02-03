@@ -3783,17 +3783,20 @@
 
     // ========== PDF Export Function ==========
 
-    // Export students with score < 100 to PDF
+    // Export students with score < 100 to PDF (uses filteredData based on selected class filter)
     function exportLowScorePDF() {
-      var lowScoreStudents = studentsData.filter(function (s) { return s.score < 100; });
+      // ใช้ filteredData แทน studentsData เพื่อให้ตรงกับ filter ที่เลือก
+      var lowScoreStudents = filteredData.filter(function (s) { return s.score < 100; });
       if (lowScoreStudents.length === 0) {
-        showStatus('warning', 'ไม่มีนักเรียนที่คะแนนต่ำกว่า 100 คะแนน');
+        showStatus('warning', 'ไม่มีนักเรียนที่คะแนนต่ำกว่า 100 คะแนน' + (selectedClass ? ' ในห้อง ' + formatClassName(selectedClass) : ''));
         return;
       }
       var now = new Date();
       var thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       var currentMonth = thaiMonths[now.getMonth()];
       var currentYear = now.getFullYear() + 543;
+      // แสดงชื่อห้องเรียนที่เลือก
+      var classDisplay = selectedClass ? formatClassName(selectedClass) : 'ทุกห้อง';
       lowScoreStudents.sort(function (a, b) {
         if (a.class !== b.class) return a.class - b.class;
         return a.score - b.score;
@@ -3821,6 +3824,7 @@
       html += '.score-low{color:#dc3545;font-weight:bold;}.score-med{color:#fd7e14;font-weight:bold;}.score-ok{color:#ffc107;font-weight:bold;}';
       html += '@media print{@page{margin:1cm;}}</style></head><body>';
       html += '<div class="header"><h1>รายงานนักเรียนคะแนนต่ำกว่า 100</h1>';
+      html += '<p>ห้องเรียน: ' + classDisplay + '</p>';
       html += '<p>ประจำเดือน ' + currentMonth + ' พ.ศ. ' + currentYear + '</p></div>';
       html += '<div class="summary"><strong>สรุป:</strong> นักเรียนคะแนนต่ำ <strong style="color:#dc3545;">' + lowScoreStudents.length + '</strong> คน</div>';
       html += '<table><thead><tr><th>ลำดับ</th><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>ห้อง</th><th>คะแนน</th><th>หมายเหตุ</th></tr></thead>';
@@ -3832,17 +3836,20 @@
       showStatus('success', 'เปิดหน้าพิมพ์แล้ว - เลือก "บันทึกเป็น PDF"');
     }
 
-    // Export ALL students to PDF
+    // Export ALL students to PDF (uses filteredData based on selected class filter)
     function exportAllStudentsPDF() {
-      if (studentsData.length === 0) {
-        showStatus('error', 'ไม่มีข้อมูลนักเรียน กรุณาโหลดข้อมูลก่อน');
+      // ใช้ filteredData แทน studentsData เพื่อให้ตรงกับ filter ที่เลือก
+      if (filteredData.length === 0) {
+        showStatus('error', 'ไม่มีข้อมูลนักเรียน' + (selectedClass ? ' ในห้อง ' + formatClassName(selectedClass) : '') + ' กรุณาโหลดข้อมูลก่อน');
         return;
       }
       var now = new Date();
       var thaiMonths = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       var currentMonth = thaiMonths[now.getMonth()];
       var currentYear = now.getFullYear() + 543;
-      var sortedStudents = studentsData.slice().sort(function (a, b) {
+      // แสดงชื่อห้องเรียนที่เลือก
+      var classDisplay = selectedClass ? formatClassName(selectedClass) : 'ทุกห้อง';
+      var sortedStudents = filteredData.slice().sort(function (a, b) {
         if (a.class !== b.class) return a.class - b.class;
         return a.name.localeCompare(b.name, 'th');
       });
@@ -3866,6 +3873,7 @@
       html += '.score-high{color:#28a745;font-weight:bold;}.score-med{color:#ffc107;font-weight:bold;}.score-low{color:#dc3545;font-weight:bold;}';
       html += '@media print{@page{margin:1cm;}}</style></head><body>';
       html += '<div class="header"><h1>รายงานคะแนนพฤติกรรมนักเรียน</h1>';
+      html += '<p>ห้องเรียน: ' + classDisplay + '</p>';
       html += '<p>ประจำเดือน ' + currentMonth + ' พ.ศ. ' + currentYear + '</p></div>';
       html += '<table><thead><tr><th>ลำดับ</th><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>ห้อง</th><th>คะแนน</th></tr></thead>';
       html += '<tbody>' + tableRows + '</tbody></table>';
