@@ -298,6 +298,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.7);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
@@ -583,6 +584,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.6);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
@@ -823,6 +825,7 @@
             position: fixed;
             inset: 0;
             background: rgba(255, 255, 255, 0.8);
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
@@ -903,6 +906,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
@@ -1292,6 +1296,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.6);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
@@ -1370,15 +1375,119 @@
         }
 
         .history-student-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.3rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .history-student-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .history-student-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* Profile Viewer Modal */
+        .profile-viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 15000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .profile-viewer-overlay.show {
+            display: flex;
+        }
+
+        .profile-viewer-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .profile-viewer-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-viewer-close {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-viewer-close:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .profile-viewer-name {
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .profile-viewer-id {
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 8px;
+            font-size: 1rem;
+        }
+
+        .no-profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
         }
 
         .history-student-details h4 {
@@ -1607,7 +1716,6 @@
             /* Table */
             .table-container {
                 overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
                 margin: 0 -15px;
                 padding: 0 15px;
                 scroll-behavior: smooth;
@@ -1851,6 +1959,641 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ===== Student Search Modal Styles ===== */
+        .student-search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .student-search-overlay.show {
+            display: flex;
+        }
+
+        .student-search-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .student-search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .student-search-header h3 {
+            font-size: 1.3rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .student-search-header h3 i {
+            color: #10b981;
+        }
+
+        .student-search-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #64748b;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .student-search-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .student-search-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .student-search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Prompt', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .student-search-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .student-search-class-filter {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: 'Prompt', sans-serif;
+            background: white;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .student-search-class-filter:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        .student-search-results {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            padding-right: 5px;
+        }
+
+        .student-search-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .student-search-item:hover {
+            background: #e0f2fe;
+            border-color: #38bdf8;
+            transform: translateX(5px);
+        }
+
+        .student-search-item-info {
+            flex: 1;
+        }
+
+        .student-search-item-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .student-search-item-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .student-search-item-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .student-search-item-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .student-search-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .student-search-empty i {
+            font-size: 3rem;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .student-search-count {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 480px) {
+            .student-search-filters {
+                flex-direction: column;
+            }
+
+            .student-search-class-filter {
+                width: 100%;
+            }
+        }
+
+        /* Utility Classes for Inline Styles */
+        .hidden-input {
+            display: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .qr-reader-container {
+            width: 100%;
+        }
+
+        .qr-reader-hidden {
+            display: none;
+        }
+
+        .section-hidden {
+            display: none;
+        }
+
+        /* Upload Profile Preview Styles */
+        .upload-preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .upload-preview {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 4px dashed #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .upload-preview:hover {
+            border-color: #3b82f6;
+            transform: scale(1.03);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .upload-preview i {
+            font-size: 3.5rem;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+
+        .upload-preview:hover i {
+            color: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        .upload-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .profile-preview-hidden {
+            display: none;
+        }
+
+        .profile-instruction {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+
+        .modal-max-width-500 {
+            max-width: 500px;
+        }
+
+        .modal-max-width-400 {
+            max-width: 400px;
+        }
+
+        .footer-section {
+            background: white;
+            color: #64748b;
+            text-align: center;
+            padding: 15px 20px;
+            font-size: 0.85rem;
+            margin-top: 30px;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        /* ===== Enhanced Manage Student Modal Styles ===== */
+        .manage-student-modal {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+        }
+
+        .manage-student-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .manage-student-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(10deg);
+            }
+        }
+
+        .manage-student-header h3 {
+            color: white;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .manage-student-header h3 i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .manage-student-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 25px 25px;
+            background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .manage-avatar-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .manage-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+            border: 5px solid white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .manage-avatar:hover {
+            transform: scale(1.08) rotate(5deg);
+            box-shadow: 0 20px 50px rgba(99, 102, 241, 0.5);
+        }
+
+        .manage-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .manage-avatar-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .manage-student-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .manage-student-id {
+            font-size: 1rem;
+            color: #6366f1;
+            background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .manage-options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 25px;
+        }
+
+        .manage-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            color: #334155;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .manage-option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .manage-option-btn:hover::before {
+            left: 100%;
+        }
+
+        .manage-option-btn:hover {
+            transform: translateX(10px) scale(1.02);
+            border-color: transparent;
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.25);
+        }
+
+        .manage-option-btn:first-child {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #93c5fd;
+        }
+
+        .manage-option-btn:first-child:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .manage-option-btn:first-child:hover .manage-option-icon {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+
+        .manage-option-btn:first-child:hover span {
+            color: white;
+        }
+
+        .manage-option-btn:nth-child(2) {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #6ee7b7;
+        }
+
+        .manage-option-btn:nth-child(2):hover {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .manage-option-btn:nth-child(2):hover .manage-option-icon {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+
+        .manage-option-btn:nth-child(2):hover span {
+            color: white;
+        }
+
+        .manage-option-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.4s ease;
+            flex-shrink: 0;
+        }
+
+        .manage-option-btn:first-child .manage-option-icon {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .manage-option-btn:nth-child(2) .manage-option-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .manage-option-btn i {
+            font-size: 1.5rem;
+        }
+
+        .manage-option-content {
+            flex: 1;
+        }
+
+        .manage-option-btn span {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 4px;
+            color: #1e293b;
+            transition: color 0.3s;
+        }
+
+        .manage-option-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .manage-option-arrow {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+
+        .manage-option-btn:hover .manage-option-arrow {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 480px) {
+            .manage-student-header {
+                padding: 20px;
+            }
+
+            .manage-student-profile {
+                padding: 25px 20px 20px;
+            }
+
+            .manage-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+
+            .manage-options {
+                padding: 20px;
+                gap: 12px;
+            }
+
+            .manage-option-btn {
+                padding: 16px 18px;
+            }
+
+            .manage-option-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.3rem;
+            }
+
+            .manage-option-btn span {
+                font-size: 1rem;
+            }
+        }
+
+        .required-indicator {
+            color: #ef4444;
+        }
     </style>
 </head>
 
@@ -1931,8 +2674,8 @@
                             <i class="fas fa-camera"></i>
                         </div>
                         <span>ถ่ายรูป QR</span>
-                        <input type="file" id="qrCameraInput" accept="image/*" capture="environment"
-                            style="display: none;" onchange="processQRImage(this)">
+                        <input type="file" id="qrCameraInput" accept="image/*" class="hidden-input"
+                            onchange="processQRImage(this)">
                     </label>
 
                     <!-- Live QR Scanner Button -->
@@ -1960,12 +2703,12 @@
                             <th>รหัส</th>
                             <th>ชื่อ-นามสกุล</th>
                             <th>คะแนน</th>
-                            <th style="text-align: center;">ประวัติ</th>
+                            <th class="text-center">ประวัติ</th>
                         </tr>
                     </thead>
                     <tbody id="studentTable">
                         <tr>
-                            <td colspan="4" style="text-align:center;">กำลังโหลดข้อมูล...</td>
+                            <td colspan="4" class="text-center">กำลังโหลดข้อมูล...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2018,6 +2761,8 @@
 
                 // เก็บนักเรียนทุกคนไว้สำหรับ QR Scanner
                 window.allStudents = stData;
+                console.log('✅ Loaded all students:', stData.length, 'students');
+                console.log('Sample student data:', stData.slice(0, 2));
 
                 // แสดงเฉพาะนักเรียนในห้องของครู
                 students = stData.filter(s => s.class == teacherClass);
@@ -2076,10 +2821,9 @@
             <td>${s.name}</td>
             <td><span class="score-badge ${scoreClass}">${s.score}</span></td>
             <td style="text-align: center;">
-              <button class="btn-history" onclick="viewStudentHistory('${s.id}', '${s.name.replace(/'/g, "\\'")}')"
-                title="ดูประวัติคะแนน">
-                <i class="fas fa-history"></i>
-                ${historyCount > 0 ? `<span>(${historyCount})</span>` : ''}
+              <button class="btn-history" onclick="openManageStudentModal('${s.id}', '${s.name.replace(/'/g, "\\'")}')"
+                title="จัดการนักเรียน">
+                <i class="fas fa-user-cog"></i> จัดการ
               </button>
             </td>
           </tr>
@@ -2121,6 +2865,14 @@
             // Update student info in modal
             document.getElementById('historyStudentName').textContent = studentName;
             document.getElementById('historyStudentId').textContent = `รหัส: ${studentId}`;
+
+            // Set Avatar in History Modal
+            const timestamp = new Date().getTime();
+            const avatarContainer = document.querySelector('#historyModal .history-student-avatar');
+            if (avatarContainer) {
+                avatarContainer.innerHTML = `<img src="./edstudent/${studentId}.jpg?v=${timestamp}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user-graduate\'></i>'">`;
+            }
+            setupAvatarClickHandler(avatarContainer, studentId, studentName);
 
             // Render history list
             const listContainer = document.getElementById('historyList');
@@ -2436,6 +3188,7 @@
         function openManualInput() {
             const modal = document.getElementById('manualInputModal');
             const input = document.getElementById('manualStudentId');
+            console.log('Opening manual input. allStudents available:', !!window.allStudents, 'Count:', window.allStudents?.length);
             modal.classList.add('show');
             input.value = '';
             setTimeout(() => input.focus(), 100);
@@ -2449,6 +3202,8 @@
         function submitManualInput() {
             const input = document.getElementById('manualStudentId');
             const studentId = input.value.trim();
+            console.log('Searching for student ID:', studentId);
+            console.log('Available students:', window.allStudents?.length);
 
             if (studentId) {
                 closeManualInput();
@@ -2461,8 +3216,18 @@
 
         // Shared function to process scanned QR code
         async function processScannedQR(decodedText) {
+            // Check if allStudents is loaded
+            if (!window.allStudents || !Array.isArray(window.allStudents)) {
+                console.error('allStudents not loaded:', window.allStudents);
+                showToast('error', 'ข้อมูลนักเรียนยังไม่โหลด กรุณารอสักครู่');
+                return;
+            }
+
+            // Ensure decodedText is string for comparison
+            const searchId = String(decodedText).trim();
+
             // Find student by ID from ALL students
-            const student = window.allStudents.find(s => s.id === decodedText);
+            const student = window.allStudents.find(s => String(s.id).trim() === searchId);
 
             if (student) {
                 // Open the QR form modal
@@ -2470,7 +3235,7 @@
                 modal.classList.add('show');
 
                 document.getElementById('qrStudentId').value = student.id;
-                document.getElementById('qrStudentName').value = student.name;
+                document.getElementById('qrStudentName').value = student.name || 'ไม่ระบุชื่อ';
                 document.getElementById('qrReason').value = '';
 
                 // Reset checkboxes when opening form
@@ -2479,11 +3244,210 @@
                 document.getElementById('qrForm').classList.add('show');
                 showToast('success', `พบนักเรียน: ${student.name}`);
             } else {
+                console.warn('Student not found:', searchId, 'in', window.allStudents.length, 'students');
                 showToast('error', `ไม่พบข้อมูลนักเรียน รหัส: ${decodedText}`);
             }
         }
 
-        // Toggle checkbox visual state for QR form
+        // Manage Student Functions
+        let currentManageId = null;
+        let currentManageName = null;
+
+        function openManageStudentModal(id, name) {
+            currentManageId = id;
+            currentManageName = name;
+
+            document.getElementById('manageStudentName').textContent = name;
+            document.getElementById('manageStudentId').textContent = `รหัส: ${id}`;
+
+            // Set Avatar
+            const avatarDiv = document.getElementById('manageStudentAvatar');
+            const timestamp = new Date().getTime();
+            avatarDiv.innerHTML = `<img src="./edstudent/${id}.jpg?v=${timestamp}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">`;
+
+            document.getElementById('manageStudentModal').classList.add('show');
+            setupAvatarClickHandler(avatarDiv, id, name);
+        }
+
+        function closeManageStudentModal() {
+            document.getElementById('manageStudentModal').classList.remove('show');
+        }
+
+        function openHistoryFromManage() {
+            closeManageStudentModal();
+            viewStudentHistory(currentManageId, currentManageName);
+        }
+
+        // ========== Profile Viewer Functions ==========
+        function openProfileViewer(studentId, studentName) {
+            const modal = document.getElementById('profileViewerModal');
+            const container = document.getElementById('profileViewerImageContainer');
+            const timestamp = new Date().getTime();
+            const imagePath = `./edstudent/${studentId}.jpg?v=${timestamp}`;
+
+            document.getElementById('profileViewerName').textContent = studentName;
+            document.getElementById('profileViewerId').textContent = `รหัส: ${studentId}`;
+
+            // Show loading first
+            container.innerHTML = `<div class="no-profile-image"><i class="fas fa-spinner fa-spin"></i></div>`;
+            modal.classList.add('show');
+
+            // Try to load image
+            const img = new Image();
+            img.onload = function () {
+                // Image loaded successfully
+                container.innerHTML = `<img class="profile-viewer-image" src="${imagePath}">`;
+            };
+            img.onerror = function () {
+                // Image failed to load, show placeholder
+                console.log('Profile image not found:', imagePath);
+                container.innerHTML = `<div class="no-profile-image"><i class="fas fa-user-graduate"></i></div>`;
+            };
+            img.src = imagePath;
+        }
+
+        function closeProfileViewer(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('profileViewerModal').classList.remove('show');
+        }
+
+        // Setup avatar click handlers - called after setting avatar innerHTML
+        function setupAvatarClickHandler(avatarElement, studentId, studentName) {
+            if (avatarElement) {
+                avatarElement.style.cursor = 'pointer';
+                avatarElement.onclick = function () { openProfileViewer(studentId, studentName); };
+            }
+        }
+
+        // Profile Image State
+        let croppedImageBase64 = null;
+
+        function openUploadProfileModal() {
+            document.getElementById('uploadProfileModal').classList.add('show');
+
+            // Reset file input
+            document.getElementById('profileImageInput').value = '';
+            croppedImageBase64 = null;
+
+            // Load current profile image from edstudent folder
+            const previewImg = document.getElementById('profilePreview');
+            const placeholder = document.getElementById('profilePlaceholder');
+            const timestamp = new Date().getTime();
+
+            // Try to load existing profile image
+            previewImg.src = `./edstudent/${currentManageId}.jpg?v=${timestamp}`;
+            previewImg.onload = function () {
+                // Image exists, show it
+                previewImg.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            previewImg.onerror = function () {
+                // Image doesn't exist, show placeholder
+                previewImg.style.display = 'none';
+                placeholder.style.display = 'block';
+                previewImg.src = '';
+            };
+        }
+
+        function closeUploadProfileModal() {
+            document.getElementById('uploadProfileModal').classList.remove('show');
+        }
+
+        function handleProfileImageSelect(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.onload = function () {
+                        // Center Crop Logic
+                        const canvas = document.createElement('canvas');
+                        const maxSize = 500;
+                        let width = img.width;
+                        let height = img.height;
+
+                        let sx, sy, sWidth, sHeight;
+
+                        // Calculate square crop from center
+                        if (width > height) {
+                            sHeight = height;
+                            sWidth = height;
+                            sx = (width - height) / 2;
+                            sy = 0;
+                        } else {
+                            sWidth = width;
+                            sHeight = width;
+                            sx = 0;
+                            sy = (height - width) / 2;
+                        }
+
+                        canvas.width = maxSize;
+                        canvas.height = maxSize;
+                        const ctx = canvas.getContext('2d');
+
+                        // Draw cropped image
+                        ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, maxSize, maxSize);
+
+                        const base64Data = canvas.toDataURL('image/jpeg', 0.9);
+
+                        // Update UI
+                        const previewImg = document.getElementById('profilePreview');
+                        previewImg.src = base64Data;
+                        previewImg.style.display = 'block';
+                        document.getElementById('profilePlaceholder').style.display = 'none';
+
+                        croppedImageBase64 = base64Data;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function uploadProfileImage() {
+            if (!croppedImageBase64) {
+                showToast('error', 'กรุณาเลือกรูปภาพ');
+                return;
+            }
+
+            // Send to server
+            sendProfileImage(croppedImageBase64);
+        }
+
+        async function sendProfileImage(base64Data) {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/upload-student-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: currentManageId,
+                        image_data: base64Data
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showToast('success', 'อัปโหลดรูปโปรไฟล์เรียบร้อย');
+                    closeUploadProfileModal();
+
+                    // Refresh avatar in manage modal
+                    const timestamp = new Date().getTime();
+                    const avatarDiv = document.getElementById('manageStudentAvatar');
+                    avatarDiv.innerHTML = `<img src="./edstudent/${currentManageId}.jpg?v=${timestamp}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">`;
+
+                } else {
+                    showToast('error', 'เกิดข้อผิดพลาด: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Upload Error:', error);
+                showToast('error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+            } finally {
+                showLoading(false);
+            }
+        }
         function toggleQRDeductionCheckbox(item) {
             const checkbox = item.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked;
@@ -2649,37 +3613,40 @@
 
             // Reset filters
             document.getElementById('studentSearchInput').value = '';
+            document.getElementById('studentSearchClassFilter').value = '';
 
-            // Load all students from user2.1.json if not already loaded
-            if (allStudentsForSearch.length === 0) {
-                try {
-                    document.getElementById('studentSearchResults').innerHTML = `
-                        <div class="student-search-empty">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <p>กำลังโหลดข้อมูลนักเรียน...</p>
-                        </div>
-                    `;
+            // Always reload data to ensure fresh data
+            try {
+                document.getElementById('studentSearchResults').innerHTML = `
+                    <div class="student-search-empty">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>กำลังโหลดข้อมูลนักเรียน...</p>
+                    </div>
+                `;
+                document.getElementById('studentSearchCount').textContent = 'กำลังโหลด...';
 
-                    const response = await fetch('user2.1.json');
-                    allStudentsForSearch = await response.json();
-                    console.log('Loaded', allStudentsForSearch.length, 'students for search');
-
-                    // Populate class filter
-                    populateClassFilter();
-                } catch (error) {
-                    console.error('Error loading students:', error);
-                    document.getElementById('studentSearchResults').innerHTML = `
-                        <div class="student-search-empty">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <p>ไม่สามารถโหลดข้อมูลได้</p>
-                        </div>
-                    `;
-                    return;
+                const response = await fetch('user2.1.json');
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
                 }
-            }
+                allStudentsForSearch = await response.json();
+                console.log('Loaded', allStudentsForSearch.length, 'students for search');
 
-            // Render all students initially
-            filterStudentSearch();
+                // Populate class filter with all unique classes
+                populateClassFilter();
+
+                // Render all students initially
+                filterStudentSearch();
+            } catch (error) {
+                console.error('Error loading students:', error);
+                document.getElementById('studentSearchResults').innerHTML = `
+                    <div class="student-search-empty">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>ไม่สามารถโหลดข้อมูลได้: ${error.message}</p>
+                    </div>
+                `;
+                document.getElementById('studentSearchCount').textContent = 'เกิดข้อผิดพลาด';
+            }
         }
 
         function closeStudentSearchModal() {
@@ -2689,7 +3656,11 @@
 
         function populateClassFilter() {
             const classFilter = document.getElementById('studentSearchClassFilter');
-            const classes = [...new Set(allStudentsForSearch.map(s => s.class))].sort((a, b) => a - b);
+            const classes = [...new Set(allStudentsForSearch.map(s => s.class))]
+                .filter(c => c !== undefined && c !== null)
+                .sort((a, b) => Number(a) - Number(b));
+
+            console.log('Found classes:', classes);
 
             classFilter.innerHTML = '<option value="">ทุกห้อง</option>';
             classes.forEach(classCode => {
@@ -2698,6 +3669,8 @@
                 option.textContent = formatClassNameSearch(classCode);
                 classFilter.appendChild(option);
             });
+
+            console.log('Class filter options:', classFilter.options.length);
         }
 
         function formatClassNameSearch(classCode) {
@@ -2860,8 +3833,8 @@
                 const beforeFile = document.getElementById('beforeImageInput').files[0];
                 const afterFile = document.getElementById('afterImageInput').files[0];
 
-                if (!detail && !beforeFile && !afterFile) {
-                    showToast('error', 'กรุณาระบุรายละเอียดหรือแนบรูปภาพ');
+                if (!detail || !beforeFile || !afterFile) {
+                    showToast('error', 'กรุณากรอกข้อมูลให้ครบทุกช่อง (รายละเอียด, รูป Before, รูป After)');
                     return;
                 }
 
@@ -2955,8 +3928,8 @@
                 <button class="qr-close-btn" onclick="closeQRScanner()">×</button>
             </div>
 
-            <div id="qr-reader" style="width: 100%;"></div>
-            <div id="qr-reader-hidden" style="display: none;"></div>
+            <div id="qr-reader" class="qr-reader-container"></div>
+            <div id="qr-reader-hidden" class="qr-reader-hidden"></div>
 
             <div class="qr-form" id="qrForm">
                 <div class="qr-form-group">
@@ -2979,7 +3952,7 @@
                     <!-- Checkbox group for deduction reasons -->
                     <div class="deduction-reasons-container" id="qrDeductionReasonsContainer">
                         <label class="deduction-reasons-label">เลือกสาเหตุการหักคะแนน <span
-                                style="color: #ef4444;">*</span></label>
+                                class="required-indicator">*</span></label>
                         <div class="deduction-reasons-grid">
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
                                 <input type="checkbox" id="qrReason1" value="มาสาย">
@@ -2998,8 +3971,8 @@
                                 <label for="qrReason4">4. สูบบุหรี่</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason5" value="สูบบุหรี่ไฟฟ้า">
-                                <label for="qrReason5">5. สูบบุหรี่ไฟฟ้า</label>
+                                <input type="checkbox" id="qrReason5" value="บุหรี่ไฟฟ้า">
+                                <label for="qrReason5">5. บุหรี่ไฟฟ้า</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
                                 <input type="checkbox" id="qrReason6" value="การแต่งกายผิดระเบียบ">
@@ -3052,7 +4025,7 @@
                 </div>
 
                 <!-- Section 2: Work Submission (New) -->
-                <div id="section-work" class="section-content" style="display: none;">
+                <div id="section-work" class="section-content section-hidden">
                     <div class="qr-form-group">
                         <label>รายละเอียดงาน / การแก้ไข</label>
                         <textarea id="workDetail" rows="3"
@@ -3166,10 +4139,99 @@
             </div>
         </div>
     </div>
+    </div>
+    <!-- Manage Student Modal -->
+    <div class="history-modal-overlay" id="manageStudentModal">
+        <div class="manage-student-modal" style="max-width: 480px; width: 95%;">
+            <!-- Premium Header -->
+            <div class="manage-student-header">
+                <h3><i class="fas fa-user-cog"></i> จัดการนักเรียน</h3>
+                <button class="history-close-btn" onclick="closeManageStudentModal()"
+                    style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white;">×</button>
+            </div>
+
+            <!-- Student Profile Section -->
+            <div class="manage-student-profile">
+                <div class="manage-avatar-wrapper">
+                    <div class="manage-avatar" id="manageStudentAvatar"
+                        onclick="openProfileViewer(currentManageId, currentManageName)">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="manage-avatar-badge">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="manage-student-name" id="manageStudentName">-</div>
+                <div class="manage-student-id" id="manageStudentId">รหัส: -</div>
+            </div>
+
+            <!-- Action Options -->
+            <div class="manage-options">
+                <button class="manage-option-btn" onclick="openHistoryFromManage()">
+                    <div class="manage-option-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="manage-option-content">
+                        <span>ดูประวัติคะแนน</span>
+                        <div class="manage-option-desc">ดูประวัติการเพิ่ม/หักคะแนนทั้งหมด</div>
+                    </div>
+                    <i class="fas fa-chevron-right manage-option-arrow"></i>
+                </button>
+                <button class="manage-option-btn" onclick="openUploadProfileModal()">
+                    <div class="manage-option-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="manage-option-content">
+                        <span>เปลี่ยนรูปโปรไฟล์</span>
+                        <div class="manage-option-desc">อัปโหลดหรือเปลี่ยนรูปนักเรียน</div>
+                    </div>
+                    <i class="fas fa-chevron-right manage-option-arrow"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Profile Modal -->
+    <div class="history-modal-overlay" id="uploadProfileModal">
+        <div class="history-modal modal-max-width-400">
+            <div class="history-modal-header">
+                <h3><i class="fas fa-camera"></i> เปลี่ยนรูปโปรไฟล์</h3>
+                <button class="history-close-btn" onclick="closeUploadProfileModal()">×</button>
+            </div>
+
+            <div class="upload-preview-container">
+                <div class="upload-preview" onclick="document.getElementById('profileImageInput').click()">
+                    <img id="profilePreview" class="profile-preview-hidden">
+                    <i class="fas fa-cloud-upload-alt" id="profilePlaceholder"></i>
+                </div>
+                <p class="profile-instruction">แตะที่วงกลมเพื่อเลือกรูปภาพ</p>
+                <input type="file" id="profileImageInput" accept="image/*" class="hidden-input"
+                    onchange="handleProfileImageSelect(this)">
+            </div>
+
+            <div class="qr-form-buttons">
+                <button class="qr-btn qr-btn-cancel" onclick="closeUploadProfileModal()">ยกเลิก</button>
+                <button class="qr-btn qr-btn-submit" onclick="uploadProfileImage()">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Viewer Modal -->
+    <div class="profile-viewer-overlay" id="profileViewerModal" onclick="closeProfileViewer(event)">
+        <div class="profile-viewer-content" onclick="event.stopPropagation()">
+            <button class="profile-viewer-close" onclick="closeProfileViewer(event)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="profileViewerImageContainer">
+                <!-- Image or placeholder will be inserted here -->
+            </div>
+            <div class="profile-viewer-name" id="profileViewerName">-</div>
+            <div class="profile-viewer-id" id="profileViewerId">รหัส: -</div>
+        </div>
+    </div>
 
     <!-- Copyright Footer -->
-    <div
-        style="background: white; color: #64748b; text-align: center; padding: 15px 20px; font-size: 0.85rem; margin-top: 30px; border-top: 2px solid #f1f5f9;">
+    <div class="footer-section">
         © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
     </div>
 </body>

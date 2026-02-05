@@ -1152,8 +1152,10 @@
           title: '👤 ข้อมูลส่วนตัว',
           content: `
         <div style="text-align:center; margin-bottom:25px;">
-          <div style="width:100px; height:100px; margin:0 auto 15px; background:linear-gradient(135deg,#3b82f6,#2563eb); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:3rem;">
-            👤
+          <div style="width:120px; height:120px; margin:0 auto 15px; border-radius:50%; overflow:hidden; border:4px solid white; box-shadow:0 5px 15px rgba(0,0,0,0.1); position:relative; background:#e2e8f0;">
+             <img src="edstudent/${user.id}.jpg?v=${new Date().getTime()}" 
+                  style="width:100%; height:100%; object-fit:cover;" 
+                  onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width:100%; height:100%; background:linear-gradient(135deg,#3b82f6,#2563eb); display:flex; align-items:center; justify-content:center; color:white; font-size:3rem;\'>👤</div>'">
           </div>
           <h3 style="margin:10px 0;">${user.name}</h3>
           <p style="color:#64748b;">รหัสนักเรียน: ${user.id}</p>

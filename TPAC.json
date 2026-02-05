@@ -5,5 +5,12 @@
       "password": "483729",
       "status": "TH",
       "class": 101
+   },
+   {
+      "id": "14076",
+      "name": "กฤตภาส  ดำฉวาง",
+      "password": "14076",
+      "status": "admin",
+      "class": 101
    }
 ]

@@ -1,605 +1,344 @@
 const http = require('http');
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
-const PORT = process.env.PORT || 8000;
-const HTTPS_PORT = 8443;
+const PORT = 8000;
 
-// Generate self-signed SSL certificate if not exists
-function ensureSSLCertificates() {
-  const keyPath = path.join(__dirname, 'ssl-key.pem');
-  const certPath = path.join(__dirname, 'ssl-cert.pem');
-
-  if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-    console.log('🔐 กำลังสร้าง SSL Certificate...');
-    try {
-      // Try to use OpenSSL to generate certificates
-      execSync(`openssl req -x509 -newkey rsa:2048 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "/CN=localhost"`, { stdio: 'pipe' });
-      console.log('✅ สร้าง SSL Certificate สำเร็จ!');
-    } catch (e) {
-      console.log('⚠️ ไม่พบ OpenSSL - ใช้ certificate แบบ inline แทน');
-      // Use inline self-signed certificate (valid for testing)
-      const key = `-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7D3sDJJvNx5X3
-Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXr
-QN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4Zw
-F8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3k
-y6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ
-8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK
-3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9AgMBAAECggEABj7yJJJ8WL9X5X3Wb9NXBhFQ
-J5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6
-Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7
-Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y
-5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3W
-b9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQ
-N6y6X7J6Z8N3XJJ8WL9QKBgQDx5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L
-8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9AoGBAMJ5X3Wb9NX
-BhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6
------END PRIVATE KEY-----`;
-      const cert = `-----BEGIN CERTIFICATE-----
-MIIDazCCAlOgAwIBAgIUK8XJJt6x7Q8QG9sK3D4xXJXrQN4wDQYJKoZIhvcNAQEL
-BQAwRTELMAkGA1UEBhMCVEgxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
-GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yNDAxMDEwMDAwMDBaFw0yNTAx
-MDEwMDAwMDBaMEUxCzAJBgNVBAYTAlRIMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
-HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
-AQUAA4IBDwAwggEKAoIBAQC7D3sDJJvNx5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7
-RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9N
-XBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJXrQN6y
-6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJ
-Jt6x7Q8QG9sK3D4xXJXrQN6y6X7J6Z8N3XJJ8WL9AgMBAAGjUzBRMB0GA1UdDgQW
-BBQvF8XJJt6x7Q8QG9sK3D4xXJXrQN0wHwYDVR0jBBgwFoAULxfFySbesewPEBvb
-Ctw+MVyV60DdMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJ5X
-3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4ZwF8XJJt6x7Q8QG9sK3D4xXJX
-rQN6y6X7J6Z8N3XJJ8WL9X5X3Wb9NXBhFQJ5cKj3ky6xyq8Q0Y5D7RdC5F9L8v4Z
------END CERTIFICATE-----`;
-      fs.writeFileSync(keyPath, key);
-      fs.writeFileSync(certPath, cert);
-    }
-  }
-
-  return {
-    key: fs.readFileSync(keyPath),
-    cert: fs.readFileSync(certPath)
-  };
-}
-
-// MIME types for different file extensions
 const mimeTypes = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'text/javascript',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon'
 };
 
-// Helper function to read JSON body
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => {
-      try {
-        resolve(JSON.parse(body));
-      } catch (e) {
-        reject(e);
-      }
+// Helper function to parse JSON body
+function parseBody(req) {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                resolve(body ? JSON.parse(body) : {});
+            } catch (e) {
+                reject(e);
+            }
+        });
+        req.on('error', reject);
     });
-    req.on('error', reject);
-  });
 }
 
 // Helper function to send JSON response
-function sendJSON(res, statusCode, data) {
-  res.writeHead(statusCode, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*'
-  });
-  res.end(JSON.stringify(data));
+function sendJSON(res, data, statusCode = 200) {
+    res.writeHead(statusCode, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify(data));
+}
+
+// Load students data
+function loadStudents() {
+    try {
+        const data = fs.readFileSync('./user2.1.json', 'utf8');
+        return JSON.parse(data);
+    } catch (e) {
+        console.error('Error loading students:', e.message);
+        return [];
+    }
+}
+
+// Save students data
+function saveStudents(students) {
+    try {
+        fs.writeFileSync('./user2.1.json', JSON.stringify(students, null, 2), 'utf8');
+        return true;
+    } catch (e) {
+        console.error('Error saving students:', e.message);
+        return false;
+    }
+}
+
+// Load/Save log data
+function loadLog() {
+    try {
+        const data = fs.readFileSync('./log.json', 'utf8');
+        return JSON.parse(data);
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveLog(logs) {
+    try {
+        fs.writeFileSync('./log.json', JSON.stringify(logs, null, 2), 'utf8');
+        return true;
+    } catch (e) {
+        console.error('Error saving log:', e.message);
+        return false;
+    }
 }
 
 const server = http.createServer(async (req, res) => {
-  console.log(`📥 ${req.method} ${req.url}`);
+    const urlParts = req.url.split('?');
+    const pathname = urlParts[0];
 
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    res.writeHead(200, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    });
-    res.end();
-    return;
-  }
-
-  // =====================================================
-  // API Endpoints (replacing PHP)
-  // =====================================================
-
-  function logTransaction(details) {
-    const logFile = 'log.json';
-    let logs = [];
-    try {
-      if (fs.existsSync(logFile)) {
-        logs = JSON.parse(fs.readFileSync(logFile, 'utf-8'));
-      }
-    } catch (e) { console.error('Error reading log:', e); }
-
-    const timestamp = new Date().toISOString();
-
-    // Cleanup logs older than 3 months
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-    logs = logs.filter(log => {
-      // Ensure timestamp exists and is valid
-      if (!log.timestamp) return false;
-      const logDate = new Date(log.timestamp);
-      return logDate > threeMonthsAgo;
-    });
-
-    // Normalize to array
-    const entries = Array.isArray(details) ? details : [details];
-
-    // Add timestamp to each if not present
-    entries.forEach(e => {
-      if (!e.timestamp) e.timestamp = timestamp;
-    });
-
-    logs.push(...entries);
-
-    try {
-      fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-    } catch (e) { console.error('Error writing log:', e); }
-  }
-
-  // API: บันทึกคะแนนเดี่ยว (แทน save_score.php)
-  if (req.method === 'POST' && req.url === '/api/save-score') {
-    try {
-      const data = await readBody(req);
-      const file = 'user2.1.json';
-
-      // Read current data
-      const students = JSON.parse(fs.readFileSync(file, 'utf-8'));
-
-      // Find and update student
-      let found = false;
-      for (let s of students) {
-        if (s.id === data.id) {
-          const oldScore = s.score;
-          const newScore = data.score;
-
-          if (oldScore !== newScore) {
-            const diff = newScore - oldScore;
-            logTransaction({
-              action: diff > 0 ? 'increase' : 'decrease',
-              student_id: s.id,
-              student_name: s.name,
-              old_score: oldScore,
-              new_score: newScore,
-              change: diff,
-              reason: data.reason || 'Manual Update',
-              timestamp: new Date().toISOString()
-            });
-          }
-
-          s.score = data.score;
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        sendJSON(res, 404, { status: 'error', message: 'ไม่พบนักเรียน' });
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        });
+        res.end();
         return;
-      }
-
-      // Save to file
-      fs.writeFileSync(file, JSON.stringify(students, null, 2));
-      console.log(`✅ บันทึกคะแนน ${data.id}: ${data.score}`);
-
-      sendJSON(res, 200, { status: 'success' });
-    } catch (e) {
-      console.error('❌ Error:', e.message);
-      sendJSON(res, 500, { status: 'error', message: e.message });
     }
-    return;
-  }
 
-  // API: บันทึกสถานะนักเรียน
-  if (req.method === 'POST' && req.url === '/api/save-status') {
-    try {
-      const data = await readBody(req);
-      const file = 'user2.1.json';
+    // ================= API ENDPOINTS =================
 
-      // Read current data
-      let students = [];
-      if (fs.existsSync(file)) {
-        students = JSON.parse(fs.readFileSync(file, 'utf-8'));
-      }
+    // API: Save Status (for updating student status)
+    if (pathname === '/api/save-status' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { id, status } = body;
 
-      // Find and update student
-      let found = false;
-      for (let s of students) {
-        if (s.id === data.id) {
-          s.status = data.status;
-          found = true;
-          break;
+            if (!id || !status) {
+                sendJSON(res, { status: 'error', message: 'Missing id or status' }, 400);
+                return;
+            }
+
+            const students = loadStudents();
+            const student = students.find(s => String(s.id) === String(id));
+
+            if (!student) {
+                sendJSON(res, { status: 'error', message: 'Student not found' }, 404);
+                return;
+            }
+
+            student.status = status;
+
+            if (saveStudents(students)) {
+                console.log(`[API] Status updated: ${id} -> ${status}`);
+                sendJSON(res, { status: 'success', message: 'Status updated successfully' });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Failed to save data' }, 500);
+            }
+        } catch (e) {
+            console.error('[API] save-status error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
         }
-      }
-
-      if (!found) {
-        sendJSON(res, 404, { status: 'error', message: 'ไม่พบนักเรียน' });
         return;
-      }
-
-      // Save to file
-      fs.writeFileSync(file, JSON.stringify(students, null, 2));
-      console.log(`✅ อัปเดตสถานะ ${data.id}: ${data.status}`);
-
-      sendJSON(res, 200, { status: 'success' });
-    } catch (e) {
-      console.error('❌ Error:', e.message);
-      sendJSON(res, 500, { status: 'error', message: e.message });
     }
-    return;
-  }
 
-  // API: บันทึกทั้งหมด (แทน reset_scores.php)
-  if (req.method === 'POST' && req.url === '/api/save-all') {
-    try {
-      const data = await readBody(req);
-      const file = 'user2.1.json';
+    // API: Save Score (for individual score updates)
+    if (pathname === '/api/save-score' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { id, score, reason } = body;
 
-      // Read old data for logging
-      let oldStudents = [];
-      try {
-        oldStudents = JSON.parse(fs.readFileSync(file, 'utf-8'));
-      } catch (e) { /* ignore if file doesn't exist */ }
+            if (!id || score === undefined) {
+                sendJSON(res, { status: 'error', message: 'Missing id or score' }, 400);
+                return;
+            }
 
-      // Detect changes
-      const logs = [];
-      const timestamp = new Date().toISOString();
+            const students = loadStudents();
+            const student = students.find(s => String(s.id) === String(id));
 
-      data.forEach(newStudent => {
-        const oldStudent = oldStudents.find(s => s.id === newStudent.id);
-        if (oldStudent) {
-          const diff = newStudent.score - oldStudent.score;
-          if (diff !== 0) {
+            if (!student) {
+                sendJSON(res, { status: 'error', message: 'Student not found' }, 404);
+                return;
+            }
+
+            const oldScore = student.score;
+            student.score = parseInt(score);
+
+            if (saveStudents(students)) {
+                // Log the change
+                const logs = loadLog();
+                logs.push({
+                    student_id: id,
+                    student_name: student.name,
+                    old_score: oldScore,
+                    new_score: student.score,
+                    change: student.score - oldScore,
+                    reason: reason || 'Score updated',
+                    timestamp: new Date().toISOString(),
+                    type: 'score_change'
+                });
+                saveLog(logs);
+
+                console.log(`[API] Score updated: ${id} (${oldScore} -> ${student.score})`);
+                sendJSON(res, { status: 'success', message: 'Score updated successfully' });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Failed to save data' }, 500);
+            }
+        } catch (e) {
+            console.error('[API] save-score error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Save All (for bulk updates)
+    if (pathname === '/api/save-all' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+
+            if (!Array.isArray(body)) {
+                sendJSON(res, { status: 'error', message: 'Invalid data format' }, 400);
+                return;
+            }
+
+            if (saveStudents(body)) {
+                console.log(`[API] All students saved: ${body.length} records`);
+                sendJSON(res, { status: 'success', message: 'All students saved', students: body.length });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Failed to save data' }, 500);
+            }
+        } catch (e) {
+            console.error('[API] save-all error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Save to Admin (for deduction/addition records from QR scanner)
+    if (pathname === '/api/save-toadmin' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { student_id, student_name, reason, deduction, new_score } = body;
+
+            // Update student score
+            const students = loadStudents();
+            const student = students.find(s => String(s.id) === String(student_id));
+
+            if (student && new_score !== undefined) {
+                student.score = parseInt(new_score);
+                saveStudents(students);
+            }
+
+            // Log the action
+            const logs = loadLog();
             logs.push({
-              action: diff > 0 ? 'increase' : 'decrease',
-              student_id: newStudent.id,
-              student_name: newStudent.name,
-              old_score: oldStudent.score,
-              new_score: newStudent.score,
-              change: diff,
-              reason: 'Batch Update',
-              timestamp: timestamp
+                student_id,
+                student_name,
+                reason,
+                deduction: parseInt(deduction) || 0,
+                new_score: parseInt(new_score),
+                timestamp: new Date().toISOString(),
+                type: 'deduction'
             });
-          }
+            saveLog(logs);
+
+            console.log(`[API] Deduction logged: ${student_id} - ${reason}`);
+            sendJSON(res, { status: 'success', message: 'Record saved' });
+        } catch (e) {
+            console.error('[API] save-toadmin error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
         }
-      });
-
-      if (logs.length > 0) {
-        logTransaction(logs);
-        console.log(`📝 บันทึก Log การแก้ไข: ${logs.length} รายการ`);
-      }
-
-      // Sanitize data: remove temporary logReason before saving
-      const sanitizedData = data.map(s => {
-        const { logReason, ...rest } = s;
-        return rest;
-      });
-
-      // Save all students data
-      fs.writeFileSync(file, JSON.stringify(sanitizedData, null, 2));
-      console.log(`✅ บันทึกข้อมูลนักเรียนทั้งหมด: ${data.length} คน`);
-
-      sendJSON(res, 200, { status: 'success', students: data.length });
-    } catch (e) {
-      console.error('❌ Error:', e.message);
-      sendJSON(res, 500, { status: 'error', message: e.message });
+        return;
     }
-    return;
-  }
 
-  // API: บันทึกข้อมูลการสแกน QR ไปยัง toadmin.json
-  if (req.method === 'POST' && req.url === '/api/save-toadmin') {
-    try {
-      const data = await readBody(req);
-      const file = 'toadmin.json';
+    // API: Save Work (for work submission records)
+    if (pathname === '/api/save-work' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
 
-      // Read existing data
-      let toadminData = [];
-      try {
-        if (fs.existsSync(file)) {
-          toadminData = JSON.parse(fs.readFileSync(file, 'utf-8'));
+            // Load existing work records
+            let works = [];
+            try {
+                const data = fs.readFileSync('./work.json', 'utf8');
+                works = JSON.parse(data);
+            } catch (e) {
+                works = [];
+            }
+
+            // Add new work record
+            works.push({
+                ...body,
+                timestamp: new Date().toISOString()
+            });
+
+            fs.writeFileSync('./work.json', JSON.stringify(works, null, 2), 'utf8');
+
+            console.log(`[API] Work saved: ${body.student_id}`);
+            sendJSON(res, { status: 'success', message: 'Work saved' });
+        } catch (e) {
+            console.error('[API] save-work error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
         }
-      } catch (e) {
-        console.error('Error reading toadmin.json:', e);
-      }
-
-      // Add new entry
-      toadminData.push(data);
-
-      // Save to file
-      fs.writeFileSync(file, JSON.stringify(toadminData, null, 2));
-      console.log(`✅ บันทึกข้อมูลการสแกน QR: ${data.student_id} - ${data.student_name}`);
-
-      sendJSON(res, 200, { status: 'success' });
-    } catch (e) {
-      console.error('❌ Error:', e.message);
-      sendJSON(res, 500, { status: 'error', message: e.message });
+        return;
     }
-    return;
-  }
 
-  // API: บันทึกการส่งงาน/แก้ไข
-  if (req.method === 'POST' && req.url === '/api/save-work') {
-    try {
-      const data = await readBody(req);
-      const studentId = data.student_id;
-      const timestamp = new Date().getTime();
-      const proflyDir = path.join(__dirname, 'profly');
+    // API: Upload Student Profile
+    if (pathname === '/api/upload-student-profile' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { student_id, image_data } = body;
 
-      // Ensure directory exists
-      if (!fs.existsSync(proflyDir)) {
-        fs.mkdirSync(proflyDir);
-      }
+            if (!student_id || !image_data) {
+                sendJSON(res, { status: 'error', message: 'Missing student_id or image_data' }, 400);
+                return;
+            }
 
-      let beforeImagePath = null;
-      let afterImagePath = null;
+            // Create edstudent directory if it doesn't exist
+            const dirPath = './edstudent';
+            if (!fs.existsSync(dirPath)) {
+                fs.mkdirSync(dirPath, { recursive: true });
+            }
 
-      // Save Before Image
-      if (data.image_before) {
-        const base64Data = data.image_before.replace(/^data:image\/\w+;base64,/, "");
-        const fileName = `${timestamp}_${studentId}_before.jpg`;
-        const filePath = path.join(proflyDir, fileName);
-        fs.writeFileSync(filePath, base64Data, 'base64');
-        beforeImagePath = `profly/${fileName}`;
-      }
+            // Save image (base64 to file)
+            const base64Data = image_data.replace(/^data:image\/\w+;base64,/, '');
+            const imagePath = path.join(dirPath, `${student_id}.jpg`);
+            fs.writeFileSync(imagePath, base64Data, 'base64');
 
-      // Save After Image
-      if (data.image_after) {
-        const base64Data = data.image_after.replace(/^data:image\/\w+;base64,/, "");
-        const fileName = `${timestamp}_${studentId}_after.jpg`;
-        const filePath = path.join(proflyDir, fileName);
-        fs.writeFileSync(filePath, base64Data, 'base64');
-        afterImagePath = `profly/${fileName}`;
-      }
-
-      // Prepare record for toadmin.json
-      const record = {
-        student_id: data.student_id,
-        student_name: data.student_name,
-        detail: data.detail,
-        image_before: beforeImagePath,
-        image_after: afterImagePath,
-        teacher: data.teacher,
-        timestamp: data.timestamp,
-        type: 'work_submission',
-        status: 'pending'
-      };
-
-      const file = 'toadmin.json';
-      let toadminData = [];
-      try {
-        if (fs.existsSync(file)) {
-          toadminData = JSON.parse(fs.readFileSync(file, 'utf-8'));
+            console.log(`[API] Profile uploaded: ${student_id}`);
+            sendJSON(res, { status: 'success', message: 'Profile image saved' });
+        } catch (e) {
+            console.error('[API] upload-student-profile error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
         }
-      } catch (e) {
-        console.error('Error reading toadmin.json:', e);
-      }
-
-      toadminData.push(record);
-      fs.writeFileSync(file, JSON.stringify(toadminData, null, 2));
-
-      console.log(`✅ บันทึกการส่งงาน: ${data.student_id} - ${data.student_name}`);
-      sendJSON(res, 200, { status: 'success' });
-    } catch (e) {
-      console.error('❌ Error saving work:', e.message);
-      sendJSON(res, 500, { status: 'error', message: e.message });
+        return;
     }
-    return;
-  }
 
-  // API: อัพเดทสถานะการแจ้งเตือนใน toadmin.json
-  if (req.method === 'POST' && req.url === '/api/update-toadmin-status') {
-    try {
-      const data = await readBody(req);
-      const file = 'toadmin.json';
+    // ================= STATIC FILE SERVER =================
+    let filePath = '.' + pathname;
+    if (filePath === './') filePath = './th.html';
 
-      // Read existing data
-      let toadminData = [];
-      try {
-        if (fs.existsSync(file)) {
-          toadminData = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const extname = path.extname(filePath).toLowerCase();
+    const contentType = mimeTypes[extname] || 'application/octet-stream';
+
+    fs.readFile(filePath, (err, content) => {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                console.log('404 Not Found:', filePath);
+                res.writeHead(404);
+                res.end('File not found: ' + filePath);
+            } else {
+                res.writeHead(500);
+                res.end('Server error: ' + err.code);
+            }
+        } else {
+            console.log('200 OK:', filePath);
+            res.writeHead(200, { 'Content-Type': contentType });
+            res.end(content);
         }
-      } catch (e) {
-        console.error('Error reading toadmin.json:', e);
-      }
-
-      // Update status
-      if (data.index >= 0 && data.index < toadminData.length) {
-        toadminData[data.index].status = 'completed';
-        toadminData[data.index].completed_at = new Date().toISOString();
-        toadminData[data.index].completed_by = data.admin_name || 'Admin';
-
-        // Save to file
-        fs.writeFileSync(file, JSON.stringify(toadminData, null, 2));
-        console.log(`✅ อัพเดทสถานะการแจ้งเตือน index ${data.index} เป็น completed`);
-
-        sendJSON(res, 200, { status: 'success' });
-      } else {
-        sendJSON(res, 400, { status: 'error', message: 'Invalid index' });
-      }
-    } catch (e) {
-      console.error('❌ Error:', e.message);
-      sendJSON(res, 500, { status: 'error', message: e.message });
-    }
-    return;
-  }
-
-  // =====================================================
-  // Static File Serving
-  // =====================================================
-
-  // Default to index.html for root path
-  let filePath = '.' + req.url;
-  if (filePath === './') {
-    filePath = './index.html';
-  }
-
-  // Get file extension
-  const extname = String(path.extname(filePath)).toLowerCase();
-  const contentType = mimeTypes[extname] || 'application/octet-stream';
-
-  // Read and serve the file
-  fs.readFile(filePath, (error, content) => {
-    if (error) {
-      if (error.code === 'ENOENT') {
-        // File not found
-        res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>404 - ไม่พบไฟล์</title>
-            <style>
-              body {
-                font-family: 'Prompt', Arial, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-              }
-              .error-box {
-                text-align: center;
-                padding: 40px;
-                background: rgba(255,255,255,0.1);
-                border-radius: 20px;
-                backdrop-filter: blur(10px);
-              }
-              h1 { font-size: 4rem; margin: 0; }
-              p { font-size: 1.5rem; }
-            </style>
-          </head>
-          <body>
-            <div class="error-box">
-              <h1>404</h1>
-              <p>❌ ไม่พบไฟล์ที่ต้องการ</p>
-              <p style="font-size:1rem; opacity:0.8;">${req.url}</p>
-            </div>
-          </body>
-          </html>
-        `);
-      } else {
-        // Server error
-        res.writeHead(500);
-        res.end(`Server Error: ${error.code}`);
-      }
-    } else {
-      // Success
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content, 'utf-8');
-    }
-  });
+    });
 });
 
-// Start HTTPS server on port 8000 for mobile camera access
-let mainServer;
-
-try {
-  const sslOptions = ensureSSLCertificates();
-  mainServer = https.createServer(sslOptions, server._events.request);
-
-  mainServer.listen(PORT, () => {
-    console.log('\n🚀 HTTPS Server กำลังทำงาน!');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`📍 URL: https://localhost:${PORT}`);
-
-    // Get local IP for mobile access
-    const os = require('os');
-    const interfaces = os.networkInterfaces();
-    let localIP = 'localhost';
-
-    for (const name of Object.keys(interfaces)) {
-      for (const iface of interfaces[name]) {
-        if (iface.family === 'IPv4' && !iface.internal) {
-          localIP = iface.address;
-          break;
-        }
-      }
-    }
-
-    console.log(`📱 สำหรับมือถือ: https://${localIP}:${PORT}`);
-    console.log('   (กด "ขั้นสูง" > "ไปที่เว็บไซต์" เมื่อเบราว์เซอร์แจ้งเตือน)');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📚 API Endpoints:');
-    console.log('   POST /api/save-score             - บันทึกคะแนนเดี่ยว');
-    console.log('   POST /api/save-all               - บันทึกทั้งหมด');
-    console.log('   POST /api/save-toadmin           - บันทึกข้อมูลการสแกน QR');
-    console.log('   POST /api/update-toadmin-status  - อัพเดทสถานะการแจ้งเตือน');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💡 กด Ctrl+C เพื่อหยุด Server\n');
-  });
-
-  mainServer.on('error', (error) => {
-    if (error.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} ถูกใช้งานแล้ว!`);
-      console.log('💡 ลองปิดโปรแกรมที่ใช้ Port นี้อยู่');
-    } else {
-      console.error('❌ เกิดข้อผิดพลาด:', error.message);
-    }
-    process.exit(1);
-  });
-} catch (e) {
-  console.error('⚠️ ไม่สามารถเริ่ม HTTPS Server:', e.message);
-  console.log('   กำลังใช้ HTTP แทน...');
-
-  // Fallback to HTTP if HTTPS fails
-  mainServer = server;
-  mainServer.listen(PORT, () => {
-    console.log('\n🚀 HTTP Server กำลังทำงาน!');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`📍 URL: http://localhost:${PORT}`);
-    console.log('⚠️ กล้องจะใช้งานได้เฉพาะบน localhost เท่านั้น');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('💡 กด Ctrl+C เพื่อหยุด Server\n');
-  });
-
-  mainServer.on('error', (error) => {
-    if (error.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} ถูกใช้งานแล้ว!`);
-    } else {
-      console.error('❌ เกิดข้อผิดพลาด:', error.message);
-    }
-    process.exit(1);
-  });
-}
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('\n👋 กำลังปิด Server...');
-  mainServer.close(() => {
-    console.log('✅ Server ปิดเรียบร้อย');
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', () => {
-  console.log('\n\n👋 กำลังปิด Server...');
-  mainServer.close(() => {
-    console.log('✅ Server ปิดเรียบร้อย');
-    process.exit(0);
-  });
+server.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}/`);
+    console.log('API Endpoints available:');
+    console.log('  POST /api/save-status - Update student status');
+    console.log('  POST /api/save-score - Update individual score');
+    console.log('  POST /api/save-all - Save all student data');
+    console.log('  POST /api/save-toadmin - Log deductions');
+    console.log('  POST /api/save-work - Save work submissions');
+    console.log('  POST /api/upload-student-profile - Upload profile image');
+    console.log('Press Ctrl+C to stop');
 });

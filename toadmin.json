@@ -1,3 +1,155 @@
 [
-  
+  {
+    "student_id": "13086",
+    "student_name": "มุสตากีม สีสาแม",
+    "reason": "มาสาย",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T12:53:32.461Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:19:07.900Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "ก้าวร้าวกับครู",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:20:02.128Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:20:15.879Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "ก้าวร้าวกับครู",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:22:04.005Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:27:15.519Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "ก้าวร้าวกับครู",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:29:08.897Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:29:11.428Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "ก้าวร้าวกับครู",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:29:38.249Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:29:45.399Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "ก้าวร้าวกับครู",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:31:57.366Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:32:14.637Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "สูบบุหรี่ไฟฟ้า",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:33:11.410Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:33:24.742Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "14076",
+    "student_name": "กฤตภาส  ดำฉวาง",
+    "reason": "สูบบุหรี่ไฟฟ้า",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:34:37.595Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:34:43.934Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "สูบบุหรี่ไฟฟ้า",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:36:47.167Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:36:52.292Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "สูบบุหรี่ไฟฟ้า",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:38:38.342Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:38:43.099Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "สูบบุหรี่",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:39:57.174Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:40:03.658Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "สูบบุหรี่ไฟฟ้า",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:44:10.271Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:44:16.062Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "บุหรี่ไฟฟ้า",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:47:21.916Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:47:27.955Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "detail": "ไก",
+    "image_before": "profly/1770127088804_13119_before.jpg",
+    "image_after": "profly/1770127088804_13119_after.jpg",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T13:58:08.775Z",
+    "type": "work_submission",
+    "status": "completed",
+    "completed_at": "2026-02-03T13:58:54.646Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  },
+  {
+    "student_id": "14076",
+    "student_name": "กฤตภาส  ดำฉวาง",
+    "reason": "ทะเลาะวิวาท",
+    "teacher": "นางสาวสโรชา เมืองมุสิก",
+    "timestamp": "2026-02-03T15:56:22.102Z",
+    "status": "completed",
+    "completed_at": "2026-02-03T15:57:32.765Z",
+    "completed_by": "นางสาวสโรชา เมืองมุสิก"
+  }
 ]

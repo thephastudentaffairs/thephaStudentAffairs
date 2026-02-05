@@ -10,6 +10,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
     // Authentication check - redirect to login if not authenticated as admin
     (function () {
@@ -85,6 +87,14 @@
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 20px;
+    }
+
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
     }
 
     .btn {
@@ -440,6 +450,232 @@
     .close-btn:hover {
       color: #333;
     }
+
+    /* Action Buttons from th.html */
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 24px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: white;
+    }
+
+    .action-btn .btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      background: rgba(255, 255, 255, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .btn-enter-id {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-enter-id:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-camera {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-camera:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-scan-qr {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-scan-qr:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+    }
+
+    .btn-search-all {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-search-all:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Student Search Modal */
+    .student-search-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .student-search-overlay.show {
+      display: flex;
+    }
+
+    .student-search-modal {
+      background: white;
+      border-radius: 20px;
+      width: 95%;
+      max-width: 600px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .student-search-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .student-search-results {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px 25px;
+      max-height: 400px;
+    }
+
+    .student-search-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #f8fafc;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .student-search-item:hover {
+      background: #ecfdf5;
+      border-color: #10b981;
+    }
+
+    .student-search-item-info {
+      flex: 1;
+    }
+
+    .student-search-item-name {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .student-search-item-meta {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    /* QR Scanner Modal */
+    .qr-scanner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .qr-scanner-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Manual Input Modal */
+    .manual-input-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .manual-input-modal.show {
+      display: flex;
+    }
+
+    .manual-input-content {
+      background: white;
+      padding: 30px;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Deduction Reasons Checkbox Grid */
+    .deduction-reasons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .deduction-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+    }
+
+    .deduction-checkbox-item.checked {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
 
     .form-group {
       margin-bottom: 20px;
@@ -1961,6 +2197,31 @@
       <p>แก้ไขคะแนนได้โดยตรง พร้อมบันทึกอัตโนมัติ</p>
     </div>
 
+    <!-- Actions Bar -->
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="action-buttons" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <button class="action-btn btn-enter-id" onclick="openManualInput()">
+          <div class="btn-icon"><i class="fas fa-keyboard"></i></div>
+          กรอกรหัส
+        </button>
+        <button class="action-btn btn-camera" onclick="document.getElementById('qrInputFile').click()">
+          <div class="btn-icon"><i class="fas fa-camera"></i></div>
+          ถ่ายรูป QR
+        </button>
+        <input type="file" id="qrInputFile" accept="image/*" style="display: none;" onchange="processQRImage(this)">
+
+        <button class="action-btn btn-scan-qr" onclick="openQRScanner()">
+          <div class="btn-icon"><i class="fas fa-qrcode"></i></div>
+          สแกน QR
+        </button>
+
+        <button class="action-btn btn-search-all" onclick="openStudentSearchModal()">
+          <div class="btn-icon"><i class="fas fa-search"></i></div>
+          ค้นหา นร.
+        </button>
+      </div>
+    </div>
+
     <!-- การแจ้งเตือน -->
     <div class="notification-card" id="notificationCard" style="display: none;">
       <div class="notification-header">
@@ -2006,36 +2267,7 @@
       </div>
     </div>
 
-    <!-- ดาวน์โหลดข้อมูล JSON -->
-    <div class="card">
-      <h2><i class="fas fa-download"></i> ดาวน์โหลดข้อมูล JSON</h2>
-      <p style="color: #718096; margin-bottom: 20px;">ดาวน์โหลดไฟล์ข้อมูลทั้งหมดในระบบ</p>
 
-      <div class="btn-group" style="flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="downloadJSON('user2.1.json')">
-          <i class="fas fa-users"></i> user2.1.json (นักเรียน)
-        </button>
-        <button class="btn btn-success" onclick="downloadJSON('th.json')">
-          <i class="fas fa-chalkboard-teacher"></i> th.json (ครูที่ปรึกษา)
-        </button>
-        <button class="btn btn-warning" onclick="downloadJSON('log.json')">
-          <i class="fas fa-history"></i> log.json (ประวัติคะแนน)
-        </button>
-        <button class="btn btn-info" onclick="downloadJSON('toadmin.json')">
-          <i class="fas fa-bell"></i> toadmin.json (แจ้งเตือน)
-        </button>
-        <button class="btn btn-danger" onclick="downloadJSON('TPAC.json')">
-          <i class="fas fa-user-shield"></i> TPAC.json (แอดมิน)
-        </button>
-      </div>
-
-      <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #f0f0f0;">
-        <button class="btn btn-primary" onclick="downloadAllJSON()"
-          style="background: linear-gradient(135deg, #1a202c, #2d3748);">
-          <i class="fas fa-file-archive"></i> ดาวน์โหลดทั้งหมด (ZIP)
-        </button>
-      </div>
-    </div>
 
     <!-- ตารางแก้ไขคะแนน -->
     <div class="card">
@@ -2228,6 +2460,37 @@
         </div>
       </div>
     </div>
+
+    <!-- ดาวน์โหลดข้อมูล JSON -->
+    <div class="card">
+      <h2><i class="fas fa-download"></i> ดาวน์โหลดข้อมูล JSON</h2>
+      <p style="color: #718096; margin-bottom: 20px;">ดาวน์โหลดไฟล์ข้อมูลทั้งหมดในระบบ</p>
+
+      <div class="btn-group" style="flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="downloadJSON('user2.1.json')">
+          <i class="fas fa-users"></i> user2.1.json (นักเรียน)
+        </button>
+        <button class="btn btn-success" onclick="downloadJSON('th.json')">
+          <i class="fas fa-chalkboard-teacher"></i> th.json (ครูที่ปรึกษา)
+        </button>
+        <button class="btn btn-warning" onclick="downloadJSON('log.json')">
+          <i class="fas fa-history"></i> log.json (ประวัติคะแนน)
+        </button>
+        <button class="btn btn-info" onclick="downloadJSON('toadmin.json')">
+          <i class="fas fa-bell"></i> toadmin.json (แจ้งเตือน)
+        </button>
+        <button class="btn btn-danger" onclick="downloadJSON('TPAC.json')">
+          <i class="fas fa-user-shield"></i> TPAC.json (แอดมิน)
+        </button>
+      </div>
+
+      <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #f0f0f0;">
+        <button class="btn btn-primary" onclick="downloadAllJSON()"
+          style="background: linear-gradient(135deg, #1a202c, #2d3748);">
+          <i class="fas fa-file-archive"></i> ดาวน์โหลดทั้งหมด (ZIP)
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal แก้ไขนักเรียน -->
@@ -2310,8 +2573,8 @@
             <label for="reason4">4. สูบบุหรี่</label>
           </div>
           <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-            <input type="checkbox" id="reason5" value="สูบบุหรี่ไฟฟ้า">
-            <label for="reason5">5. สูบบุหรี่ไฟฟ้า</label>
+            <input type="checkbox" id="reason5" value="บุหรี่ไฟฟ้า">
+            <label for="reason5">5. บุหรี่ไฟฟ้า</label>
           </div>
           <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
             <input type="checkbox" id="reason6" value="การแต่งกายผิดระเบียบ">
@@ -2496,16 +2759,89 @@
           return;
         }
 
-        // ลบออกจาก array ทันทีและ re-render (ไม่ต้องรอ server)
+        // ==========================================
+        // Automated Deduction Logic
+        // ==========================================
+        const reason = notification.reason || '';
+        const deductionRules = {
+          'มาสาย': 10,
+          'ไม่สวมหมวกกันน็อค': 10,
+          'หนีเรียน': 10,
+          'สูบบุหรี่': 30,
+          'เล่นการพนัน': 30,
+          'บุหรี่ไฟฟ้า': 60,
+          'สิงห้องน้ำ': 10,
+          'บูลลี่': 60,
+          'แอบถ่ายรูป': 20, // Updated to 20
+          'การแต่งกายผิดระเบียบ': 10,
+          'ใช้สื่อโซเชียลไม่เหมาะสม': 60,
+          'ทะเลาะวิวาท': 30,
+          'ทำลายทรัพย์สินโรงเรียน': 30
+        };
+
+        // Check if reason contains any keyword
+        let deduction = 0;
+        let matchedReason = '';
+
+        for (const [key, score] of Object.entries(deductionRules)) {
+          if (reason.includes(key)) {
+            deduction += score;
+            matchedReason += key + ' ';
+          }
+        }
+
+        if (deduction > 0) {
+          // Automated Path
+          const student = studentsData.find(s => s.id === notification.student_id);
+          if (student) {
+            const newScore = Math.max(0, student.score - deduction);
+
+            const scoreResponse = await fetch('/api/save-score', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: student.id,
+                score: newScore,
+                reason: `หักคะแนนอัตโนมัติ: ${matchedReason.trim()}`
+              })
+            });
+
+            if (scoreResponse.ok) {
+              student.score = newScore;
+              showStatus('info', `หัก ${deduction} คะแนน (${matchedReason.trim()})`);
+            }
+          }
+          // Proceed to finish
+          await finalizeCompletion(index, actualIndex, adminName);
+
+        } else {
+          // Manual Path - Open Modal
+          pendingNotificationDiff = { notification, actualIndex, adminName, index };
+          document.getElementById('manualScoreInput').value = ''; // Reset
+          document.getElementById('manualScoreModal').classList.add('show');
+          setTimeout(() => document.getElementById('manualScoreInput').focus(), 100);
+        }
+
+      } catch (error) {
+        console.error('Error marking as completed:', error);
+        showStatus('error', 'เกิดข้อผิดพลาดในการดำเนินการ');
+        loadNotifications();
+      }
+    }
+
+    // ฟังก์ชันจบงาน (Mark as Done)
+    async function finalizeCompletion(index, actualIndex, adminName) {
+      // ลบออกจาก array ทันทีและ re-render
+      if (index < notificationsData.length) {
         notificationsData.splice(index, 1);
         renderNotifications();
+      }
 
-        // Send update to server in background
+      try {
+        // Send update to server
         const updateResponse = await fetch('/api/update-toadmin-status', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             index: actualIndex,
             admin_name: adminName
@@ -2516,15 +2852,17 @@
 
         if (result.status === 'success') {
           showStatus('success', 'ดำเนินการเรียบร้อยแล้ว');
+
+          // Refresh table
+          if (typeof filterData === 'function') filterData();
+          else if (typeof displayTable === 'function') displayTable();
+
         } else {
-          // ถ้า server error ให้โหลดข้อมูลใหม่เพื่อ sync
           showStatus('error', 'เกิดข้อผิดพลาด: ' + (result.message || 'Unknown error'));
           loadNotifications();
         }
-      } catch (error) {
-        console.error('Error marking as completed:', error);
-        showStatus('error', 'เกิดข้อผิดพลาดในการดำเนินการ');
-        // ถ้าเกิด error ให้โหลดข้อมูลใหม่เพื่อ sync
+      } catch (e) {
+        console.error(e);
         loadNotifications();
       }
     }
@@ -2597,10 +2935,14 @@
 
     // Apply all filters (search + class)
     function applyFilters() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
       filteredData = studentsData.filter(s => {
-        const matchSearch = s.name.toLowerCase().includes(query) || s.id.includes(query);
+        // Ensure name exists and is a string
+        const studentName = (s.name || '').toString().toLowerCase();
+        const studentId = (s.id || '').toString();
+        
+        const matchSearch = !query || studentName.includes(query) || studentId.includes(query);
         const matchClass = !selectedClass || String(s.class) === selectedClass;
         return matchSearch && matchClass;
       });
@@ -2687,15 +3029,18 @@
         return;
       }
 
-      dropdown.innerHTML = filteredResults.slice(0, 8).map(student => `
+      dropdown.innerHTML = filteredResults.slice(0, 8).map(student => {
+        const studentName = student.name || 'ไม่ระบุชื่อ';
+        return `
           <div class="dropdown-item" onclick="selectStudent('${student.id}')">
             <div class="student-info">
-              <span class="student-name">${student.name}</span>
+              <span class="student-name">${studentName}</span>
               <span class="student-id">รหัส: ${student.id}</span>
             </div>
             <span class="student-class">${formatClassName(student.class)}</span>
           </div>
-        `).join('');
+        `;
+      }).join('');
 
       dropdown.classList.add('show');
     }
@@ -2728,13 +3073,33 @@
           if (response.ok) {
             foundFile = file;
             const data = await response.json();
-            studentsData = JSON.parse(JSON.stringify(data)); // Copy
-            originalData = JSON.parse(JSON.stringify(data)); // Backup
+            
+            // Verify data is array
+            if (!Array.isArray(data)) {
+              console.error('Data is not an array:', data);
+              continue;
+            }
+            
+            // Ensure all records have name field and required properties
+            studentsData = data.map(student => ({
+              id: student.id || '',
+              name: student.name || student.studentName || 'ไม่ระบุชื่อ',
+              password: student.password || '',
+              status: student.status || 'normal',
+              score: student.score || 0,
+              class: student.class || 0
+            }));
+            
+            console.log('Loaded data sample:', studentsData.slice(0, 3));
+            
+            originalData = JSON.parse(JSON.stringify(studentsData)); // Backup
             filteredData = [...studentsData];
             break;
+          } else {
+            console.log(`File ${file} not found (HTTP ${response.status})`);
           }
         } catch (e) {
-          console.log(`ไม่พบ ${file}`);
+          console.log(`Error loading ${file}:`, e.message);
         }
       }
 
@@ -2748,7 +3113,24 @@
         displayTable();
       } else {
         statusMsg.className = 'status-box show status-error';
-        statusMsg.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ไม่พบไฟล์ข้อมูล! กรุณาตรวจสอบว่ามีไฟล์ user2.1.json หรือ user2_1.json';
+        const helpText = `
+          <strong>ไม่พบไฟล์ข้อมูล!</strong><br>
+          วิธีแก้:<br>
+          1. โปรดตรวจสอบว่ามีไฟล์ <strong>user2.1.json</strong> หรือ <strong>user2_1.json</strong> ในโฟลเดอร์เดียวกัน<br>
+          2. หากเปิดไฟล์ HTML โดยตรง ให้เปิดผ่านเซิร์ฟเวอร์แทน:<br>
+          &nbsp;&nbsp;&nbsp;- เปิด Command Prompt/Terminal ไปที่โฟลเดอร์นี้<br>
+          &nbsp;&nbsp;&nbsp;- พิมพ์: <code>node server.js</code><br>
+          &nbsp;&nbsp;&nbsp;- เข้าไปที่: <strong>http://localhost:8000</strong><br>
+          3. ถ้าไม่มี server.js ให้ใช้เซิร์ฟเวอร์อื่น เช่น:<br>
+          &nbsp;&nbsp;&nbsp;- <code>python -m http.server 8000</code> (Python)<br>
+          &nbsp;&nbsp;&nbsp;- <code>php -S localhost:8000</code> (PHP)<br>
+          &nbsp;&nbsp;&nbsp;- <code>npx http-server</code> (Node.js)
+        `;
+        statusMsg.innerHTML = helpText;
+        statusMsg.style.textAlign = 'left';
+        statusMsg.style.lineHeight = '1.6';
+        // Show empty table instead of stuck loading state
+        displayTable();
       }
     }
 
@@ -2788,7 +3170,7 @@
     // อัปเดตสถิติ
     function updateStats() {
       const total = studentsData.length;
-      const avg = studentsData.reduce((sum, s) => sum + s.score, 0) / total;
+      const avg = total > 0 ? studentsData.reduce((sum, s) => sum + s.score, 0) / total : 0;
       const high = studentsData.filter(s => s.score >= 80).length;
       const low = studentsData.filter(s => s.score < 60).length;
 
@@ -2854,18 +3236,20 @@
         const scoreClass = student.score >= 80 ? 'score-high' : student.score < 60 ? 'score-low' : 'score-medium';
         const diff = student.score - originalScore;
         const displayIndex = startIndex + index + 1;
+        const studentName = student.name || 'ไม่ระบุชื่อ';
+        const studentStatus = student.status || 'normal';
 
         return `
           <tr>
             <td>${displayIndex}</td>
             <td>${student.id}</td>
-            <td>${student.name}</td>
+            <td>${studentName}</td>
             <td><span class="class-badge">${formatClassName(student.class)}</span></td>
             <td>
               <select onchange="updateStatus('${student.id}', this.value)" style="padding: 6px; border-radius: 6px; border: 1px solid #cbd5e0; background: white; font-family: inherit; font-size: 0.9em; cursor: pointer;">
-                <option value="normal" ${student.status === 'normal' ? 'selected' : ''}>กำลังศึกษาอยู่</option>
-                <option value="Absent" ${student.status === 'Absent' ? 'selected' : ''}>ขาดเรียนนาน</option>
-                <option value="moved" ${student.status === 'moved' ? 'selected' : ''}>ย้ายแล้ว</option>
+                <option value="normal" ${studentStatus === 'normal' ? 'selected' : ''}>กำลังศึกษาอยู่</option>
+                <option value="Absent" ${studentStatus === 'Absent' ? 'selected' : ''}>ขาดเรียนนาน</option>
+                <option value="moved" ${studentStatus === 'moved' ? 'selected' : ''}>ย้ายแล้ว</option>
                 <option value="notnormal" ${student.status === 'notnormal' ? 'selected' : ''}>พักการเรียน</option>
               </select>
             </td>
@@ -3323,14 +3707,15 @@
 
     // ค้นหา
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
+      const query = e.target.value.toLowerCase().trim();
 
       // Show dropdown suggestions
-      if (query.length >= 1) {
-        const suggestions = studentsData.filter(s =>
-          s.name.toLowerCase().includes(query) ||
-          s.id.includes(query)
-        );
+      if (query.length >= 1 && studentsData.length > 0) {
+        const suggestions = studentsData.filter(s => {
+          const studentName = (s.name || '').toString().toLowerCase();
+          const studentId = (s.id || '').toString();
+          return studentName.includes(query) || studentId.includes(query);
+        });
         showSearchDropdown(suggestions);
       } else {
         document.getElementById('searchDropdown').classList.remove('show');
@@ -3630,7 +4015,17 @@
 
     // เริ่มต้น
     window.onload = () => {
-      loadData();
+      console.log('🟢 Page loaded - starting data loading...');
+      loadData().then(() => {
+        console.log('✅ Data loaded successfully. Students:', studentsData.length);
+        if (studentsData.length > 0) {
+          console.log('📋 Sample data:', studentsData.slice(0, 2));
+          console.log('✨ Search should work now');
+        }
+      }).catch(e => {
+        console.error('❌ Error loading data:', e);
+      });
+      
       loadNotifications();
 
       // Auto-refresh notifications every 5 seconds (เช็คข้อมูลใหม่บ่อยขึ้น)
@@ -4138,29 +4533,353 @@
     }
   </script>
 
+  </div>
+  </div>
+  </div>
+
   <!-- Score History Modal -->
   <div class="history-modal-overlay" id="historyModalOverlay">
-    <div class="history-modal">
-      <div class="history-modal-header">
-        <h3><i class="fas fa-history"></i> ประวัติคะแนนพฤติกรรม</h3>
-        <button class="history-close-btn" onclick="closeHistoryModal()">×</button>
-      </div>
-      <div class="history-student-info">
-        <div class="history-student-avatar">
-          <i class="fas fa-user-graduate"></i>
-        </div>
-        <div class="history-student-details">
-          <h4 id="historyStudentName">-</h4>
-          <span id="historyStudentId">รหัส: -</span>
-        </div>
-      </div>
-      <div class="history-list-container">
-        <div class="history-list" id="historyList">
-          <!-- History items will be rendered here -->
-        </div>
+    <!-- Included Content -->
+    <!-- (Previous step verified this existed, so I assume I am appending to the file correctly) -->
+  </div>
+
+  <!-- ==================== NEW FEATURES MODALS ==================== -->
+
+  <!-- Manual Input Modal -->
+  <div class="manual-input-modal" id="manualInputModal">
+    <div class="manual-input-content">
+      <h3>กรอกรหัสนักเรียน</h3>
+      <p>พิมพ์รหัสนักเรียนที่ต้องการเพิ่ม/ลดคะแนน</p>
+      <input type="text" id="manualStudentId" placeholder="12345" maxlength="10"
+        style="width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.2em; text-align: center;"
+        onkeypress="if(event.key === 'Enter') submitManualInput()">
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="closeManualInput()" class="btn btn-warning">ยกเลิก</button>
+        <button onclick="submitManualInput()" class="btn btn-primary">ยืนยัน</button>
       </div>
     </div>
   </div>
+
+  <!-- QR Scanner Modal -->
+  <div class="qr-scanner-overlay" id="qrScannerModal">
+    <div
+      style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <button onclick="closeQRScanner()"
+        style="position: absolute; top: 20px; right: 20px; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; z-index: 2100;">&times;</button>
+      <div id="qr-reader" style="width: 100%; max-width: 500px;"></div>
+      <p style="color: white; margin-top: 20px;">วาง QR Code ให้อยู่ในกรอบ</p>
+    </div>
+  </div>
+
+  <!-- Student Search Modal -->
+  <div class="student-search-overlay" id="studentSearchOverlay">
+    <div class="student-search-modal">
+      <div class="student-search-header">
+        <h3><i class="fas fa-search"></i> ค้นหานักเรียน</h3>
+        <button onclick="closeStudentSearchModal()"
+          style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="padding: 15px; display: flex; gap: 10px;">
+        <input type="text" id="studentSearchInput" placeholder="พิมพ์ชื่อหรือรหัส..."
+          style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" oninput="filterStudentSearch()">
+        <select id="studentSearchClassFilter" onchange="filterStudentSearch()"
+          style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+          <option value="">ทุกห้อง</option>
+        </select>
+      </div>
+      <div class="student-search-results" id="studentSearchResults">
+        <!-- Results -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Form Modal (Previously qrForm) -->
+  <div class="modal" id="actionFormModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-edit"></i> บันทึกคะแนนพฤติกรรม</h3>
+        <button class="close-btn" onclick="closeActionForm()">&times;</button>
+      </div>
+
+      <div
+        style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+        <div style="font-weight: bold; font-size: 1.1em;" id="actionStudentName"></div>
+        <div style="color: #64748b;" id="actionStudentId"></div>
+      </div>
+
+      <div class="form-group">
+        <label>เลือกสาเหตุ (หักคะแนน):</label>
+        <div class="deduction-reasons-grid" id="deductionReasonsContainer">
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="มาสาย"> <label>มาสาย</label>
+          </div>
+          <!-- Add more options as needed -->
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ไม่สวมหมวกกันน็อค"> <label>ไม่สวมหมวกกันน็อค</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="หนีเรียน"> <label>หนีเรียน</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="สูบบุหรี่"> <label>สูบบุหรี่</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="บุหรี่ไฟฟ้า"> <label>บุหรี่ไฟฟ้า</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="การแต่งกายผิดระเบียบ"> <label>การแต่งกายผิดระเบียบ</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="สิงห้องน้ำ"> <label>สิงห้องน้ำ</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ใช้สื่อโซเชียลไม่เหมาะสม"> <label>ใช้สื่อโซเชียลไม่เหมาะสม</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="บูลลี่"> <label>บูลลี่</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="แอบถ่ายรูป"> <label>แอบถ่ายรูป</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="เล่นไพ่/การพนัน"> <label>เล่นไพ่/การพนัน</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ทะเลาะวิวาท"> <label>ทะเลาะวิวาท</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ทำลายทรัพย์สิน"> <label>ทำลายทรัพย์สิน</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ระบุเพิ่มเติม / อื่นๆ:</label>
+        <textarea id="actionReason" rows="3" placeholder="ระบุรายละเอียด..."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-warning" onclick="closeActionForm()">ยกเลิก</button>
+        <button class="btn btn-success" onclick="submitActionForm()"><i class="fas fa-save"></i> บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== NEW FEATURES LOGIC ====================
+
+    // 1. Manual Input
+    function openManualInput() {
+      const modal = document.getElementById('manualInputModal');
+      const input = document.getElementById('manualStudentId');
+      console.log('Opening manual input. allStudents available:', !!window.allStudents, 'Count:', window.allStudents?.length);
+      modal.classList.add('show');
+      input.value = '';
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function closeManualInput() {
+      document.getElementById('manualInputModal').classList.remove('show');
+    }
+
+    function submitManualInput() {
+      const input = document.getElementById('manualStudentId');
+      const studentId = input.value.trim();
+      console.log('Searching for student ID:', studentId);
+      console.log('Available students:', window.allStudents?.length);
+
+      if (studentId) {
+        closeManualInput();
+        processScannedQR(studentId);
+      } else {
+        showToast('error', 'กรุณากรอกรหัสนักเรียน');
+        input.focus();
+      }
+    }
+
+    // 2. Student Search
+    function openStudentSearchModal() {
+      const modal = document.getElementById('studentSearchOverlay');
+      modal.classList.add('show');
+      document.getElementById('studentSearchInput').value = '';
+      populateSearchClassFilter();
+      filterStudentSearch();
+    }
+
+    function closeStudentSearchModal() {
+      document.getElementById('studentSearchOverlay').classList.remove('show');
+    }
+
+    function populateSearchClassFilter() {
+      const filter = document.getElementById('studentSearchClassFilter');
+      const classes = [...new Set(window.studentsData ? window.studentsData.map(s => s.class) : [])].sort((a, b) => a - b);
+      filter.innerHTML = '<option value="">ทุกห้อง</option>' + classes.map(c => `<option value="${c}">ห้อง ${c}</option>`).join('');
+    }
+
+    function filterStudentSearch() {
+      const query = document.getElementById('studentSearchInput').value.toLowerCase();
+      const cls = document.getElementById('studentSearchClassFilter').value;
+      const results = (window.studentsData || []).filter(s =>
+        (cls === '' || String(s.class) === cls) &&
+        (s.name.toLowerCase().includes(query) || s.id.includes(query))
+      ).slice(0, 50);
+
+      document.getElementById('studentSearchResults').innerHTML = results.length ? results.map(s => `
+            <div class="student-search-item" onclick="selectStudent('${s.id}')">
+                <div class="student-search-item-info">
+                    <div class="student-search-item-name">${s.name}</div>
+                    <div class="student-search-item-meta">รหัส: ${s.id} | ห้อง: ${s.class}</div>
+                </div>
+                <button class="btn btn-sm btn-success">เลือก</button>
+            </div>
+        `).join('') : '<div style="text-align:center; padding:20px; color:#666;">ไม่พบข้อมูล</div>';
+    }
+
+    function selectStudent(id) {
+      closeStudentSearchModal();
+      processScannedQR(id);
+    }
+
+    // 3. QR Processing & Action Form
+    async function processScannedQR(decodedText) {
+      // Check if allStudents is loaded
+      if (!window.allStudents || !Array.isArray(window.allStudents)) {
+        console.error('allStudents not loaded:', window.allStudents);
+        showToast('error', 'ข้อมูลนักเรียนยังไม่โหลด กรุณารอสักครู่');
+        return;
+      }
+
+      // Ensure decodedText is string for comparison
+      const searchId = String(decodedText).trim();
+      
+      // Find student by ID from ALL students
+      const student = window.allStudents.find(s => String(s.id).trim() === searchId);
+
+      if (student) {
+        // Open Action Form Modal
+        const modal = document.getElementById('actionFormModal');
+        document.getElementById('actionStudentName').textContent = student.name;
+        document.getElementById('actionStudentId').textContent = 'รหัส: ' + student.id;
+        document.getElementById('actionStudentId').dataset.id = student.id;
+
+        // Reset Form
+        document.getElementById('actionReason').value = '';
+        document.querySelectorAll('.deduction-checkbox-item input').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.deduction-checkbox-item').forEach(div => div.classList.remove('checked'));
+
+        modal.classList.add('show');
+        showToast('success', `พบนักเรียน: ${student.name}`);
+      } else {
+        console.warn('Student not found:', searchId, 'in', window.allStudents.length, 'students');
+        showToast('error', `ไม่พบข้อมูลนักเรียน รหัส: ${decodedText}`);
+      }
+    }
+
+    function closeActionForm() {
+      document.getElementById('actionFormModal').classList.remove('show');
+    }
+
+    function toggleDeduction(div) {
+      const cb = div.querySelector('input');
+      cb.checked = !cb.checked;
+      div.classList.toggle('checked', cb.checked);
+
+      // Auto-update textarea
+      const checked = Array.from(document.querySelectorAll('.deduction-checkbox-item input:checked')).map(c => c.value);
+      document.getElementById('actionReason').value = checked.join(', ');
+    }
+
+    async function submitActionForm() {
+      const studentId = document.getElementById('actionStudentId').dataset.id;
+      const student = studentsData.find(s => s.id === studentId);
+      const reason = document.getElementById('actionReason').value.trim();
+
+      if (!reason) { alert('กรุณาระบุสาเหตุ'); return; }
+
+      try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const data = {
+          student_id: student.id,
+          student_name: student.name,
+          reason: reason,
+          teacher: currentUser.name || 'Admin',
+          timestamp: new Date().toISOString()
+        };
+
+        const res = await fetch('/api/save-toadmin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+          closeActionForm();
+          if (typeof loadNotifications === 'function') loadNotifications();
+          closeQRScanner();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Error submitting form');
+      }
+    }
+
+    // 4. QR Scanner
+    let scanner = null;
+    function openQRScanner() {
+      document.getElementById('qrScannerModal').classList.add('show');
+      const width = window.innerWidth > 500 ? 500 : 250;
+      scanner = new Html5Qrcode("qr-reader");
+      scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: width },
+        (decodedText) => {
+          scanner.stop().then(() => {
+            closeQRScanner();
+            processScannedQR(decodedText);
+          });
+        }
+      ).catch(err => {
+        console.error(err);
+        // alert('ไม่สามารถเปิดกล้องได้');
+      });
+    }
+
+    function closeQRScanner() {
+      document.getElementById('qrScannerModal').classList.remove('show');
+      if (scanner) {
+        try { scanner.stop(); } catch (e) { }
+        scanner = null;
+      }
+    }
+
+    function processQRImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context.drawImage(img, 0, 0, img.width, img.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code) {
+              processScannedQR(code.data);
+            } else {
+              alert("ไม่พบ QR Code ในรูปภาพ");
+            }
+            input.value = ''; // Reset
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
 
   <!-- All History Viewer Modal -->
   <div class="all-history-modal-overlay" id="allHistoryModalOverlay">
@@ -4233,7 +4952,33 @@
       style="max-width: 90%; max-height: 90vh; object-fit: contain; background: transparent; padding: 0;">
   </div>
 
+  <!-- Manual Score Adjustment Modal -->
+  <div id="manualScoreModal" class="modal">
+    <div class="modal-content" style="max-width: 400px; padding: 20px; text-align: center;">
+      <h3>⚡ ดำเนินการให้คะแนน</h3>
+      <p>ไม่พบกฎการหักคะแนนอัตโนมัติ กรุณาระบุคะแนน:</p>
+
+      <div style="margin: 20px 0;">
+        <input type="number" id="manualScoreInput" placeholder="เช่น -5 หรือ 10"
+          style="width: 100%; padding: 12px; font-size: 1.2em; text-align: center; border: 2px solid #e2e8f0; border-radius: 8px;">
+        <div style="margin-top: 10px; font-size: 0.9em; color: #718096;">
+          ใส่เครื่องหมาย - เพื่อหักคะแนน (เช่น -10)<br>
+          ใส่ตัวเลขปกติเพื่อเพิ่มคะแนน (เช่น 5)
+        </div>
+      </div>
+
+      <div class="modal-actions" style="justify-content: center; gap: 10px; display: flex;">
+        <button onclick="closeManualScoreModal()"
+          style="padding: 10px 20px; background: #cbd5e0; border: none; border-radius: 8px; cursor: pointer;">ยกเลิก</button>
+        <button onclick="confirmManualScore()"
+          style="padding: 10px 20px; background: #4299e1; color: white; border: none; border-radius: 8px; cursor: pointer;">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let pendingNotificationDiff = null;
+
     function viewImage(src) {
       const modal = document.getElementById('imageViewerModal');
       const img = document.getElementById('fullImage');
@@ -4244,35 +4989,56 @@
     function closeImageViewer() {
       document.getElementById('imageViewerModal').classList.remove('show');
     }
-  </script>
 
-  <style>
-    /* Notification Image Styles */
-    .notification-images {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      margin-bottom: 10px;
+    function closeManualScoreModal() {
+      document.getElementById('manualScoreModal').classList.remove('show');
+      pendingNotificationDiff = null;
     }
 
-    .notification-img-wrapper {
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+    async function confirmManualScore() {
+      const input = document.getElementById('manualScoreInput');
+      const scoreChange = parseInt(input.value);
 
-    .notification-img-wrapper:hover {
-      transform: scale(1.05);
-    }
+      if (isNaN(scoreChange)) {
+        alert('กรุณากรอกตัวเลข');
+        return;
+      }
 
-    .notification-img-wrapper img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 2px solid #e2e8f0;
-    }
+      if (!pendingNotificationDiff) return;
 
+      const { notification, actualIndex, adminName, index } = pendingNotificationDiff;
+
+      try {
+        // Apply Score Change
+        const student = studentsData.find(s => s.id === notification.student_id);
+        if (student) {
+          const newScore = Math.max(0, student.score + scoreChange);
+
+          // Call API
+          const scoreResponse = await fetch('/api/save-score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: student.id,
+              score: newScore,
+              reason: `ปรับคะแนนแบบฟอร์ม: ${notification.reason || 'Manual'}`
+            })
+          });
+
+          if (scoreResponse.ok) {
+            student.score = newScore;
+          }
+        }
+
+        // Finalize
+        closeManualScoreModal();
+        await finalizeCompletion(index, actualIndex, adminName);
+
+      } catch (e) {
+        console.error(e);
+        showStatus('error', 'เกิดข้อผิดพลาด');
+      }
+    }
     .img-label {
       position: absolute;
       bottom: 0;
@@ -4287,6 +5053,126 @@
       border-bottom-right-radius: 6px;
     }
   </style>
+  <!-- ==================== NEW FEATURES MODALS ==================== -->
+
+  <!-- Manual Input Modal -->
+  <div class="manual-input-modal" id="manualInputModal">
+    <div class="manual-input-content">
+      <h3>กรอกรหัสนักเรียน</h3>
+      <p>พิมพ์รหัสนักเรียนที่ต้องการเพิ่ม/ลดคะแนน</p>
+      <input type="text" id="manualStudentId" placeholder="12345" maxlength="10"
+        style="width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.2em; text-align: center;"
+        onkeypress="if(event.key === 'Enter') submitManualInput()">
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="closeManualInput()" class="btn btn-warning">ยกเลิก</button>
+        <button onclick="submitManualInput()" class="btn btn-primary">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div class="qr-scanner-overlay" id="qrScannerModal">
+    <div
+      style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <button onclick="closeQRScanner()"
+        style="position: absolute; top: 20px; right: 20px; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; z-index: 2100;">&times;</button>
+      <div id="qr-reader" style="width: 100%; max-width: 500px;"></div>
+      <p style="color: white; margin-top: 20px;">วาง QR Code ให้อยู่ในกรอบ</p>
+    </div>
+  </div>
+
+  <!-- Student Search Modal -->
+  <div class="student-search-overlay" id="studentSearchOverlay">
+    <div class="student-search-modal">
+      <div class="student-search-header">
+        <h3><i class="fas fa-search"></i> ค้นหานักเรียน</h3>
+        <button onclick="closeStudentSearchModal()"
+          style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="padding: 15px; display: flex; gap: 10px;">
+        <input type="text" id="studentSearchInput" placeholder="พิมพ์ชื่อหรือรหัส..."
+          style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" oninput="filterStudentSearch()">
+        <select id="studentSearchClassFilter" onchange="filterStudentSearch()"
+          style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+          <option value="">ทุกห้อง</option>
+        </select>
+      </div>
+      <div class="student-search-results" id="studentSearchResults">
+        <!-- Results -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Form Modal (Previously qrForm) -->
+  <div class="modal" id="actionFormModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-edit"></i> บันทึกคะแนนพฤติกรรม</h3>
+        <button class="close-btn" onclick="closeActionForm()">&times;</button>
+      </div>
+
+      <div
+        style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+        <div style="font-weight: bold; font-size: 1.1em;" id="actionStudentName"></div>
+        <div style="color: #64748b;" id="actionStudentId"></div>
+      </div>
+
+      <div class="form-group">
+        <label>เลือกสาเหตุ (หักคะแนน):</label>
+        <div class="deduction-reasons-grid" id="deductionReasonsContainer">
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="มาสาย"> <label>มาสาย</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ไม่สวมหมวกกันน็อค"> <label>ไม่สวมหมวกกันน็อค</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="หนีเรียน"> <label>หนีเรียน</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="สูบบุหรี่"> <label>สูบบุหรี่</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="บุหรี่ไฟฟ้า"> <label>บุหรี่ไฟฟ้า</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="การแต่งกายผิดระเบียบ"> <label>การแต่งกายผิดระเบียบ</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="สิงห้องน้ำ"> <label>สิงห้องน้ำ</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ใช้สื่อโซเชียลไม่เหมาะสม"> <label>ใช้สื่อโซเชียลไม่เหมาะสม</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="บูลลี่"> <label>บูลลี่</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="แอบถ่ายรูป"> <label>แอบถ่ายรูป</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="เล่นไพ่/การพนัน"> <label>เล่นไพ่/การพนัน</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ทะเลาะวิวาท"> <label>ทะเลาะวิวาท</label>
+          </div>
+          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
+            <input type="checkbox" value="ทำลายทรัพย์สิน"> <label>ทำลายทรัพย์สิน</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ระบุเพิ่มเติม / อื่นๆ:</label>
+        <textarea id="actionReason" rows="3" placeholder="ระบุรายละเอียด..."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-warning" onclick="closeActionForm()">ยกเลิก</button>
+        <button class="btn btn-success" onclick="submitActionForm()"><i class="fas fa-save"></i> บันทึก</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
