@@ -4,9 +4,9 @@
     "name": "กฤตภาส  ดำฉวาง",
     "password": "14076",
     "status": "Absent",
-    "score": 80,
+    "score": 100,
     "class": 101,
-    "statuspoint": "normal"
+    "statuspoint": "excellent"
   },
   {
     "id": "14077",
@@ -22,9 +22,9 @@
     "name": "กานนท์  ทองอ่อน",
     "password": "14078",
     "status": "normal",
-    "score": 70,
+    "score": 100,
     "class": 101,
-    "statuspoint": "risk"
+    "statuspoint": "excellent"
   },
   {
     "id": "14079",
@@ -2038,9 +2038,9 @@
     "name": "ณภัทร  นครพรัตน์",
     "password": "13739",
     "status": "normal",
-    "score": 89,
+    "score": 100,
     "class": 201,
-    "statuspoint": "normal"
+    "statuspoint": "excellent"
   },
   {
     "id": "13740",
@@ -2056,9 +2056,9 @@
     "name": "นัธทวัฒน์  จองเดิม",
     "password": "13741",
     "status": "Absent",
-    "score": 90,
+    "score": 100,
     "class": 201,
-    "statuspoint": "normal"
+    "statuspoint": "excellent"
   },
   {
     "id": "13742",
@@ -5980,9 +5980,9 @@
     "name": "มุสตากีม สีสาแม",
     "password": "13086",
     "status": "normal",
-    "score": 90,
+    "score": 100,
     "class": 401,
-    "statuspoint": "normal"
+    "statuspoint": "excellent"
   },
   {
     "id": "13237",
