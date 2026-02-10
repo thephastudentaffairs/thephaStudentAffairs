@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 
 <head>
@@ -6,12 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>จัดการข้อมูลนักเรียน</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap"
+    rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script>
     // Authentication check - redirect to login if not authenticated as admin
     (function () {
@@ -40,8 +45,13 @@
       box-sizing: border-box;
     }
 
+    /* Force SweetAlert2 to be on top of everything */
+    .swal2-container {
+      z-index: 20000 !important;
+    }
+
     body {
-      font-family: 'Sarabun', Arial, sans-serif;
+      font-family: 'Sarabun', 'Prompt', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 20px;
@@ -322,6 +332,83 @@
       gap: 5px;
     }
 
+    /* QR Quick Action Buttons (Replicated from th.html) */
+    .qr-action-buttons {
+      display: flex;
+      gap: 12px;
+      margin: 15px 0;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .qr-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 24px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: white;
+      min-width: 120px;
+    }
+
+    .qr-action-btn .btn-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      background: rgba(255, 255, 255, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .btn-qr-manual {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-qr-manual:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-qr-photo {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-qr-photo:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-qr-live {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-qr-live:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+    }
+
+    .qr-action-btn:hover .btn-icon {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
     .adjust-input {
       width: 70px;
       padding: 6px 8px;
@@ -596,6 +683,56 @@
       color: #64748b;
     }
 
+    /* Tabbed Modal Styles (Ported from th.html) */
+    .modal-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .modal-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 0.3s ease;
+      border: none;
+      background: transparent;
+    }
+
+    .modal-tab.active {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      color: #6366f1;
+    }
+
+    .section-content {
+      display: none;
+      margin-top: 15px;
+    }
+
+    .section-content.show {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     /* QR Scanner Modal */
     .qr-scanner-overlay {
       position: fixed;
@@ -611,6 +748,73 @@
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s ease;
+    }
+
+    /* Image Upload Styles (Ported from th.html) */
+    .image-upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .image-upload-box {
+      border: 2px dashed #e2e8f0;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s;
+      position: relative;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-upload-box:hover {
+      border-color: #6366f1;
+      background: #f8fafc;
+    }
+
+    .image-upload-box i {
+      font-size: 2rem;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+    }
+
+    .image-upload-box p {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 130px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .image-preview.show {
+      display: block;
+    }
+
+    .upload-placeholder.hidden {
+      display: none;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    /* Limit Notification Images Height */
+    .notification-images img {
+      max-height: 200px;
+      width: auto;
+      object-fit: contain;
+      cursor: pointer;
+      border-radius: 8px;
     }
 
     .qr-scanner-overlay.show {
@@ -798,6 +1002,582 @@
     .dropdown-item .student-info {
       display: flex;
       flex-direction: column;
+    }
+
+    /* ===== Enhanced Manage Student Modal Styles (Ported & Refined) ===== */
+    /* ===== Unified Manage Student Modal Styles ===== */
+    .manage-student-modal {
+      background: #ffffff;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalPop {
+      0% {
+        transform: scale(0.9) translateY(40px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .manage-student-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .manage-header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .manage-back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      color: white;
+      cursor: pointer;
+      display: none;
+      /* Only show in history view */
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .manage-back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .manage-student-profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 35px 25px 20px;
+      background: white;
+    }
+
+    .manage-avatar-wrapper {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .manage-avatar {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 4rem;
+      box-shadow: 0 20px 50px rgba(99, 102, 241, 0.3);
+      border: 5px solid white;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .manage-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .manage-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .manage-avatar-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 42px;
+      height: 42px;
+      background: #10b981;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border: 4px solid white;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s;
+    }
+
+    .manage-avatar-badge:hover {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .manage-student-name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .manage-student-id {
+      font-size: 1.1rem;
+      color: #6366f1;
+      background: #f0f3ff;
+      padding: 6px 20px;
+      border-radius: 24px;
+      font-weight: 700;
+    }
+
+    /* Views Transition */
+    .manage-view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .manage-view.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .student-stats-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 10px 25px 30px;
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 24px;
+      background: white;
+      border-radius: 24px;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+      border-color: #e2e8f0;
+    }
+
+    .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.academic {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .stat-icon.behavior {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .stat-icon.score {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .stat-info {
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-weight: 800;
+      color: #1e293b;
+      font-size: 1.15rem;
+    }
+
+    /* History Button */
+    .history-primary-btn {
+      margin: 0 25px 30px;
+      padding: 18px;
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+      border: 1px solid #c7d2fe;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      width: calc(100% - 50px);
+      position: relative;
+    }
+
+    .history-primary-btn:hover {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(99, 102, 241, 0.15);
+    }
+
+    .history-btn-icon {
+      width: 56px;
+      height: 56px;
+      background: #4f46e5;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.6rem;
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+    }
+
+    .history-btn-text {
+      flex: 1;
+    }
+
+    .history-btn-text h4 {
+      margin: 0;
+      color: #1e293b;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .history-btn-text p {
+      margin: 4px 0 0;
+      color: #6366f1;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .history-btn-arrow {
+      color: #94a3b8;
+      font-size: 1.4rem;
+      transition: transform 0.3s;
+    }
+
+    .history-primary-btn:hover .history-btn-arrow {
+      transform: translateX(5px);
+      color: #6366f1;
+    }
+
+    /* Integrated History View Styles */
+    .manage-history-container {
+      padding: 0 25px 25px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: 100%;
+    }
+
+    .manage-history-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 20px 0;
+      background: #f1f5f9;
+      padding: 6px;
+      border-radius: 16px;
+    }
+
+    .manage-history-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .manage-history-tab.active {
+      background: white;
+      color: #4f46e5;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .manage-history-tab.positive.active {
+      color: #10b981;
+    }
+
+    .manage-history-tab.negative.active {
+      color: #ef4444;
+    }
+
+    .manage-history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      min-height: 400px;
+    }
+
+    .manage-history-item {
+      display: flex;
+      gap: 15px;
+      padding: 18px;
+      background: #f8fafc;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      border: 1px solid #f1f5f9;
+      transition: all 0.2s;
+    }
+
+    .manage-history-item:hover {
+      background: white;
+      border-color: #e2e8f0;
+      transform: scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+    }
+
+    .manage-history-badge {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .manage-history-badge.positive {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .manage-history-badge.negative {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .manage-history-info {
+      flex: 1;
+    }
+
+    .manage-history-reason {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .manage-history-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .manage-history-meta i {
+      margin-right: 4px;
+    }
+
+    .manage-option-btn:first-child {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-color: #93c5fd;
+    }
+
+    .manage-option-btn:first-child:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+    }
+
+    .manage-option-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: all 0.4s ease;
+      flex-shrink: 0;
+    }
+
+    .manage-option-btn:first-child .manage-option-icon {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .manage-option-btn:nth-child(2) {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border-color: #6ee7b7;
+    }
+
+    .manage-option-btn:nth-child(2):hover {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .manage-option-btn:nth-child(2) .manage-option-icon {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .manage-option-content {
+      flex: 1;
+    }
+
+    .manage-option-btn span {
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 4px;
+      color: #1e293b;
+      transition: color 0.3s;
+    }
+
+    .manage-option-btn:hover span {
+      color: white;
+    }
+
+    .manage-option-desc {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    .manage-option-btn:hover .manage-option-desc {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .manage-option-arrow {
+      font-size: 1.2rem;
+      color: #94a3b8;
+      transition: all 0.3s;
+    }
+
+    .manage-option-btn:hover .manage-option-arrow {
+      color: white;
+      transform: translateX(5px);
+    }
+
+    /* Upload Profile Styles */
+    .upload-preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+
+    .upload-preview {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+      border: 4px dashed #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .upload-preview:hover {
+      border-color: #3b82f6;
+      transform: scale(1.03);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+    }
+
+    .upload-preview i {
+      font-size: 3.5rem;
+      color: #94a3b8;
+    }
+
+    .upload-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* Profile Viewer Styles */
+    .profile-viewer-image-container {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 4px solid white;
+    }
+
+    .profile-viewer-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .no-profile-image {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #cbd5e1;
+      text-align: center;
+    }
+
+    .no-profile-image i {
+      font-size: 5rem;
+      margin-bottom: 15px;
     }
 
     .dropdown-item .student-name {
@@ -1671,6 +2451,183 @@
       }
     }
 
+    /* =========================================
+       NEW ADJUST SCORE MODAL DESIGN (Custom)
+       ========================================= */
+    .adjust-modal-content {
+      background: white;
+      border-radius: 32px;
+      /* Extra rounded */
+      padding: 30px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      font-family: 'Sarabun', sans-serif;
+      text-align: left;
+      position: relative;
+      animation: zoomIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .adjust-modal-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: #d1fae5;
+      /* Light green */
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px auto;
+    }
+
+    .adjust-modal-icon-wrapper i {
+      font-size: 2.5rem;
+      color: #047857;
+      /* Darker green */
+    }
+
+    .adjust-modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1f2937;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .adjust-modal-subtitle {
+      font-size: 1rem;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .adjust-form-group {
+      margin-bottom: 15px;
+    }
+
+    .adjust-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .adjust-label span.required {
+      color: #ef4444;
+    }
+
+    .adjust-input-field,
+    .adjust-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #ffffff;
+      font-size: 1rem;
+      color: #1f2937;
+      transition: all 0.2s;
+    }
+
+    /* Shared style */
+
+    .adjust-input-field:focus,
+    .adjust-textarea:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .adjust-image-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .adjust-image-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #64748b;
+      background: #f8fafc;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .adjust-image-box:hover {
+      border-color: #8b5cf6;
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
+    .adjust-image-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+
+    .adjust-image-preview.show {
+      display: block;
+    }
+
+    .adjust-modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .adjust-btn {
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s;
+    }
+
+    .adjust-btn:active {
+      transform: scale(0.98);
+    }
+
+    .adjust-btn-cancel {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .adjust-btn-confirm {
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
     /* History Button */
     .btn-history {
       padding: 6px 12px;
@@ -1692,6 +2649,75 @@
     .btn-history:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-manage {
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      font-family: inherit;
+    }
+
+    .btn-manage:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .adjust-input-field#adjustScoreInput {
+      font-size: 3.5rem;
+      /* Huge font */
+      font-weight: 800;
+      text-align: center;
+      padding: 20px;
+      height: auto;
+      border: 3px solid #e5e7eb;
+      border-radius: 20px;
+      background: #f9fafb;
+      color: #4b5563;
+      /* Default neutral color */
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .adjust-input-field#adjustScoreInput:focus {
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.15);
+      transform: scale(1.02);
+    }
+
+    /* Dynamic color classes for input value (can be added via JS if desired, but CSS here handles base) */
+
+    .adjust-modal-title {
+      font-size: 2rem;
+      /* Larger title */
+      margin-bottom: 5px;
+    }
+
+    .adjust-modal-subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .adjust-modal-actions {
+      margin-top: 40px;
+      gap: 20px;
+    }
+
+    .adjust-btn {
+      padding: 16px;
+      /* Larger buttons */
+      font-size: 1.1rem;
+      border-radius: 16px;
     }
 
     /* History Modal */
@@ -1768,6 +2794,91 @@
     .history-close-btn:hover {
       background: #e2e8f0;
       color: #1e293b;
+    }
+
+    .history-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 5px;
+      background: #f1f5f9;
+      border-radius: 12px;
+    }
+
+    .history-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .history-tab.active {
+      background: white;
+      color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .history-tab.positive.active {
+      color: #10b981;
+    }
+
+    .history-tab.negative.active {
+      color: #ef4444;
+    }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      transform: translateX(5px);
+      background: white;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .history-score-badge {
+      width: 55px;
+      height: 55px;
+      min-width: 55px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .history-score-badge.positive {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .history-score-badge.negative {
+      background: #fee2e2;
+      color: #dc2626;
     }
 
     .history-student-info {
@@ -2080,10 +3191,177 @@
       gap: 4px;
     }
 
-    .all-history-student-name {
-      font-weight: 600;
+    /* Specialized Adjust Score Modal */
+    .adjust-modal-content {
+      max-width: 500px;
+      padding: 40px;
+      border-radius: 30px;
+      text-align: center;
+      position: relative;
+      background: white;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .adjust-modal-icon-wrapper {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 25px;
+      font-size: 2.5rem;
+    }
+
+    .adjust-modal-icon-wrapper.plus {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .adjust-modal-icon-wrapper.minus {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .adjust-modal-title {
+      font-size: 2rem;
+      font-weight: 700;
       color: #1e293b;
-      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .adjust-modal-subtitle {
+      color: #64748b;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .adjust-form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .adjust-label {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .adjust-label .required {
+      color: #ef4444;
+      margin-left: 2px;
+    }
+
+    .adjust-textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-family: inherit;
+      resize: none;
+      transition: border-color 0.2s;
+      font-size: 1rem;
+    }
+
+    .adjust-textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+
+    .adjust-modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .adjust-btn {
+      padding: 15px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .adjust-btn-cancel {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .adjust-btn-cancel:hover {
+      background: #e2e8f0;
+    }
+
+    .adjust-btn-confirm {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .adjust-btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .adjust-image-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .adjust-image-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .adjust-image-box:hover {
+      border-color: #6366f1;
+      background: #f8fafc;
+    }
+
+    .adjust-image-box i {
+      font-size: 1.5rem;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .adjust-image-box p {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .adjust-image-preview {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .adjust-image-preview.show {
+      display: block;
     }
 
     .all-history-student-class {
@@ -2186,6 +3464,191 @@
         flex-direction: column;
       }
     }
+
+    /* Action Form Modal Tabs */
+    .modal-tabs {
+      display: flex;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 20px;
+    }
+
+    .modal-tab {
+      flex: 1;
+      padding: 15px;
+      font-weight: 600;
+      color: #64748b;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .modal-tab:hover {
+      color: #3b82f6;
+      background: #f8fafc;
+    }
+
+    .modal-tab.active {
+      color: #3b82f6;
+      border-bottom-color: #3b82f6;
+    }
+
+    .section-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section-content.show {
+      display: block;
+    }
+
+    /* Report Modal Refined Design */
+    .report-modal {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 32px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2);
+      animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .report-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      padding: 30px 25px;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+
+    .report-header h3 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .report-header p {
+      margin: 8px 0 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .report-body {
+      padding: 30px;
+    }
+
+    .report-form-group {
+      margin-bottom: 20px;
+    }
+
+    .report-form-group label {
+      display: block;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .report-select {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      background: #f8fafc;
+      font-size: 1rem;
+      color: #1e293b;
+      font-family: 'Sarabun', sans-serif;
+      transition: all 0.3s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      background-size: 18px;
+    }
+
+    .report-select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background-color: white;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .report-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 35px;
+    }
+
+    .report-btn {
+      padding: 16px;
+      border-radius: 18px;
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s;
+      color: white;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .report-btn:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.1);
+    }
+
+    .report-btn:active {
+      transform: scale(0.97);
+    }
+
+    .report-btn.img-btn {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .report-btn.pdf-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .report-close-x {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .report-close-x:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .required-indicator {
+      color: #ef4444;
+      margin-left: 2px;
+    }
   </style>
 </head>
 
@@ -2218,6 +3681,12 @@
         <button class="action-btn btn-search-all" onclick="openStudentSearchModal()">
           <div class="btn-icon"><i class="fas fa-search"></i></div>
           ค้นหา นร.
+        </button>
+
+        <button class="action-btn" onclick="openReportModal()"
+          style="background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">
+          <div class="btn-icon"><i class="fas fa-file-alt"></i></div>
+          รายงานสรุป
         </button>
       </div>
     </div>
@@ -2280,6 +3749,34 @@
           <input type="text" id="searchInput" placeholder="ค้นหาชื่อหรือรหัสนักเรียน...">
           <div id="searchDropdown" class="search-dropdown"></div>
         </div>
+
+        <!-- NEW: Quick Action Buttons Area -->
+        <div class="qr-action-buttons">
+          <!-- Manual ID Input -->
+          <button class="qr-action-btn btn-qr-manual" onclick="openManualInput()">
+            <div class="btn-icon">
+              <i class="fas fa-keyboard"></i>
+            </div>
+            <span>กรอกรหัส</span>
+          </button>
+
+          <!-- Camera Capture -->
+          <label class="qr-action-btn btn-qr-photo">
+            <div class="btn-icon">
+              <i class="fas fa-camera"></i>
+            </div>
+            <span>ถ่ายรูป QR</span>
+            <input type="file" id="qrCameraInput" accept="image/*" class="hidden-input" onchange="processQRImage(this)">
+          </label>
+
+          <!-- Live QR Scanner -->
+          <button class="qr-action-btn btn-qr-live" onclick="openQRScanner()">
+            <div class="btn-icon">
+              <i class="fas fa-qrcode"></i>
+            </div>
+            <span>สแกน QR</span>
+          </button>
+        </div>
         <select id="classFilter" class="class-filter" onchange="filterByClass()">
           <option value="">ทุกห้อง</option>
         </select>
@@ -2317,6 +3814,14 @@
             <button class="btn btn-primary" onclick="exportAllStudentsPDF()"
               style="background: linear-gradient(135deg, #9f7aea, #805ad5);">
               <i class="fas fa-file-pdf"></i> PDF ทั้งหมด
+            </button>
+            <button class="btn btn-info" onclick="openPhotosManager()"
+              style="background: linear-gradient(135deg, #38b2ac, #319795);">
+              <i class="fas fa-images"></i> จัดการรูปนักเรียน
+            </button>
+            <button class="btn btn-warning" onclick="openLateReportModal()"
+              style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+              <i class="fas fa-clock"></i> สรุปรายงานมาสาย
             </button>
       </div>
 
@@ -2637,6 +4142,7 @@
 
   <script>
     let studentsData = [];
+    let teachersData = [];
     let originalData = [];
     let filteredData = [];
     let currentEditIndex = -1;
@@ -2662,8 +4168,19 @@
         const response = await fetch('/toadmin.json');
         const data = await response.json();
 
-        // กรองเฉพาะที่ยังไม่ได้ดำเนินการ
-        notificationsData = data.filter(item => item.status !== 'completed');
+        // กรองเฉพาะที่ยังไม่ได้ดำเนินการ และไม่เอาอันที่ปรับคะแนนโดยครู (Admin Adjust)
+        notificationsData = data.filter(item =>
+          item.status !== 'completed' &&
+          !(item.detail || '').includes('ปรับคะแนนโดยครู') &&
+          !(item.detail || '').includes('Admin Adjust')
+        );
+
+        // Sorting: Pending first, then by timestamp descending
+        notificationsData.sort((a, b) => {
+          if (a.status !== 'completed' && b.status === 'completed') return -1;
+          if (a.status === 'completed' && b.status !== 'completed') return 1;
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        });
 
         renderNotifications();
       } catch (error) {
@@ -2685,11 +4202,18 @@
       }
 
       card.style.display = 'block';
-      count.textContent = notificationsData.length;
+
+      // Count only pending items for the badge
+      const pendingCount = notificationsData.filter(i => i.status !== 'completed').length;
+      count.textContent = pendingCount;
+      // Hide badge if 0? Or keep it? The user likes notifications. Let's show pending count.
+      if (pendingCount === 0) count.style.display = 'none';
+      else count.style.display = 'inline-flex'; // Assuming flex or block
 
       list.innerHTML = notificationsData.map((item, index) => {
         const timestamp = formatDateTime(item.timestamp);
         const reason = item.reason || item.detail || 'ไม่ระบุรายละเอียด';
+        const isCompleted = item.status === 'completed';
 
         let imagesHtml = '';
         if (item.image_before || item.image_after) {
@@ -2711,7 +4235,29 @@
           imagesHtml += '</div>';
         }
 
-        return `
+        // Logic for styling based on status
+        if (isCompleted) {
+          // Notification Style (Read-only)
+          return `
+            <div class="notification-item" style="border-left: 5px solid #10b981; background: #f0fdf4;">
+              <div class="notification-info">
+                <div class="notification-student">
+                  ${item.student_id} - ${item.student_name}
+                </div>
+                <div class="notification-reason" style="color: #047857;">
+                  <i class="fas fa-bell"></i> ${reason}
+                </div>
+                ${imagesHtml}
+                <div class="notification-meta">
+                  <span><i class="fas fa-user-shield"></i> ${item.admin_name || item.teacher || 'Admin'}</span>
+                  <span><i class="fas fa-clock"></i> ${timestamp}</span>
+                </div>
+              </div>
+            </div>
+            `;
+        } else {
+          // Action Card Style (Existing)
+          return `
             <div class="notification-item">
               <div class="notification-info">
                 <div class="notification-student">
@@ -2727,105 +4273,33 @@
                 </div>
               </div>
               <div class="notification-actions">
-                <button class="btn-complete" onclick="markAsCompleted(${index})">
-                  <i class="fas fa-check"></i> ดำเนินการแล้ว
-                </button>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <button class="btn-complete" onclick="markAsCompleted(${index})" style="width: 100%;">
+                    <i class="fas fa-edit"></i> ดำเนินการ / ให้คะแนน
+                  </button>
+                </div>
               </div>
             </div>
           `;
+        }
       }).join('');
     }
 
     // ทำเครื่องหมายว่าดำเนินการแล้ว
     async function markAsCompleted(index) {
       try {
-        // Get current user
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        const adminName = currentUser ? currentUser.name : 'Admin';
-
-        // Find the original index in toadmin.json
-        const response = await fetch('/toadmin.json');
-        const allData = await response.json();
-
-        // Find the actual index of this notification in the full array
         const notification = notificationsData[index];
-        const actualIndex = allData.findIndex(item =>
-          item.student_id === notification.student_id &&
-          item.timestamp === notification.timestamp
-        );
-
-        if (actualIndex === -1) {
+        if (!notification) {
           showStatus('error', 'ไม่พบข้อมูลการแจ้งเตือน');
           return;
         }
 
-        // ==========================================
-        // Automated Deduction Logic
-        // ==========================================
-        const reason = notification.reason || '';
-        const deductionRules = {
-          'มาสาย': 10,
-          'ไม่สวมหมวกกันน็อค': 10,
-          'หนีเรียน': 10,
-          'สูบบุหรี่': 30,
-          'เล่นการพนัน': 30,
-          'บุหรี่ไฟฟ้า': 60,
-          'สิงห้องน้ำ': 10,
-          'บูลลี่': 60,
-          'แอบถ่ายรูป': 20, // Updated to 20
-          'การแต่งกายผิดระเบียบ': 10,
-          'ใช้สื่อโซเชียลไม่เหมาะสม': 60,
-          'ทะเลาะวิวาท': 30,
-          'ทำลายทรัพย์สินโรงเรียน': 30
-        };
-
-        // Check if reason contains any keyword
-        let deduction = 0;
-        let matchedReason = '';
-
-        for (const [key, score] of Object.entries(deductionRules)) {
-          if (reason.includes(key)) {
-            deduction += score;
-            matchedReason += key + ' ';
-          }
-        }
-
-        if (deduction > 0) {
-          // Automated Path
-          const student = studentsData.find(s => s.id === notification.student_id);
-          if (student) {
-            const newScore = Math.max(0, student.score - deduction);
-
-            const scoreResponse = await fetch('/api/save-score', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                id: student.id,
-                score: newScore,
-                reason: `หักคะแนนอัตโนมัติ: ${matchedReason.trim()}`
-              })
-            });
-
-            if (scoreResponse.ok) {
-              student.score = newScore;
-              showStatus('info', `หัก ${deduction} คะแนน (${matchedReason.trim()})`);
-            }
-          }
-          // Proceed to finish
-          await finalizeCompletion(index, actualIndex, adminName);
-
-        } else {
-          // Manual Path - Open Modal
-          pendingNotificationDiff = { notification, actualIndex, adminName, index };
-          document.getElementById('manualScoreInput').value = ''; // Reset
-          document.getElementById('manualScoreModal').classList.add('show');
-          setTimeout(() => document.getElementById('manualScoreInput').focus(), 100);
-        }
+        // Open the manual adjustment modal directly
+        openAdjustScoreModal(index);
 
       } catch (error) {
         console.error('Error marking as completed:', error);
         showStatus('error', 'เกิดข้อผิดพลาดในการดำเนินการ');
-        loadNotifications();
       }
     }
 
@@ -2941,7 +4415,7 @@
         // Ensure name exists and is a string
         const studentName = (s.name || '').toString().toLowerCase();
         const studentId = (s.id || '').toString();
-        
+
         const matchSearch = !query || studentName.includes(query) || studentId.includes(query);
         const matchClass = !selectedClass || String(s.class) === selectedClass;
         return matchSearch && matchClass;
@@ -3064,6 +4538,16 @@
       statusMsg.className = 'status-box show status-info';
       statusMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูล...';
 
+      try {
+        const res = await fetch('th.json');
+        if (res.ok) {
+          teachersData = await res.json();
+          console.log('Loaded teachers:', teachersData.length);
+        }
+      } catch (e) {
+        console.error('Error loading teachers:', e);
+      }
+
       const files = ['user2.1.json', 'user2_1.json'];
       let foundFile = null;
 
@@ -3073,13 +4557,13 @@
           if (response.ok) {
             foundFile = file;
             const data = await response.json();
-            
+
             // Verify data is array
             if (!Array.isArray(data)) {
               console.error('Data is not an array:', data);
               continue;
             }
-            
+
             // Ensure all records have name field and required properties
             studentsData = data.map(student => ({
               id: student.id || '',
@@ -3089,11 +4573,16 @@
               score: student.score || 0,
               class: student.class || 0
             }));
-            
+
             console.log('Loaded data sample:', studentsData.slice(0, 3));
-            
+
             originalData = JSON.parse(JSON.stringify(studentsData)); // Backup
             filteredData = [...studentsData];
+
+            // Fix for QR Scanner: Assign to global window.allStudents
+            window.allStudents = studentsData;
+            console.log('Global students data set:', window.allStudents.length);
+
             break;
           } else {
             console.log(`File ${file} not found (HTTP ${response.status})`);
@@ -3133,6 +4622,82 @@
         displayTable();
       }
     }
+
+    // ==================== REAL-TIME UPDATE LOGIC ====================
+    let isUserInteracting = false;
+
+    // Monitor user interaction
+    document.addEventListener('focus', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        isUserInteracting = true;
+      }
+    }, true);
+
+    document.addEventListener('blur', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        setTimeout(() => isUserInteracting = false, 500);
+      }
+    }, true);
+
+    async function refreshStudentData() {
+      // Safeguard: User interaction or Modal active
+      const isModalOpen = document.querySelector('.modal.show') ||
+        document.querySelector('.reason-modal-overlay.show') ||
+        document.querySelector('.manual-input-modal.show') ||
+        document.querySelector('.qr-scanner-overlay.show') ||
+        document.querySelector('.student-search-overlay.show') ||
+        document.querySelector('.history-modal-overlay.show') ||
+        document.querySelector('.all-history-modal-overlay.show') ||
+        document.querySelector('#editModal.show');
+
+      if (isUserInteracting || isModalOpen) return;
+
+      try {
+        const timestamp = new Date().getTime();
+        const response = await fetch(`user2.1.json?v=${timestamp}`);
+        if (!response.ok) return;
+
+        const newData = await response.json();
+        if (!Array.isArray(newData)) return;
+
+        // Detect changes (compare essential fields)
+        const currentSnapshot = JSON.stringify(studentsData.map(s => ({ i: s.id, s: s.score, st: s.status, c: s.class })));
+        const newSnapshot = JSON.stringify(newData.map(s => ({
+          i: s.id || '',
+          s: s.score || 0,
+          st: s.status || 'normal',
+          c: s.class || 0
+        })));
+
+        if (currentSnapshot !== newSnapshot) {
+          // console.log('Real-time update: Syncing data...');
+
+          // Update Data
+          studentsData = newData.map(student => ({
+            id: student.id || '',
+            name: student.name || student.studentName || 'ไม่ระบุชื่อ',
+            password: student.password || '',
+            status: student.status || 'normal',
+            score: student.score || 0,
+            class: student.class || 0,
+            history: student.history
+          }));
+
+          // Sync dependencies
+          window.allStudents = studentsData;
+          originalData = JSON.parse(JSON.stringify(studentsData)); // Sync baseline
+
+          // Refresh UI
+          applyFilters();
+          updateStats();
+        }
+      } catch (e) {
+        console.warn('Silent refresh failed:', e);
+      }
+    }
+
+    // Start Polling (every 3 seconds)
+    setInterval(refreshStudentData, 3000);
 
     // Helper function to show status messages
     function showStatus(type, message) {
@@ -3275,6 +4840,9 @@
                 <button class="btn-history" onclick="viewStudentHistory('${student.id}', '${student.name.replace(/'/g, "\\\\'")}')" title="ดูประวัติ">
                   <i class="fas fa-history"></i>
                 </button>
+                <button class="btn-manage" onclick="openManageStudentModal('${student.id}', '${student.name.replace(/'/g, "\\\\'")}')" title="จัดการ">
+                  <i class="fas fa-user-cog"></i>
+                </button>
               </div>
             </td>
           </tr>
@@ -3375,13 +4943,20 @@
         subtitle.textContent = `เพิ่ม +${adjustment} คะแนนให้ ${studentName}`;
       }
 
-      // Show/hide deduction reasons container based on type
+      // Show/hide deduction reasons container and work detail/images based on type
       const deductionContainer = document.getElementById('deductionReasonsContainer');
+      const workDetailContainer = document.getElementById('adjustWorkDetailContainer');
+      const imageUploadContainer = document.getElementById('adjustImageUploadContainer');
+
       if (type === 'decrease') {
         deductionContainer.classList.add('show');
         resetDeductionCheckboxes();
+        if (workDetailContainer) workDetailContainer.style.display = 'none';
+        if (imageUploadContainer) imageUploadContainer.style.display = 'none';
       } else {
         deductionContainer.classList.remove('show');
+        if (workDetailContainer) workDetailContainer.style.display = 'block';
+        if (imageUploadContainer) imageUploadContainer.style.display = 'flex';
       }
 
       input.value = '';
@@ -4025,7 +5600,7 @@
       }).catch(e => {
         console.error('❌ Error loading data:', e);
       });
-      
+
       loadNotifications();
 
       // Auto-refresh notifications every 5 seconds (เช็คข้อมูลใหม่บ่อยขึ้น)
@@ -4131,93 +5706,181 @@
     }
 
     // ========== Score History Functions ==========
-    let scoreHistoryData = [];
+    // Load score history from log.json (Explicitly Global)
+    window.scoreHistoryData = [];
 
-    // Load score history from log.json
+    // Helper to format timestamp for history
+    function formatHistoryTimestamp(timestamp) {
+      if (!timestamp) return '-';
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
     async function loadScoreHistory() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       try {
-        const response = await fetch('log.json');
+        const timestamp = Date.now();
+        const response = await fetch(`log.json?v=${timestamp}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
         const data = await response.json();
-        scoreHistoryData = data;
-        console.log('Loaded score history:', scoreHistoryData.length, 'records');
+        window.scoreHistoryData = Array.isArray(data) ? data : [];
+        console.log('Loaded score history:', window.scoreHistoryData.length, 'records');
       } catch (err) {
-        console.error('Error loading score history:', err);
-        scoreHistoryData = [];
+        if (err.name === 'AbortError') {
+          console.error('Timeout loading score history');
+        } else {
+          console.error('Error loading score history:', err);
+        }
+        // Fallback to empty array if valid data not present
+        if (!Array.isArray(window.scoreHistoryData)) window.scoreHistoryData = [];
       }
     }
 
-    // View student score history
-    function viewStudentHistory(studentId, studentName) {
-      const modal = document.getElementById('historyModalOverlay');
-      const studentHistory = scoreHistoryData.filter(h => h.student_id === studentId);
+    let currentStudentHistory = [];
 
-      // Update student info in modal
-      document.getElementById('historyStudentName').textContent = studentName;
-      document.getElementById('historyStudentId').textContent = `รหัส: ${studentId}`;
+    // Unified View Switching for Manage Student Modal
+    async function switchManageStudentView(view) {
+      const mainView = document.getElementById('manageMainView');
+      const historyView = document.getElementById('manageHistoryView');
+      const backBtn = document.getElementById('manageBackBtn');
+      const title = document.getElementById('manageModalTitle');
 
-      // Render history list
-      const listContainer = document.getElementById('historyList');
+      if (view === 'history') {
+        const listContainer = document.getElementById('manageHistoryList');
 
-      if (studentHistory.length === 0) {
+        mainView.classList.remove('active');
+        historyView.classList.add('active');
+        backBtn.style.display = 'flex';
+        title.innerHTML = '<i class="fas fa-history"></i> ประวัติคะแนน';
+
+        // Show loading state
         listContainer.innerHTML = `
-            <div class="history-empty">
-              <i class="fas fa-clipboard-list"></i>
-              <p>ยังไม่มีประวัติการปรับคะแนน</p>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; color:#94a3b8; text-align:center;">
+              <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:15px;"></i>
+              <p>กำลังโหลดข้อมูล...</p>
+            </div>
+        `;
+
+        try {
+          // Refresh data every time we open history
+          await loadScoreHistory();
+
+          // Load and render history for CURRENT student
+          const targetId = String(currentManageId || '').trim();
+          currentStudentHistory = (window.scoreHistoryData || []).filter(h => String(h.student_id || '').trim() === targetId);
+
+          // Render initial 'all' view
+          renderHistoryListUnified('all');
+        } catch (error) {
+          console.error('Critical Error in History View:', error);
+          listContainer.innerHTML = `
+                 <div style="text-align:center; padding: 20px; color: #ef4444;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>เกิดข้อผิดพลาดในการแสดงผล</p>
+                    <small style="color:#64748b;">${error.message}</small>
+                 </div>
+            `;
+        }
+      } else {
+        historyView.classList.remove('active');
+        mainView.classList.add('active');
+        backBtn.style.display = 'none';
+        title.innerHTML = '<i class="fas fa-user-cog"></i> จัดการข้อมูลนักเรียน';
+      }
+    }
+
+    // Filter history for unified view
+    function filterHistoryUnified(type, tabElement) {
+      const tabs = document.querySelectorAll('.manage-history-tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      tabElement.classList.add('active');
+      renderHistoryListUnified(type);
+    }
+
+    // Render history for unified view
+    function renderHistoryListUnified(filter) {
+      const listContainer = document.getElementById('manageHistoryList');
+      if (!listContainer) return;
+
+      let filtered = [...currentStudentHistory];
+
+      if (filter === 'positive') {
+        filtered = filtered.filter(h => {
+          const change = h.change || h.score_change || h.scoreChange || h.score || h.point || h.points || 0;
+          return change > 0;
+        });
+      } else if (filter === 'negative') {
+        filtered = filtered.filter(h => {
+          const change = h.change || h.score_change || h.scoreChange || h.score || h.point || h.points || 0;
+          return change < 0;
+        });
+      }
+
+      if (filtered.length === 0) {
+        let msg = 'ยังไม่มีประวัติการปรับคะแนน';
+        if (filter === 'positive') msg = 'ไม่พบประวัติการเพิ่มคะแนน';
+        if (filter === 'negative') msg = 'ไม่พบประวัติการลดคะแนน';
+
+        listContainer.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; color:#94a3b8; text-align:center;">
+              <i class="fas fa-clipboard-list" style="font-size:3rem; margin-bottom:15px; opacity:0.3;"></i>
+              <p style="font-weight:600;">${msg}</p>
+              <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 20px; text-align: left; background: #f8fafc; padding: 10px; border-radius: 8px; width: 100%;">
+                <strong>Debug Info:</strong><br>
+                Target ID: "${String(currentManageId || '').trim()}"<br>
+                Total Records: ${window.scoreHistoryData ? window.scoreHistoryData.length : 'N/A'}<br>
+                Filtered Count: ${filtered.length}<br>
+                Data Source: window.scoreHistoryData
+              </div>
             </div>
           `;
-      } else {
-        // Sort by timestamp (newest first)
-        studentHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        return;
+      }
 
-        listContainer.innerHTML = studentHistory.map(h => {
-          // รองรับหลาย field names สำหรับคะแนน
-          const scoreChange = h.change || h.score_change || h.scoreChange || h.score || h.point || h.points || 0;
-          const isPositive = scoreChange > 0;
-          const scoreText = isPositive ? `+${scoreChange}` : scoreChange.toString();
-          const timestamp = formatHistoryTimestamp(h.timestamp);
-          const teacher = h.teacher || h.admin || 'ไม่ระบุ';
+      // Sort newest first
+      filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-          return `
-              <div class="history-item ${isPositive ? 'positive' : 'negative'}">
-                <div class="history-score-badge ${isPositive ? 'positive' : 'negative'}">
-                  ${scoreText}
-                </div>
-                <div class="history-content">
-                  <div class="history-reason">${h.reason || 'ไม่ระบุสาเหตุ'}</div>
-                  <div class="history-meta">
-                    <span><i class="fas fa-clock"></i> ${timestamp}</span>
-                    <span><i class="fas fa-user"></i> ${teacher}</span>
-                  </div>
+      listContainer.innerHTML = filtered.map(h => {
+        const scoreChange = h.change || h.score_change || h.scoreChange || h.score || h.point || h.points || 0;
+        const isPositive = scoreChange > 0;
+        const scoreText = isPositive ? `+${scoreChange}` : scoreChange.toString();
+        const timestamp = formatHistoryTimestamp(h.timestamp);
+        const teacher = h.teacher || h.admin || 'ไม่ระบุ';
+
+        return `
+            <div class="manage-history-item">
+              <div class="manage-history-badge ${isPositive ? 'positive' : 'negative'}">
+                ${scoreText}
+              </div>
+              <div class="manage-history-info">
+                <div class="manage-history-reason">${h.reason || 'ไม่ระบุสาเหตุ'}</div>
+                <div class="manage-history-meta">
+                  <span><i class="fas fa-clock"></i> ${timestamp}</span>
+                  <span><i class="fas fa-user-tie"></i> ${teacher}</span>
                 </div>
               </div>
-            `;
-        }).join('');
-      }
-
-      modal.classList.add('show');
+            </div>
+          `;
+      }).join('');
     }
 
-    // Format timestamp to Thai locale
-    function formatHistoryTimestamp(isoString) {
-      if (!isoString) return 'ไม่ระบุเวลา';
-      try {
-        const date = new Date(isoString);
-        return date.toLocaleDateString('th-TH', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } catch (e) {
-        return isoString;
-      }
-    }
-
-    // Close history modal
-    function closeHistoryModal() {
-      const modal = document.getElementById('historyModalOverlay');
-      modal.classList.remove('show');
+    // View student score history (Bridge to unified modal)
+    function viewStudentHistory(studentId, studentName) {
+      openManageStudentModal(studentId, studentName);
+      // Wait for modal to be ready
+      setTimeout(() => switchManageStudentView('history'), 300);
     }
 
     // Load history when page loads
@@ -4376,7 +6039,7 @@
       // Populate year filter from history data
       const yearFilter = document.getElementById('allHistoryYearFilter');
       const years = new Set();
-      scoreHistoryData.forEach(h => {
+      (window.scoreHistoryData || []).forEach(h => {
         if (h.timestamp) {
           const date = new Date(h.timestamp);
           const year = date.getFullYear() + 543; // Convert to พ.ศ.
@@ -4400,7 +6063,7 @@
       const yearFilter = document.getElementById('allHistoryYearFilter').value;
       const searchQuery = document.getElementById('allHistorySearchInput').value.toLowerCase().trim();
 
-      let filtered = [...scoreHistoryData];
+      let filtered = [...(window.scoreHistoryData || [])];
 
       // Filter by class
       if (classFilter) {
@@ -4537,11 +6200,6 @@
   </div>
   </div>
 
-  <!-- Score History Modal -->
-  <div class="history-modal-overlay" id="historyModalOverlay">
-    <!-- Included Content -->
-    <!-- (Previous step verified this existed, so I assume I am appending to the file correctly) -->
-  </div>
 
   <!-- ==================== NEW FEATURES MODALS ==================== -->
 
@@ -4593,77 +6251,6 @@
     </div>
   </div>
 
-  <!-- Action Form Modal (Previously qrForm) -->
-  <div class="modal" id="actionFormModal">
-    <div class="modal-content" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3><i class="fas fa-user-edit"></i> บันทึกคะแนนพฤติกรรม</h3>
-        <button class="close-btn" onclick="closeActionForm()">&times;</button>
-      </div>
-
-      <div
-        style="background: #f0f9ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-        <div style="font-weight: bold; font-size: 1.1em;" id="actionStudentName"></div>
-        <div style="color: #64748b;" id="actionStudentId"></div>
-      </div>
-
-      <div class="form-group">
-        <label>เลือกสาเหตุ (หักคะแนน):</label>
-        <div class="deduction-reasons-grid" id="deductionReasonsContainer">
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="มาสาย"> <label>มาสาย</label>
-          </div>
-          <!-- Add more options as needed -->
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ไม่สวมหมวกกันน็อค"> <label>ไม่สวมหมวกกันน็อค</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="หนีเรียน"> <label>หนีเรียน</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="สูบบุหรี่"> <label>สูบบุหรี่</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="บุหรี่ไฟฟ้า"> <label>บุหรี่ไฟฟ้า</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="การแต่งกายผิดระเบียบ"> <label>การแต่งกายผิดระเบียบ</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="สิงห้องน้ำ"> <label>สิงห้องน้ำ</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ใช้สื่อโซเชียลไม่เหมาะสม"> <label>ใช้สื่อโซเชียลไม่เหมาะสม</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="บูลลี่"> <label>บูลลี่</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="แอบถ่ายรูป"> <label>แอบถ่ายรูป</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="เล่นไพ่/การพนัน"> <label>เล่นไพ่/การพนัน</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ทะเลาะวิวาท"> <label>ทะเลาะวิวาท</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ทำลายทรัพย์สิน"> <label>ทำลายทรัพย์สิน</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>ระบุเพิ่มเติม / อื่นๆ:</label>
-        <textarea id="actionReason" rows="3" placeholder="ระบุรายละเอียด..."></textarea>
-      </div>
-
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="btn btn-warning" onclick="closeActionForm()">ยกเลิก</button>
-        <button class="btn btn-success" onclick="submitActionForm()"><i class="fas fa-save"></i> บันทึก</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     // ==================== NEW FEATURES LOGIC ====================
@@ -4742,88 +6329,52 @@
 
     // 3. QR Processing & Action Form
     async function processScannedQR(decodedText) {
-      // Check if allStudents is loaded
-      if (!window.allStudents || !Array.isArray(window.allStudents)) {
-        console.error('allStudents not loaded:', window.allStudents);
-        showToast('error', 'ข้อมูลนักเรียนยังไม่โหลด กรุณารอสักครู่');
+      // Robust Data Check: Try all possible sources
+      let sourceData = window.allStudents;
+
+      if (!sourceData || !Array.isArray(sourceData) || sourceData.length === 0) {
+        // Fallback 1: Global studentsData
+        if (Array.isArray(studentsData) && studentsData.length > 0) {
+          sourceData = studentsData;
+          window.allStudents = studentsData; // Sync back
+        }
+        // Fallback 2: Cached data
+        else if (Array.isArray(cachedStudentsData) && cachedStudentsData.length > 0) {
+          sourceData = cachedStudentsData;
+          window.allStudents = cachedStudentsData; // Sync back
+        }
+      }
+
+      // Final Attempt: Lazy load if absolutely nothing exists
+      if (!sourceData || !Array.isArray(sourceData) || sourceData.length === 0) {
+        console.warn('QR Scanner: Data unavailable, attempting emergency load...');
+        try {
+          await loadData();
+          sourceData = window.allStudents || studentsData; // Re-check after load
+        } catch (e) { console.error('Emergency load failed', e); }
+      }
+
+      // If STILL no data, then show error
+      if (!sourceData || !Array.isArray(sourceData) || sourceData.length === 0) {
+        console.error('CRITICAL: Student data missing in QR Scanner. sources:', {
+          allStudents: window.allStudents?.length,
+          studentsData: studentsData?.length,
+          cached: cachedStudentsData?.length
+        });
+        showToast('error', 'ระบบกำลังโหลดข้อมูลนักเรียน กรุณาลองใหม่อีกครั้งใน 5 วินาที');
         return;
       }
 
       // Ensure decodedText is string for comparison
       const searchId = String(decodedText).trim();
-      
+
       // Find student by ID from ALL students
       const student = window.allStudents.find(s => String(s.id).trim() === searchId);
 
       if (student) {
-        // Open Action Form Modal
-        const modal = document.getElementById('actionFormModal');
-        document.getElementById('actionStudentName').textContent = student.name;
-        document.getElementById('actionStudentId').textContent = 'รหัส: ' + student.id;
-        document.getElementById('actionStudentId').dataset.id = student.id;
-
-        // Reset Form
-        document.getElementById('actionReason').value = '';
-        document.querySelectorAll('.deduction-checkbox-item input').forEach(cb => cb.checked = false);
-        document.querySelectorAll('.deduction-checkbox-item').forEach(div => div.classList.remove('checked'));
-
-        modal.classList.add('show');
-        showToast('success', `พบนักเรียน: ${student.name}`);
+        openActionFormForStudent(student.id, student.name);
       } else {
-        console.warn('Student not found:', searchId, 'in', window.allStudents.length, 'students');
-        showToast('error', `ไม่พบข้อมูลนักเรียน รหัส: ${decodedText}`);
-      }
-    }
-
-    function closeActionForm() {
-      document.getElementById('actionFormModal').classList.remove('show');
-    }
-
-    function toggleDeduction(div) {
-      const cb = div.querySelector('input');
-      cb.checked = !cb.checked;
-      div.classList.toggle('checked', cb.checked);
-
-      // Auto-update textarea
-      const checked = Array.from(document.querySelectorAll('.deduction-checkbox-item input:checked')).map(c => c.value);
-      document.getElementById('actionReason').value = checked.join(', ');
-    }
-
-    async function submitActionForm() {
-      const studentId = document.getElementById('actionStudentId').dataset.id;
-      const student = studentsData.find(s => s.id === studentId);
-      const reason = document.getElementById('actionReason').value.trim();
-
-      if (!reason) { alert('กรุณาระบุสาเหตุ'); return; }
-
-      try {
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        const data = {
-          student_id: student.id,
-          student_name: student.name,
-          reason: reason,
-          teacher: currentUser.name || 'Admin',
-          timestamp: new Date().toISOString()
-        };
-
-        const res = await fetch('/api/save-toadmin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-
-        if (result.status === 'success') {
-          alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-          closeActionForm();
-          if (typeof loadNotifications === 'function') loadNotifications();
-          closeQRScanner();
-        } else {
-          alert('Error: ' + result.message);
-        }
-      } catch (e) {
-        console.error(e);
-        alert('Error submitting form');
+        showToast('error', 'ไม่พบรหัสนักเรียน: ' + searchId);
       }
     }
 
@@ -4877,6 +6428,471 @@
           img.src = e.target.result;
         };
         reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // ==================== STUDENT MANAGEMENT & PROFILE LOGIC (Ported from th.html) ====================
+    let currentManageId = null;
+    let currentManageName = null;
+    let croppedImageBase64 = null;
+
+    // Helper functions for status
+    function getStatusPointText(statuspoint) {
+      const statusMap = {
+        'urgent': 'ไม่ผ่านเกณฑ์ ปรับแก้พฤติกรรมด่วน',
+        'risk': 'เริ่มมีความเสี่ยงไม่ผ่านเกณฑ์',
+        'normal': 'ปกติ (ผ่านเกณฑ์)',
+        'excellent': 'เด็กดีศรีเทพพธา'
+      };
+      return statusMap[statuspoint] || 'ปกติ (ผ่านเกณฑ์)';
+    }
+
+    function getStatusPointIcon(statuspoint) {
+      const iconMap = {
+        'urgent': '🚨',
+        'risk': '⚠️',
+        'normal': '✅',
+        'excellent': '⭐'
+      };
+      return iconMap[statuspoint] || '✅';
+    }
+
+    function getAcademicStatusText(status) {
+      const statusMap = {
+        'normal': 'กำลังศึกษาอยู่',
+        'Absent': 'ขาดเรียนนาน',
+        'moved': 'ย้ายแล้ว',
+        'notnormal': 'พักการเรียน'
+      };
+      return statusMap[status] || 'กำลังศึกษาอยู่';
+    }
+
+    function openManageStudentModal(id, name) {
+      currentManageId = id;
+      currentManageName = name;
+
+      // Reset to main view
+      switchManageStudentView('main');
+
+      document.getElementById('manageStudentName').textContent = name;
+      document.getElementById('manageStudentId').textContent = `รหัส: ${id}`;
+
+      // Find student details
+      const student = window.allStudents ? window.allStudents.find(s => String(s.id) === String(id)) : null;
+
+      if (student) {
+        document.getElementById('manageStudentAcademic').textContent = getAcademicStatusText(student.status);
+        const statusIcon = getStatusPointIcon(student.statuspoint || 'normal');
+        const statusText = getStatusPointText(student.statuspoint || 'normal');
+        document.getElementById('manageStudentStatus').textContent = `${statusIcon} ${statusText}`;
+        document.getElementById('manageStudentScore').textContent = `${student.score} คะแนน`;
+      } else {
+        document.getElementById('manageStudentAcademic').textContent = '-';
+        document.getElementById('manageStudentStatus').textContent = '-';
+        document.getElementById('manageStudentScore').textContent = '-';
+      }
+
+      // Set Avatar
+      const avatarDiv = document.getElementById('manageStudentAvatar');
+      const timestamp = new Date().getTime();
+      avatarDiv.innerHTML = `<img src="./edstudent/${id}.jpg?v=${timestamp}" onerror="this.onerror=null; this.innerHTML='<i class=\'fas fa-user-graduate\'></i>'">`;
+
+      document.getElementById('manageStudentModal').classList.add('show');
+    }
+
+    function closeManageStudentModal() {
+      document.getElementById('manageStudentModal').classList.remove('show');
+    }
+
+    function openProfileViewerFromAvatar() {
+      if (typeof openProfileViewer === 'function') {
+        openProfileViewer(currentManageId, currentManageName);
+      }
+    }
+
+    function openHistoryFromManage() {
+      if (typeof viewStudentHistory === 'function') {
+        viewStudentHistory(currentManageId, currentManageName);
+      } else {
+        Swal.fire({ icon: 'info', title: 'แจ้งเตือน', text: 'ฟังก์ชันประวัติคะแนนยังไม่พร้อมใช้งาน' });
+      }
+    }
+
+    // ========== Profile Viewer Functions ==========
+    function openProfileViewer(studentId, studentName) {
+      const modal = document.getElementById('profileViewerModal');
+      const container = document.getElementById('profileViewerImageContainer');
+      const timestamp = new Date().getTime();
+      const imagePath = `./edstudent/${studentId}.jpg?v=${timestamp}`;
+
+      document.getElementById('profileViewerName').textContent = studentName;
+      document.getElementById('profileViewerId').textContent = `รหัส: ${studentId}`;
+
+      // Show loading first
+      container.innerHTML = `<div class="no-profile-image"><i class="fas fa-spinner fa-spin"></i></div>`;
+      modal.classList.add('show');
+
+      // Try to load image
+      const img = new Image();
+      img.onload = function () {
+        container.innerHTML = `<img class="profile-viewer-image" src="${imagePath}">`;
+      };
+      img.onerror = function () {
+        container.innerHTML = `<div class="no-profile-image"><i class="fas fa-user-graduate"></i></div>`;
+      };
+      img.src = imagePath;
+    }
+
+    function closeProfileViewer(event) {
+      if (event) event.stopPropagation();
+      document.getElementById('profileViewerModal').classList.remove('show');
+    }
+
+    function setupAvatarClickHandler(avatarElement, studentId, studentName) {
+      if (avatarElement) {
+        avatarElement.style.cursor = 'pointer';
+        avatarElement.onclick = function () { openProfileViewer(studentId, studentName); };
+      }
+    }
+
+    // ========== Profile Upload Functions ==========
+    function openUploadProfileModal() {
+      document.getElementById('uploadProfileModal').classList.add('show');
+      document.getElementById('profileImageInput').value = '';
+      croppedImageBase64 = null;
+
+      const previewImg = document.getElementById('profilePreview');
+      const placeholder = document.getElementById('profilePlaceholder');
+      const timestamp = new Date().getTime();
+
+      previewImg.src = `./edstudent/${currentManageId}.jpg?v=${timestamp}`;
+      previewImg.onload = function () {
+        previewImg.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      previewImg.onerror = function () {
+        previewImg.style.display = 'none';
+        placeholder.style.display = 'block';
+        previewImg.src = '';
+      };
+    }
+
+    function closeUploadProfileModal() {
+      document.getElementById('uploadProfileModal').classList.remove('show');
+    }
+
+    function previewProfileImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const maxSize = 500;
+            let width = img.width;
+            let height = img.height;
+            let sx, sy, sWidth, sHeight;
+
+            if (width > height) {
+              sWidth = height; sHeight = height;
+              sx = (width - height) / 2; sy = 0;
+            } else {
+              sWidth = width; sHeight = width;
+              sx = 0; sy = (height - width) / 2;
+            }
+
+            canvas.width = maxSize;
+            canvas.height = maxSize;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, maxSize, maxSize);
+
+            const base64Data = canvas.toDataURL('image/jpeg', 0.9);
+            const previewImg = document.getElementById('profilePreview');
+            previewImg.src = base64Data;
+            previewImg.style.display = 'block';
+            document.getElementById('profilePlaceholder').style.display = 'none';
+            croppedImageBase64 = base64Data;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    async function saveProfileImage() {
+      if (!croppedImageBase64) {
+        showToast('error', 'กรุณาเลือกรูปภาพ');
+        return;
+      }
+      sendProfileImage(croppedImageBase64);
+    }
+
+    async function sendProfileImage(base64Data) {
+      if (typeof showLoading === 'function') showLoading(true);
+      try {
+        const response = await fetch('/api/upload-student-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            student_id: currentManageId,
+            image_data: base64Data
+          })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          showToast('success', 'อัปโหลดรูปโปรไฟล์เรียบร้อย');
+          closeUploadProfileModal();
+          // Update avatars on page
+          const avatars = document.querySelectorAll(`img[src*="${currentManageId}.jpg"]`);
+          const timestamp = new Date().getTime();
+          avatars.forEach(img => {
+            const baseSrc = img.src.split('?')[0];
+            img.src = `${baseSrc}?v=${timestamp}`;
+          });
+          // Also update the manage modal avatar
+          openManageStudentModal(currentManageId, currentManageName);
+        } else {
+          showToast('error', 'อัปโหลดไม่สำเร็จ: ' + result.message);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+      } finally {
+        if (typeof showLoading === 'function') showLoading(false);
+      }
+    }
+
+
+
+    function openAdjustScoreModal(notificationIndex) {
+      const notification = notificationsData[notificationIndex];
+      if (!notification) return;
+
+      pendingAdjustment = {
+        notificationIndex: notificationIndex,
+        studentId: notification.student_id,
+        studentName: notification.student_name,
+        notification: notification
+      };
+
+      // Set UI
+      document.getElementById('adjustModalTitle').textContent = 'ปรับคะแนนพฤติกรรม';
+      document.getElementById('adjustModalSubtitle').textContent = `ให้คะแนน / หักคะแนน ${notification.student_name}`;
+
+      const iconWrapper = document.getElementById('adjustModalIcon');
+      const icon = iconWrapper.querySelector('i');
+
+      // Default Icon (Neutral)
+      iconWrapper.className = 'adjust-modal-icon-wrapper plus';
+      icon.className = 'fas fa-pen';
+
+      // Reset Inputs
+      const scoreInput = document.getElementById('adjustScoreInput');
+      if (scoreInput) {
+        scoreInput.value = '';
+        // Removed dynamic hiding to match new design requirement (all fields visible)
+        scoreInput.oninput = null;
+      }
+
+      const reasonInput = document.getElementById('adjustReason');
+      if (reasonInput) {
+        reasonInput.value = notification.reason || '';
+      }
+
+      const workDetailInput = document.getElementById('adjustWorkDetail');
+      if (workDetailInput) workDetailInput.value = '';
+
+      // Reset Images
+      const beforeInput = document.getElementById('adjustBeforeInput');
+      if (beforeInput) beforeInput.value = '';
+
+      const afterInput = document.getElementById('adjustAfterInput');
+      if (afterInput) afterInput.value = '';
+
+      const beforePreview = document.getElementById('adjustBeforePreview');
+      if (beforePreview) {
+        beforePreview.src = '';
+        beforePreview.classList.remove('show');
+      }
+      const beforePlaceholder = document.getElementById('adjustBeforePlaceholder');
+      if (beforePlaceholder) beforePlaceholder.classList.remove('hidden');
+
+      const afterPreview = document.getElementById('adjustAfterPreview');
+      if (afterPreview) {
+        afterPreview.src = '';
+        afterPreview.classList.remove('show');
+      }
+      const afterPlaceholder = document.getElementById('adjustAfterPlaceholder');
+      if (afterPlaceholder) afterPlaceholder.classList.remove('hidden');
+
+      // Default state: Show all
+      const workDetailContainer = document.getElementById('adjustWorkDetailContainer');
+      const imageContainer = document.getElementById('adjustImageContainer');
+      // No longer need to force block since we removed them from HTML
+      if (workDetailContainer) workDetailContainer.style.display = 'block';
+      if (imageContainer) imageContainer.style.display = 'block';
+
+      document.getElementById('adjustScoreModal').classList.add('show');
+    }
+
+    function closeAdjustScoreModal() {
+      document.getElementById('adjustScoreModal').classList.remove('show');
+      pendingAdjustment = null;
+    }
+
+    function previewAdjustImage(input, previewId, placeholderId) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById(previewId);
+          img.src = e.target.result;
+          img.classList.add('show');
+          document.getElementById(placeholderId).classList.add('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    async function submitAdjustScore() {
+      if (!pendingAdjustment) return;
+
+      const reasonInput = document.getElementById('adjustReason');
+      // If no reason input, use default text
+      const reason = reasonInput ? reasonInput.value.trim() : 'ปรับคะแนนโดยครู';
+
+      const workDetailInput = document.getElementById('adjustWorkDetail');
+      const workDetail = workDetailInput ? workDetailInput.value.trim() : '';
+
+      const beforeInput = document.getElementById('adjustBeforeInput');
+      const beforeFile = beforeInput && beforeInput.files ? beforeInput.files[0] : null;
+
+      const afterInput = document.getElementById('adjustAfterInput');
+      const afterFile = afterInput && afterInput.files ? afterInput.files[0] : null;
+
+      if (reasonInput && !reason) {
+        Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุเหตุผล' });
+        return;
+      }
+
+      try {
+        if (typeof showLoading === 'function') showLoading(true);
+
+        // 1. Process Images
+        const beforeBase64 = beforeFile ? await processImage(beforeFile) : null;
+        const afterBase64 = afterFile ? await processImage(afterFile) : null;
+
+        // 2. Prepare Data
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        // Read score from input for manual adjustment
+        let scoreChange = 0;
+        const scoreInput = document.getElementById('adjustScoreInput');
+        if (scoreInput && scoreInput.value !== '') {
+          scoreChange = parseInt(scoreInput.value);
+        } else if (pendingAdjustment.scoreChange !== undefined) {
+          scoreChange = pendingAdjustment.scoreChange;
+        }
+
+        if (isNaN(scoreChange) || scoreChange === 0) {
+          Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุคะแนนที่ต้องการปรับ (ตัวเลขที่ไม่ใช่ 0)' });
+          if (typeof showLoading === 'function') showLoading(false);
+          return;
+        }
+
+        const studentId = pendingAdjustment.studentId;
+        const student = window.allStudents ? window.allStudents.find(s => String(s.id) === String(studentId)) : studentsData.find(s => String(s.id) === String(studentId));
+
+        if (!student) throw new Error('ไม่พบข้อมูลนักเรียน');
+
+        const newScore = Math.max(0, student.score + scoreChange);
+        const finalReason = `[${scoreChange > 0 ? '+' : ''}${scoreChange}] ${reason}${workDetail ? ' - ' + workDetail : ''}`;
+
+        // 3. Update Score (Real-time to user2.1.json via API)
+        const scoreRes = await fetch('/api/save-score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: student.id,
+            score: newScore,
+            reason: finalReason
+          })
+        });
+
+        if (!scoreRes.ok) throw new Error('ไม่สามารถบันทึกคะแนนได้');
+
+        // 4. Save Work/Record (with images)
+        if (scoreChange !== 0 || beforeBase64 || afterBase64) {
+          await fetch('/api/save-work', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              student_id: student.id,
+              student_name: student.name,
+              detail: finalReason,
+              image_before: beforeBase64,
+              image_after: afterBase64,
+              teacher: currentUser.name || 'Admin',
+              timestamp: new Date().toISOString(),
+              status: 'completed', // Prevent new pending task
+              admin_name: currentUser.name || 'Admin',
+              admin_reason: finalReason
+            })
+          });
+        }
+
+        // 5. Update toadmin.json Status
+        // Find the actual index in toadmin.json
+        const allToAdminRes = await fetch('/toadmin.json');
+        const allData = await allToAdminRes.json();
+        const actualIndex = allData.findIndex(item =>
+          item.student_id === pendingAdjustment.notification.student_id &&
+          item.timestamp === pendingAdjustment.notification.timestamp
+        );
+
+        if (actualIndex !== -1) {
+          await fetch('/api/update-toadmin-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              index: actualIndex,
+              admin_name: currentUser.name || 'Admin',
+              reason: finalReason // Store the specific reason in toadmin.json as requested
+            })
+          });
+        }
+
+        // 6. UI Update (Real-time)
+        student.score = newScore;
+
+        // Update local notification status for transient display
+        if (notificationsData[pendingAdjustment.notificationIndex]) {
+          notificationsData[pendingAdjustment.notificationIndex].status = 'completed';
+          notificationsData[pendingAdjustment.notificationIndex].reason = finalReason;
+
+          // Re-render to show success state
+          renderNotifications();
+
+          // Remove after 10 seconds
+          setTimeout(() => {
+            loadNotifications();
+          }, 10000);
+        } else {
+          notificationsData.splice(pendingAdjustment.notificationIndex, 1);
+          renderNotifications();
+        }
+
+        showToast('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
+        closeAdjustScoreModal();
+
+        if (typeof filterData === 'function') filterData();
+        else if (typeof displayTable === 'function') displayTable();
+
+      } catch (error) {
+        console.error(error);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
+      } finally {
+        if (typeof showLoading === 'function') showLoading(false);
       }
     }
   </script>
@@ -4952,32 +6968,29 @@
       style="max-width: 90%; max-height: 90vh; object-fit: contain; background: transparent; padding: 0;">
   </div>
 
-  <!-- Manual Score Adjustment Modal -->
-  <div id="manualScoreModal" class="modal">
-    <div class="modal-content" style="max-width: 400px; padding: 20px; text-align: center;">
-      <h3>⚡ ดำเนินการให้คะแนน</h3>
-      <p>ไม่พบกฎการหักคะแนนอัตโนมัติ กรุณาระบุคะแนน:</p>
-
-      <div style="margin: 20px 0;">
-        <input type="number" id="manualScoreInput" placeholder="เช่น -5 หรือ 10"
-          style="width: 100%; padding: 12px; font-size: 1.2em; text-align: center; border: 2px solid #e2e8f0; border-radius: 8px;">
-        <div style="margin-top: 10px; font-size: 0.9em; color: #718096;">
-          ใส่เครื่องหมาย - เพื่อหักคะแนน (เช่น -10)<br>
-          ใส่ตัวเลขปกติเพื่อเพิ่มคะแนน (เช่น 5)
-        </div>
-      </div>
-
-      <div class="modal-actions" style="justify-content: center; gap: 10px; display: flex;">
-        <button onclick="closeManualScoreModal()"
-          style="padding: 10px 20px; background: #cbd5e0; border: none; border-radius: 8px; cursor: pointer;">ยกเลิก</button>
-        <button onclick="confirmManualScore()"
-          style="padding: 10px 20px; background: #4299e1; color: white; border: none; border-radius: 8px; cursor: pointer;">ยืนยัน</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     let pendingNotificationDiff = null;
+
+    // Toast Notification Helper
+    function showToast(icon, title) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      })
+
+      Toast.fire({
+        icon: icon,
+        title: title
+      })
+    }
 
     function viewImage(src) {
       const modal = document.getElementById('imageViewerModal');
@@ -5000,7 +7013,7 @@
       const scoreChange = parseInt(input.value);
 
       if (isNaN(scoreChange)) {
-        alert('กรุณากรอกตัวเลข');
+        Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ถูกต้อง', text: 'กรุณากรอกตัวเลข' });
         return;
       }
 
@@ -5036,23 +7049,10 @@
 
       } catch (e) {
         console.error(e);
-        showStatus('error', 'เกิดข้อผิดพลาด');
+        showToast('error', 'เกิดข้อผิดพลาด');
       }
     }
-    .img-label {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      font-size: 0.7em;
-      text-align: center;
-      padding: 2px 0;
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
-    }
-  </style>
+  </script>
   <!-- ==================== NEW FEATURES MODALS ==================== -->
 
   <!-- Manual Input Modal -->
@@ -5117,62 +7117,2258 @@
         <div style="color: #64748b;" id="actionStudentId"></div>
       </div>
 
-      <div class="form-group">
-        <label>เลือกสาเหตุ (หักคะแนน):</label>
-        <div class="deduction-reasons-grid" id="deductionReasonsContainer">
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="มาสาย"> <label>มาสาย</label>
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchModalTab('deduct')" id="tab-deduct">ตัดคะแนน</button>
+        <button class="modal-tab" onclick="switchModalTab('add')" id="tab-add">แก้ไข/เพิ่มคะแนน</button>
+      </div>
+
+      <!-- Section: Deduct -->
+      <div id="section-deduct" class="section-content show">
+        <div class="form-group">
+          <label>เลือกสาเหตุ (หักคะแนน):</label>
+          <div class="deduction-reasons-grid" id="deductionReasonsContainer">
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason1" value="มาสาย">
+              <label for="qrReason1">1. มาสาย</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason2" value="ไม่สวมหมวกกันน็อค">
+              <label for="qrReason2">2. ไม่สวมหมวกกันน็อค</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason3" value="หนีเรียน">
+              <label for="qrReason3">3. หนีเรียน</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason4" value="สูบบุหรี่">
+              <label for="qrReason4">4. สูบบุหรี่</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason5" value="บุหรี่ไฟฟ้า">
+              <label for="qrReason5">5. บุหรี่ไฟฟ้า</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason6" value="การแต่งกายผิดระเบียบ">
+              <label for="qrReason6">6. การแต่งกายผิดระเบียบ</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason7" value="ทะเลาะวิวาท">
+              <label for="qrReason7">7. ทะเลาะวิวาท</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason8" value="ใช้สื่อโซเชียลไม่เหมาะสม">
+              <label for="qrReason8">8. ใช้สื่อโซเชียลไม่เหมาะสม</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason9" value="เล่นการพนัน">
+              <label for="qrReason9">9. เล่นการพนัน</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason10" value="สิงห้องน้ำ">
+              <label for="qrReason10">10. สิงห้องน้ำ</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason11" value="บูลลี่">
+              <label for="qrReason11">11. บูลลี่</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason12" value="ทำลายทรัพย์สินโรงเรียน">
+              <label for="qrReason12">12. ทำลายทรัพย์สินโรงเรียน</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReason13" value="แอบถ่ายรูป">
+              <label for="qrReason13">13. แอบถ่ายรูป</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+              <input type="checkbox" id="qrReasonOther" value="อื่นๆ">
+              <label for="qrReasonOther">อื่นๆ (ระบุ)</label>
+            </div>
           </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ไม่สวมหมวกกันน็อค"> <label>ไม่สวมหมวกกันน็อค</label>
+          <div id="qrOtherReasonInput" style="display: none; margin-top: 10px;">
+            <input type="text" id="qrOtherReasonText" placeholder="ระบุสาเหตุอื่นๆ..."
+              style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"
+              oninput="updateQRReasonFromCheckboxes()">
           </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="หนีเรียน"> <label>หนีเรียน</label>
+        </div>
+        <div class="form-group">
+          <label>สาเหตุที่เลือก:</label>
+          <textarea id="actionReason" rows="3" placeholder="สาเหตุจะแสดงที่นี่เมื่อเลือกจากรายการด้านบน..."
+            readonly></textarea>
+        </div>
+      </div>
+
+      <!-- Section: Add / Work -->
+      <div id="section-add" class="section-content">
+        <div class="form-group">
+          <label>รายละเอียดงาน / การแก้ไข</label>
+          <textarea id="workDetail" rows="3" placeholder="ระบุรายละเอียดงานหรือสิ่งที่แก้ไข..."></textarea>
+        </div>
+
+        <div class="image-upload-grid">
+          <!-- Before Image -->
+          <div class="image-upload-box" onclick="document.getElementById('actionBeforeImageInput').click()">
+            <input type="file" id="actionBeforeImageInput" class="file-input" accept="image/*"
+              onchange="previewImage(this, 'actionBeforePreview', 'actionBeforePlaceholder')">
+            <div id="actionBeforePlaceholder" class="upload-placeholder">
+              <i class="fas fa-camera"></i>
+              <p>ก่อนทำ</p>
+            </div>
+            <img id="actionBeforePreview" class="image-preview" alt="Before Preview">
           </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="สูบบุหรี่"> <label>สูบบุหรี่</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="บุหรี่ไฟฟ้า"> <label>บุหรี่ไฟฟ้า</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="การแต่งกายผิดระเบียบ"> <label>การแต่งกายผิดระเบียบ</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="สิงห้องน้ำ"> <label>สิงห้องน้ำ</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ใช้สื่อโซเชียลไม่เหมาะสม"> <label>ใช้สื่อโซเชียลไม่เหมาะสม</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="บูลลี่"> <label>บูลลี่</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="แอบถ่ายรูป"> <label>แอบถ่ายรูป</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="เล่นไพ่/การพนัน"> <label>เล่นไพ่/การพนัน</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ทะเลาะวิวาท"> <label>ทะเลาะวิวาท</label>
-          </div>
-          <div class="deduction-checkbox-item" onclick="toggleDeduction(this)">
-            <input type="checkbox" value="ทำลายทรัพย์สิน"> <label>ทำลายทรัพย์สิน</label>
+
+          <!-- After Image -->
+          <div class="image-upload-box" onclick="document.getElementById('actionAfterImageInput').click()">
+            <input type="file" id="actionAfterImageInput" class="file-input" accept="image/*"
+              onchange="previewImage(this, 'actionAfterPreview', 'actionAfterPlaceholder')">
+            <div id="actionAfterPlaceholder" class="upload-placeholder">
+              <i class="fas fa-magic"></i>
+              <p>หลังทำ</p>
+            </div>
+            <img id="actionAfterPreview" class="image-preview" alt="After Preview">
           </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label>ระบุเพิ่มเติม / อื่นๆ:</label>
-        <textarea id="actionReason" rows="3" placeholder="ระบุรายละเอียด..."></textarea>
-      </div>
-
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
         <button class="btn btn-warning" onclick="closeActionForm()">ยกเลิก</button>
-        <button class="btn btn-success" onclick="submitActionForm()"><i class="fas fa-save"></i> บันทึก</button>
+        <button class="btn btn-success" id="btnSubmitAction" onclick="submitActionForm()">
+          <i class="fas fa-save"></i> บันทึก
+        </button>
       </div>
     </div>
   </div>
+
+  <script>
+    // Action Form Logic (consolidated above)
+    // let currentActionType = 'deduct'; // Removed duplicate
+
+    async function handlePendingNotificationSubmission(student, reason, scoreChange) {
+      if (!pendingNotificationDiff) return;
+      const { notification, actualIndex, adminName, index } = pendingNotificationDiff;
+
+      // Apply Logic
+      try {
+        // Calculate New Score
+        // For manual adjust, scoreChange is what we ADD (or SUBTRACT if negative)
+        // But logic says: "Add Score Mode" -> Positive. "Deduct Mode" -> Negative?
+        // "Action Form" has "Deduct" (Implicit negative) and "Add" (Implicit positive).
+
+        // If currentActionType is 'deduct', scoreChange is usually 0 in the form logic unless we add values to checkboxes?
+        // The checkboxes have NO values in the new form (just text).
+        // So if 'deduct', we rely on `reason` and maybe a default deduction?
+        // The user asked for "Adjust (+/-)" with input.
+        // My new "Add Score" tab has a numeric input.
+        // If the user wants to DEDUCT manually with a specific number, they could use "Add Score" with negative?
+        // But the input is `min="0"`.
+
+        // Wait, the legacy modal allowed negative.
+        // "Add Score" tab input should allow negative? Or I should add a "Manual Deduct" score input in Deduct tab?
+        // For now, let's assume "Add Score" tab can handle negative if I remove `min="0"`.
+        // OR, `deduct` mode implies automatic deduction? No, custom reason = 0?
+
+        // Let's allow negative in the "Add Score" input.
+        // I will update the HTML for input to remove min="0" or allow negative.
+
+        let finalScoreChange = scoreChange;
+
+        // If mode is DEDUCT and we have no score change?
+        // The legacy modal was explicit numbers.
+        // The new modal "Deduct" is checklist based.
+        // If user wants to deduct 5 points manually:
+        // They should go to "Add Score" and type -5?
+        // That's reasonable ("Adjust Score").
+
+        // Update Student Score
+        // Note: student.score is local.
+        const newScore = Math.max(0, student.score + finalScoreChange);
+
+        // Save Score
+        const scoreResponse = await fetch('/api/save-score', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: student.id,
+            score: newScore,
+            reason: reason // Includes score change info? "Adjust: ..."
+          })
+        });
+
+        if (scoreResponse.ok) {
+          // Update local data
+          student.score = newScore;
+          showStatus('success', `บันทึกการปรับคะแนนเรียบร้อยแล้ว`);
+
+          // Finalize
+          await finalizeCompletion(index, actualIndex, adminName);
+
+          // Close
+          closeActionForm();
+          pendingNotificationDiff = null;
+
+        } else {
+          Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: 'บันทึกคะแนนไม่สำเร็จ' });
+        }
+      } catch (e) {
+        console.error(e);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message });
+      }
+    }
+
+    const REASONS_DEDUCT = [
+      "มาสาย", "ไม่สวมหมวกกันน็อค", "หนีเรียน", "สูบบุหรี่", "บุหรี่ไฟฟ้า",
+      "การแต่งกายผิดระเบียบ", "สิงห้องน้ำ", "ใช้สื่อโซเชียลไม่เหมาะสม",
+      "บูลลี่", "แอบถ่ายรูป", "เล่นไพ่/การพนัน", "ทำลายทรัพย์สิน", "ทะเลาะวิวาท"
+    ];
+
+    const REASONS_ADD = [
+      "จิตอาสาช่วยงานครู", "เก็บของได้ส่งคืน", "ช่วยเหลือเพื่อน",
+      "ร่วมกิจกรรมโรงเรียน", "แต่งกายเรียบร้อยดีเยี่ยม", "ผู้นำกิจกรรม",
+      "ดูแลความสะอาดห้องเรียน", "มีความรับผิดชอบสูง"
+    ];
+
+    // Image Processing Helpers (Ported from th.html)
+    function previewImage(input, previewId, placeholderId) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById(previewId);
+          img.src = e.target.result;
+          img.classList.add('show');
+          document.getElementById(placeholderId).classList.add('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function processImage(file, maxWidth = 800) {
+      return new Promise((resolve, reject) => {
+        if (!file) { resolve(null); return; }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          };
+          img.onerror = (error) => reject(error);
+        };
+        reader.onerror = (error) => reject(error);
+      });
+    }
+
+    async function submitWorkForm() {
+      try {
+        const studentId = document.getElementById('actionStudentId').dataset.id;
+        const studentName = document.getElementById('actionStudentName').textContent;
+        const detail = document.getElementById('workDetail').value.trim();
+        const beforeFile = document.getElementById('actionBeforeImageInput').files[0];
+        const afterFile = document.getElementById('actionAfterImageInput').files[0];
+
+        if (!detail) {
+          Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุรายละเอียดงาน / การแก้ไข' });
+          return;
+        }
+
+        // Optional: Require images? th.html requires them, but here maybe optional?
+        // The screenshot implies "Before/After". Let's require at least detail.
+
+        // Show loading
+        const btn = document.getElementById('btnSubmitAction');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังส่ง...';
+        btn.disabled = true;
+
+        // Process images
+        const beforeBase64 = await processImage(beforeFile);
+        const afterBase64 = await processImage(afterFile);
+
+        // Get current user
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        const data = {
+          student_id: studentId,
+          student_name: studentName,
+          detail: detail,
+          image_before: beforeBase64,
+          image_after: afterBase64,
+          teacher: currentUser.name || 'Unknown',
+          timestamp: new Date().toISOString(),
+          status: 'pending'
+        };
+
+        // Send to server (using same endpoint as th.html)
+        const response = await fetch('/api/save-work', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+
+        if (result.status === 'success' || response.ok) { // Handle varied API responses
+          showToast('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
+          closeActionForm();
+          closeQRScanner();
+
+          // Refresh Manage Modal History if open
+          if (document.getElementById('manageStudentModal').classList.contains('show')) {
+            if (typeof loadScoreHistory === 'function' && currentManageId) {
+              loadScoreHistory(currentManageId);
+            }
+            // Also update local stats if needed
+            if (typeof updateStatistics === 'function') {
+              updateStatistics();
+            }
+          }
+
+        } else {
+          throw new Error(result.message || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Submit work error:', error);
+        Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: error.message });
+        // Reset button
+        const btn = document.getElementById('btnSubmitAction');
+        if (btn) {
+          btn.innerHTML = '<i class="fas fa-save"></i> บันทึก';
+          btn.disabled = false;
+        }
+      }
+    }
+
+    // Close Action Form Modal
+    function closeActionForm() {
+      const modal = document.getElementById('actionFormModal');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    }
+
+    // Toggle QR deduction checkbox visual state
+    function toggleQRDeductionCheckbox(item) {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      checkbox.checked = !checkbox.checked;
+      item.classList.toggle('checked', checkbox.checked);
+
+      // If it's the "other" checkbox, toggle the input field
+      if (checkbox.id === 'qrReasonOther') {
+        const otherInput = document.getElementById('qrOtherReasonInput');
+        otherInput.style.display = checkbox.checked ? 'block' : 'none';
+        if (checkbox.checked) {
+          document.getElementById('qrOtherReasonText').focus();
+        }
+      }
+
+      // Auto-populate the reason textarea
+      updateQRReasonFromCheckboxes();
+    }
+
+    // Update the reason textarea based on checked boxes
+    function updateQRReasonFromCheckboxes() {
+      const checkboxes = document.querySelectorAll('#deductionReasonsContainer input[type="checkbox"]:checked');
+      const reasons = Array.from(checkboxes).map(cb => {
+        if (cb.id === 'qrReasonOther') {
+          return document.getElementById('qrOtherReasonText').value.trim();
+        }
+        return cb.value;
+      }).filter(r => r !== '');
+
+      document.getElementById('actionReason').value = reasons.join(', ');
+    }
+
+    async function submitActionForm() {
+      try {
+        const studentId = document.getElementById('actionStudentId').dataset.id;
+        const studentName = document.getElementById('actionStudentName').textContent;
+        const reason = document.getElementById('actionReason').value.trim();
+
+        if (!reason) {
+          showToast('warning', 'กรุณาระบุสาเหตุหรือเลือกจากรายการ');
+          return;
+        }
+
+        // Show loading
+        const btn = document.getElementById('btnSubmitAction');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังบันทึก...';
+        btn.disabled = true;
+
+        // Get current user
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        const data = {
+          student_id: studentId,
+          student_name: studentName,
+          reason: reason,
+          teacher: currentUser.name || 'Admin',
+          timestamp: new Date().toISOString(),
+          status: 'pending'
+        };
+
+        const response = await fetch('/api/save-toadmin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+
+        if (result.status === 'success' || response.ok) {
+          showToast('success', 'บันทึกคะแนนพฤติกรรมเรียบร้อยแล้ว');
+          closeActionForm();
+          closeQRScanner();
+
+          // Refresh Manage Modal if open
+          if (document.getElementById('manageStudentModal').classList.contains('show')) {
+            if (typeof loadScoreHistory === 'function' && currentManageId) {
+              loadScoreHistory(currentManageId);
+            }
+            if (typeof updateStatistics === 'function') {
+              updateStatistics();
+            }
+          }
+        } else {
+          throw new Error(result.message || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Submit action error:', error);
+        Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: error.message });
+        const btn = document.getElementById('btnSubmitAction');
+        if (btn) {
+          btn.innerHTML = '<i class="fas fa-save"></i> บันทึก';
+          btn.disabled = false;
+        }
+      }
+    }
+
+    function switchModalTab(type) {
+      currentActionType = type;
+
+      // Update Tabs
+      document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = document.getElementById(`tab-${type}`);
+      if (activeTab) activeTab.classList.add('active');
+
+      // Update Sections
+      document.querySelectorAll('.section-content').forEach(s => s.classList.remove('show'));
+      const activeSection = document.getElementById(`section-${type}`);
+      if (activeSection) activeSection.classList.add('show');
+
+      // Update Submit Button Action
+      const btn = document.getElementById('btnSubmitAction');
+      if (type === 'deduct') {
+        btn.onclick = submitActionForm;
+        btn.innerHTML = '<i class="fas fa-save"></i> บันทึก';
+        btn.classList.remove('btn-info');
+        btn.classList.add('btn-success');
+      } else {
+        btn.onclick = submitWorkForm;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> บันทึกผลงาน';
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-info');
+      }
+    }
+
+    // ===== Real-time Statistics System =====
+    let statsInterval;
+    let cachedStudentsData = [];
+
+    // Calculate and update statistics
+    async function updateStatistics() {
+      try {
+        // Fetch latest data with cache busting
+        const timestamp = new Date().getTime();
+        const response = await fetch(`user2.1.json?v=${timestamp}`);
+        if (!response.ok) {
+          console.error('Failed to fetch student data');
+          return;
+        }
+
+        const students = await response.json();
+        cachedStudentsData = students;
+
+        // Fix for QR Scanner: Keep global data fresh
+        if (Array.isArray(students) && students.length > 0) {
+          window.allStudents = students;
+        }
+
+        // Calculate statistics
+        const totalStudents = students.length;
+        const avgScore = students.reduce((sum, s) => sum + (s.score || 100), 0) / totalStudents;
+        const highScore = students.filter(s => (s.score || 100) >= 80).length;
+        const lowScore = students.filter(s => (s.score || 100) < 60).length; // Update UI
+        document.getElementById('statTotal').textContent = totalStudents;
+        document.getElementById('statAvg').textContent = avgScore.toFixed(1);
+        document.getElementById('statHigh').textContent = highScore; document.getElementById('statLow').textContent = lowScore;
+        console.log('Statistics updated:', { totalStudents, avgScore: avgScore.toFixed(1), highScore, lowScore });
+      } catch
+      (error) { console.error('Error updating statistics:', error); }
+    }
+
+    function startStatisticsMonitoring() {
+      // Update immediately 
+      updateStatistics();
+      // Then update every 5 seconds
+      statsInterval = setInterval(() => {
+        updateStatistics();
+      }, 5000);
+
+      console.log('Statistics monitoring started (updates every 5 seconds)');
+    }
+
+    // Stop monitoring (cleanup)
+    function stopStatisticsMonitoring() {
+      if (statsInterval) {
+        clearInterval(statsInterval);
+        console.log('Statistics monitoring stopped');
+      }
+    }
+
+    // Start monitoring when page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startStatisticsMonitoring);
+    } else {
+      startStatisticsMonitoring();
+    }
+
+    // Stop monitoring when page unloads
+    window.addEventListener('beforeunload', stopStatisticsMonitoring);
+
+    // Helper to open modal for student
+    function openActionFormForStudent(studentId, studentName, defaultTab = 'deduct') {
+      const modal = document.getElementById('actionFormModal');
+      document.getElementById('actionStudentName').textContent = studentName;
+      document.getElementById('actionStudentId').textContent = 'รหัส: ' + studentId;
+      document.getElementById('actionStudentId').dataset.id = studentId;
+
+      // Reset Inputs
+      document.getElementById('actionReason').value = '';
+      if (document.getElementById('workDetail')) document.getElementById('workDetail').value = '';
+      if (document.getElementById('qrOtherReasonText')) document.getElementById('qrOtherReasonText').value = '';
+      if (document.getElementById('qrOtherReasonInput')) document.getElementById('qrOtherReasonInput').style.display = 'none';
+
+      // Reset Checkboxes
+      document.querySelectorAll('.deduction-checkbox-item input').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.deduction-checkbox-item').forEach(div => div.classList.remove('checked'));
+
+      // Reset Images
+      document.querySelectorAll('.image-preview').forEach(img => {
+        img.src = '';
+        img.classList.remove('show');
+      });
+      document.querySelectorAll('.upload-placeholder').forEach(p => p.classList.remove('hidden'));
+
+      switchModalTab(defaultTab);
+      modal.classList.add('show');
+      // Ensure z-index is high if called from another modal
+      modal.style.zIndex = '10600';
+    }
+  </script>
+
+  <!-- ==================== STUDENT MANAGEMENT MODALS ==================== -->
+
+  <!-- Specialized Score Adjustment Modal (Design from screenshot) -->
+  <div id="adjustScoreModal" class="student-search-overlay" style="z-index: 10700;">
+    <div class="adjust-modal-content">
+      <div class="adjust-modal-icon-wrapper" id="adjustModalIcon">
+        <i class="fas fa-pen"></i>
+      </div>
+
+      <div class="adjust-modal-title" id="adjustModalTitle">ปรับคะแนนพฤติกรรม</div>
+      <div class="adjust-modal-subtitle" id="adjustModalSubtitle">ให้คะแนน / หักคะแนน ...</div>
+
+      <div class="adjust-form-group">
+        <label class="adjust-label"
+          style="text-align: center; font-size: 1.1rem; color: #6b7280;">ระบุคะแนนที่ต้องการปรับ</label>
+        <input type="number" id="adjustScoreInput" class="adjust-input-field" placeholder="0">
+        <div style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #9ca3af;">
+          ( ใส่เครื่องหมาย - เพื่อหักคะแนน เช่น -5 )
+        </div>
+      </div>
+
+      <!-- Reason field REMOVED as per user request -->
+      <!-- Work Detail and Image Upload sections REMOVED as per user request -->
+      <!-- Fields for workDetail and images are now optional in submitAdjustScore logic -->
+
+      <!-- Work Detail and Image Upload sections REMOVED as per user request -->
+      <!-- Fields for workDetail and images are now optional in submitAdjustScore logic -->
+
+      <div class="adjust-modal-actions">
+        <button class="adjust-btn adjust-btn-cancel" onclick="closeAdjustScoreModal()">
+          <i class="fas fa-times"></i> ยกเลิก
+        </button>
+        <button class="adjust-btn adjust-btn-confirm" onclick="submitAdjustScore()">
+          <i class="fas fa-check"></i> ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="student-search-overlay" id="manageStudentModal">
+    <div class="manage-student-modal">
+      <div class="manage-student-header">
+        <div class="manage-header-left">
+          <button class="manage-back-btn" id="manageBackBtn" onclick="switchManageStudentView('main')">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <h3 id="manageModalTitle"><i class="fas fa-user-cog"></i> จัดการข้อมูลนักเรียน</h3>
+        </div>
+        <button onclick="closeManageStudentModal()"
+          style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <!-- Main Profile View -->
+      <div id="manageMainView" class="manage-view active">
+        <div class="manage-student-profile">
+          <div class="manage-avatar-wrapper">
+            <div class="manage-avatar" id="manageStudentAvatar" onclick="openProfileViewerFromAvatar()">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="manage-avatar-badge" onclick="openUploadProfileModal()">
+              <i class="fas fa-camera"></i>
+            </div>
+          </div>
+          <div class="manage-student-name" id="manageStudentName">-</div>
+          <div class="manage-student-id" id="manageStudentId">รหัส: -</div>
+        </div>
+
+        <div class="student-stats-grid">
+          <!-- Academic Status -->
+          <div class="stat-card">
+            <div class="stat-icon academic">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">สถานะการเรียน</div>
+              <div class="stat-value" id="manageStudentAcademic">-</div>
+            </div>
+          </div>
+
+          <!-- Behavior Status -->
+          <div class="stat-card">
+            <div class="stat-icon behavior">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">สถานะพฤติกรรม</div>
+              <div class="stat-value" id="manageStudentStatus">-</div>
+            </div>
+          </div>
+
+          <!-- Current Score -->
+          <div class="stat-card">
+            <div class="stat-icon score">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-label">คะแนนปัจจุบัน</div>
+              <div class="stat-value" id="manageStudentScore">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+          <!-- Add Score Button (New) -->
+          <button class="history-primary-btn" onclick="openManualScoreModal()"
+            style="background: linear-gradient(135deg, #10b981, #059669); padding: 15px; border-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div
+                style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-plus" style="font-size: 1.2rem;"></i>
+              </div>
+              <div style="text-align: left;">
+                <h4 style="margin: 0; font-size: 1rem;">เพิ่มคะแนน</h4>
+                <p style="margin: 0; font-size: 0.8rem; opacity: 0.9;">บวกคะแนนเพิ่ม</p>
+              </div>
+            </div>
+          </button>
+
+          <!-- History Button -->
+          <button class="history-primary-btn" onclick="switchManageStudentView('history')"
+            style="margin: 0; padding: 15px; border-radius: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div
+                style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-history" style="font-size: 1.2rem;"></i>
+              </div>
+              <div style="text-align: left;">
+                <h4 style="margin: 0; font-size: 1rem;">ประวัติ</h4>
+                <p style="margin: 0; font-size: 0.8rem; opacity: 0.9;">ดูรายการย้อนหลัง</p>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <div style="padding: 0 25px 25px;">
+          <button class="btn btn-warning" style="width: 100%; padding: 12px; border-radius: 12px;"
+            onclick="closeManageStudentModal()">ปิดหน้าต่าง</button>
+        </div>
+      </div>
+
+      <!-- History Detail View -->
+      <div id="manageHistoryView" class="manage-view">
+        <div class="manage-history-container">
+          <div class="manage-history-tabs">
+            <button class="manage-history-tab active" data-filter="all" onclick="filterHistoryUnified('all', this)">
+              <i class="fas fa-list"></i> ทั้งหมด
+            </button>
+            <button class="manage-history-tab positive" data-filter="positive"
+              onclick="filterHistoryUnified('positive', this)">
+              <i class="fas fa-plus-circle"></i> เพิ่ม
+            </button>
+            <button class="manage-history-tab negative" data-filter="negative"
+              onclick="filterHistoryUnified('negative', this)">
+              <i class="fas fa-minus-circle"></i> ลด
+            </button>
+          </div>
+
+          <div class="manage-history-list" id="manageHistoryList">
+            <!-- History items will be rendered here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Profile Viewer Modal-->
+  <div class="student-search-overlay" id="profileViewerModal" onclick="closeProfileViewer(event)"
+    style="z-index: 10200;">
+    <div class="report-modal" style="max-width: 400px; padding: 25px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 id="profileViewerName" style="margin: 0; font-size: 1.5rem; color: #1e293b;">-</h3>
+        <button onclick="closeProfileViewer()"
+          style="border: none; background: #f1f5f9; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; color: #64748b; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="profileViewerId"
+        style="color: #6366f1; background: #eef2ff; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; font-weight: 600;">
+        รหัส: -</div>
+      <div id="profileViewerImageContainer" class="profile-viewer-image-container">
+        <div class="no-profile-image">
+          <i class="fas fa-user-graduate"></i>
+          <p>ไม่มีรูปโปรไฟล์</p>
+        </div>
+      </div>
+      <div style="margin-top: 20px; text-align: center;">
+        <p style="color: #64748b; font-size: 0.85rem;"><i class="fas fa-info-circle"></i> รูปภาพที่จัดเก็บในระบบ
+          edstudent
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!--Upload Profile Modal-->
+  <div class="student-search-overlay" id="uploadProfileModal" style="z-index: 10100;">
+    <div class="report-modal" style="max-width: 450px;">
+      <div class="report-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 20px 25px;">
+        <h3><i class="fas fa-camera"></i> อัปโหลดรูปโปรไฟล์</h3>
+      </div>
+      <div class="report-body" style="padding: 30px;">
+        <div class="upload-preview-container"
+          style="background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 24px; padding: 40px 20px;">
+          <div class="upload-preview" onclick="document.getElementById('profileImageInput').click()"
+            style="width: 200px; height: 200px; border: 4px solid white; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+            <input type="file" id="profileImageInput" class="hidden-input" accept="image/*"
+              onchange="previewProfileImage(this)" style="display: none;">
+            <div id="profilePlaceholder">
+              <i class="fas fa-cloud-upload-alt" style="font-size: 4rem; color: #cbd5e1;"></i>
+              <p style="margin-top: 10px; font-weight: 600; color: #94a3b8;">คลิกเพื่อเลือกรูป</p>
+            </div>
+            <img id="profilePreview"
+              style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+          </div>
+          <p class="profile-instruction" style="margin-top: 20px;">เลือกรูปภาพนักเรียนที่ชัดเจน (JPG/PNG)</p>
+          <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">
+            ระบบจะทำการตัดรูปส่วนกลางให้อัตโนมัติเป็นวงกลม</p>
+        </div>
+        <div class="report-actions" style="grid-template-columns: 1fr 1fr; margin-top: 25px;">
+          <button class="report-btn" onclick="closeUploadProfileModal()"
+            style="background: #f1f5f9; color: #475569; padding: 12px; border-radius: 12px; font-weight: 600; border: none; cursor: pointer;">ยกเลิก</button>
+          <button class="report-btn" onclick="saveProfileImage()"
+            style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer;">บันทึกรูปภาพ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Reporting Modal (New) -->
+
+
+  <script>
+    // Manual Score -> Opens the Action Form Modal (Unified Interface)
+    function openManualScoreModal() {
+      // Use existing currentManageId/Name
+      const studentId = currentManageId;
+      const studentName = currentManageName;
+
+      if (!studentId) {
+        console.error('No student selected for manual score');
+        return;
+      }
+
+      // Populate Action Modal
+      const modal = document.getElementById('actionFormModal');
+      document.getElementById('actionStudentName').textContent = studentName;
+      document.getElementById('actionStudentId').textContent = 'รหัส: ' + studentId;
+      document.getElementById('actionStudentId').dataset.id = studentId;
+
+      // Reset Form
+      document.getElementById('actionReason').value = '';
+      document.getElementById('workDetail').value = '';
+      document.getElementById('beforeImageInput').value = '';
+      document.getElementById('afterImageInput').value = '';
+
+      // Clear previews
+      document.getElementById('beforePreview').removeAttribute('src');
+      document.getElementById('beforePreview').classList.remove('show');
+      document.getElementById('beforePlaceholder').classList.remove('hidden');
+
+      document.getElementById('afterPreview').removeAttribute('src');
+      document.getElementById('afterPreview').classList.remove('show');
+      document.getElementById('afterPlaceholder').classList.remove('hidden');
+
+      // Default to "Add Score" tab based on user request context
+      if (typeof switchModalTab === 'function') {
+        switchModalTab('add');
+      }
+
+      modal.classList.add('show');
+      // Hide Manage Modal temporarily? Or keep it open behind?
+      // Screenshot shows it's an overlay. Let's keep manage modal open behind it.
+      // But ensure z-index of actionFormModal is higher than manageStudentModal.
+      modal.style.zIndex = "10400"; // Ensure it's on top of manage modal (usually ~10200)
+    }
+
+    function closeActionForm() {
+      document.getElementById('actionFormModal').classList.remove('show');
+    }
+
+    function closeManualScoreModal() {
+      document.getElementById('manualScoreModal').classList.remove('show');
+    }
+
+    function updateManualScorePreview() {
+      const input = document.getElementById('manualScoreInput');
+      let val = parseInt(input.value);
+      if (isNaN(val) || val < 1) val = 0;
+      document.getElementById('manualScoreValueDisplay').textContent = val;
+    }
+
+    async function submitManualScore() {
+      const score = document.getElementById('manualScoreInput').value;
+      let reason = document.getElementById('manualScoreReason').value.trim();
+
+      if (!reason) {
+        alert('กรุณาระบุเหตุผล');
+        return;
+      }
+
+      if (score < 1) {
+        alert('คะแนนต้องมากกว่า 0');
+        return;
+      }
+
+      // Format reason to include score
+      const finalReason = `[เพิ่มคะแนน +${score}] ${reason}`;
+
+      try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const data = {
+          student_id: currentManageId,
+          student_name: currentManageName,
+          reason: finalReason,
+          teacher: currentUser.name || 'Admin',
+          timestamp: new Date().toISOString(),
+          score_change: parseInt(score) // Try sending this in case backend supports it
+        };
+
+        const response = await fetch('/api/save-toadmin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success' || response.ok) {
+          // Close modal
+          closeManualScoreModal();
+
+          // Show success (maybe SweetAlert or Toast if available, or just alert)
+          // alert('เพิ่มคะแนนเรียบร้อยแล้ว');
+
+          // Refresh History
+          if (typeof loadScoreHistory === 'function') {
+            loadScoreHistory(currentManageId);
+          }
+
+          // Switch to History View to show the new entry?
+          switchManageStudentView('history');
+
+        } else {
+          alert('เกิดข้อผิดพลาด: ' + (result.message || 'Unknown'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+      }
+    }
+
+    // ==========================================
+    // REPORT GENERATION (Ported from th.html)
+    // ==========================================
+
+    function openReportModal() {
+      populateReportYears();
+      populateReportClasses();
+      document.getElementById('reportModal').classList.add('show');
+    }
+
+    function closeReportModal() {
+      document.getElementById('reportModal').classList.remove('show');
+    }
+
+    function populateReportClasses() {
+      const classSelect = document.getElementById('reportClass');
+      const classes = getUniqueClasses();
+      classSelect.innerHTML = '<option value="">ทุกห้อง</option>';
+
+      classes.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c;
+        option.textContent = formatClassName(c);
+        classSelect.appendChild(option);
+      });
+    }
+
+    function populateReportYears() {
+      const yearSelect = document.getElementById('reportYear');
+      const currentYearEn = new Date().getFullYear();
+      const currentYearTh = currentYearEn + 543;
+
+      yearSelect.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        const yearTh = currentYearTh - i;
+        const yearEn = currentYearEn - i;
+        const option = document.createElement('option');
+        option.value = yearEn;
+        option.textContent = `ปีการศึกษา ${yearTh}`;
+        yearSelect.appendChild(option);
+      }
+    }
+
+    function formatClassName(classCode) {
+      if (!classCode) return '-';
+      const code = String(classCode);
+      if (code.length === 3) {
+        return 'ม.' + code[0] + '/' + code.substring(1);
+      }
+      return classCode;
+    }
+
+    async function exportReport(type) {
+      const month = document.getElementById('reportMonth').value;
+      const year = parseInt(document.getElementById('reportYear').value);
+      const filter = document.getElementById('reportFilter').value;
+      const selectedClass = document.getElementById('reportClass').value;
+
+      // Show loading
+      if (typeof showLoading === 'function') {
+        showLoading(true);
+      } else {
+        console.log('Generating report...');
+      }
+
+      try {
+        // Fetch logs for history reconstruction
+        const timestamp = new Date().getTime();
+        const logRes = await fetch(`log.json?v=${timestamp}`);
+        const logs = await logRes.json();
+
+        // Use current student data
+        const sourceStudents = window.allStudents || cachedStudentsData || [];
+        if (sourceStudents.length === 0) throw new Error('ไม่พบข้อมูลนักเรียน');
+
+        // 1. Reconstruct historical scores
+        let reportStudents = JSON.parse(JSON.stringify(sourceStudents));
+
+        // Determine end date
+        let endDate;
+        if (month === 'all') {
+          endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+        } else {
+          const m = parseInt(month);
+          endDate = new Date(year, m + 1, 0, 23, 59, 59, 999);
+        }
+
+        // Undo logs AFTER endDate
+        const logsToUndo = logs.filter(l => new Date(l.timestamp) > endDate);
+
+        reportStudents.forEach(s => {
+          const studentLogs = logsToUndo.filter(l => String(l.student_id) === String(s.id));
+          studentLogs.forEach(l => {
+            const change = l.change || l.score_change || l.deduction || 0;
+            s.score -= change;
+          });
+        });
+
+        // 2. Filter
+        if (selectedClass && selectedClass !== '') {
+          reportStudents = reportStudents.filter(s => String(s.class) === selectedClass);
+        }
+
+        // Calculate Evaluation and Filter
+        let finalData = [];
+        const allWithEval = reportStudents.map(s => {
+          const score = s.score || 100;
+          // Check for any negative history (deductions or negative changes)
+          const hasBadHistory = logs.some(l =>
+            String(l.student_id) === String(s.id) &&
+            (l.change < 0 || l.deduction < 0) &&
+            new Date(l.timestamp) <= endDate
+          );
+
+          let evalStatus = '';
+          if (score >= 100 && !hasBadHistory) {
+            evalStatus = 'เด็กดีศรีเทพา';
+          } else if (score < 60) {
+            evalStatus = 'ไม่ผ่าน';
+          } else {
+            evalStatus = 'ผ่าน';
+          }
+
+          return { ...s, score, evaluation: evalStatus, hasBadHistory };
+        });
+
+        if (filter === 'all') {
+          finalData = allWithEval;
+        } else if (filter === 'failed') {
+          finalData = allWithEval.filter(s => s.score < 60);
+        } else if (filter === 'passed') {
+          finalData = allWithEval.filter(s => s.score >= 60);
+        } else if (filter === 'excellent') {
+          finalData = allWithEval.filter(s => s.evaluation === 'เด็กดีศรีเทพา');
+        }
+
+        if (finalData.length === 0) {
+          alert('ไม่พบข้อมูลตามเงื่อนไขที่เลือก');
+          if (typeof showLoading === 'function') showLoading(false);
+          return;
+        }
+
+        // Sort by name (Thai locale)
+        finalData.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
+
+        const monthName = month === 'all' ? 'ทุกเดือน' :
+          ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][parseInt(month)];
+        const yearTh = year + 543;
+
+        // Grouping Logic for PDF/Export
+        let groups = [];
+        if (selectedClass) {
+          // Single Class
+          const classInt = parseInt(selectedClass);
+          let teacherName = 'Admin';
+          if (teachersData.length > 0) {
+            const advisors = teachersData.filter(t => t.class === classInt && !/^\d+$/.test(t.id));
+            if (advisors.length > 0) {
+              teacherName = advisors.map(t => t.name).join(' / ');
+            }
+          }
+          groups.push({
+            className: formatClassName(selectedClass),
+            teacherName: teacherName,
+            data: finalData
+          });
+        } else {
+          // All Classes - Group students by their class
+          const distinctClasses = [...new Set(finalData.map(s => s.class))].sort((a, b) => a - b);
+          distinctClasses.forEach(cid => {
+            const classData = finalData.filter(s => s.class === cid);
+            let advisorName = 'Admin';
+            const advisors = teachersData.filter(t => t.class === parseInt(cid) && !/^\d+$/.test(t.id));
+            if (advisors.length > 0) {
+              advisorName = advisors.map(t => t.name).join(' / ');
+            }
+            groups.push({
+              className: formatClassName(cid),
+              teacherName: advisorName,
+              data: classData
+            });
+          });
+        }
+
+        const title = `รายงานสรุปคะแนนพฤติกรรม ${monthName} ปีการศึกษา ${yearTh}`;
+        await generateExport(groups, title, type === 'pdf');
+
+      } catch (err) {
+        console.error('Report error:', err);
+        alert('เกิดข้อผิดพลาดในการสร้างรายงาน: ' + err.message);
+      } finally {
+        if (typeof showLoading === 'function') showLoading(false);
+      }
+    }
+
+    async function generateExport(groups, title, isPdf) {
+      if (isPdf) {
+        // ============ PDF EXPORT: GROUPED BY CLASS ============
+        try {
+          const { jsPDF } = window.jspdf;
+          if (!jsPDF) { throw new Error('jsPDF ไม่โหลด กรุณารีเฟรชหน้า'); }
+
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const ITEMS_PER_PAGE = 25;
+
+          // 1. Calculate Total Physical Pages for accurate progress display
+          let totalPhysicalPages = 0;
+          groups.forEach(g => {
+            totalPhysicalPages += Math.ceil(g.data.length / ITEMS_PER_PAGE);
+          });
+
+          // 2. Create Loading Overlay
+          const loadingOverlay = document.createElement('div');
+          loadingOverlay.id = 'export-loading-overlay';
+          loadingOverlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #ffffff; z-index: 20000; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            font-family: 'Prompt', sans-serif;
+          `;
+          loadingOverlay.innerHTML = `
+            <div style="font-size: 24px; color: #333; margin-bottom: 20px;">กำลังสร้างรายงาน PDF...</div>
+            <div style="font-size: 18px; color: #666;">ประมวลผลหน้า <b id="export-progress">1</b> จาก ${totalPhysicalPages}</div>
+            <div style="margin-top: 20px; color: #999; font-size: 14px;">กรุณาอย่าปิดหน้าต่าง</div>
+          `;
+          document.body.appendChild(loadingOverlay);
+
+          window.scrollTo(0, 0);
+          await document.fonts.ready;
+
+          let currentPageGlobal = 0;
+
+          // 3. Process each Class Group
+          for (const group of groups) {
+            const groupData = group.data;
+            const groupPages = Math.ceil(groupData.length / ITEMS_PER_PAGE);
+
+            for (let pageIdx = 0; pageIdx < groupPages; pageIdx++) {
+              currentPageGlobal++;
+              const b = document.getElementById('export-progress');
+              if (b) b.textContent = currentPageGlobal;
+
+              const start = pageIdx * ITEMS_PER_PAGE;
+              const end = start + ITEMS_PER_PAGE;
+              const pageData = groupData.slice(start, end);
+
+              const tempDiv = document.createElement('div');
+              tempDiv.style.cssText = `
+                position: fixed; left: 0; top: 0; width: 800px;
+                min-height: 1000px; background: #ffffff; padding: 40px;
+                color: #000000; font-family: 'Prompt', 'Sarabun', Arial, sans-serif;
+                z-index: 19999; box-sizing: border-box;
+              `;
+
+              // TABLE CONTENT
+              const tableRows = pageData.map((s, idx) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 10px; text-align: center; font-size: 14px;">${start + idx + 1}</td>
+                  <td style="padding: 10px; text-align: center; font-size: 14px;">${s.id}</td>
+                  <td style="padding: 10px; font-size: 14px;">${s.name}</td>
+                  <td style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.score}</td>
+                  <td style="padding: 10px; text-align: center; font-size: 14px; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.evaluation || (s.score < 60 ? 'ไม่ผ่าน' : 'ผ่าน')}</td>
+                </tr>
+              `).join('');
+
+              tempDiv.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+                  <h1 style="color: #1e293b; margin: 0 0 5px 0; font-size: 22px;">${title}</h1>
+                  <p style="color: #64748b; margin: 0; font-size: 14px;">
+                    ห้องเรียน: ${group.className} | ครูที่ปรึกษา: ${group.teacherName}
+                  </p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                      <th style="padding: 12px; text-align: center; font-size: 14px; width: 10%;">ลำดับ</th>
+                      <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">รหัส</th>
+                      <th style="padding: 12px; text-align: left; font-size: 14px; width: 45%;">ชื่อ-นามสกุล</th>
+                      <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">คะแนน</th>
+                      <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">ผลประเมิน</th>
+                    </tr>
+                  </thead>
+                  <tbody>${tableRows}</tbody>
+                </table>
+                <div style="margin-top: 20px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; justify-content: space-between;">
+                  <p style="margin: 0; color: #94a3b8; font-size: 12px;">หน้า ${currentPageGlobal} จาก ${totalPhysicalPages}</p>
+                  <p style="margin: 0; color: #94a3b8; font-size: 12px;">สร้างรายงานเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+                </div>
+              `;
+
+              document.body.appendChild(tempDiv);
+              await new Promise(resolve => setTimeout(resolve, 500));
+
+              const canvas = await html2canvas(tempDiv, {
+                scale: 2, useCORS: true, logging: false,
+                backgroundColor: '#ffffff', windowWidth: 1200, width: 800
+              });
+
+              document.body.removeChild(tempDiv);
+
+              if (currentPageGlobal > 1) pdf.addPage();
+              const imgData = canvas.toDataURL('image/jpeg', 0.95);
+              const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+              pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
+
+              await new Promise(resolve => setTimeout(resolve, 50));
+            }
+          }
+
+          const fileName = title.replace(/ /g, '_') + '.pdf';
+          pdf.save(fileName);
+          document.body.removeChild(loadingOverlay);
+
+          Swal.fire({
+            icon: 'success',
+            title: 'สำเร็จ!',
+            text: `ส่งออก PDF เรียบร้อยแล้ว (${totalPhysicalPages} หน้า)`,
+            timer: 3000,
+            showConfirmButton: false
+          });
+
+        } catch (err) {
+          console.error('PDF Batch Export error:', err);
+          if (document.getElementById('export-loading-overlay')) {
+            document.body.removeChild(document.getElementById('export-loading-overlay'));
+          }
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถส่งออก PDF ได้: ' + err.message });
+        }
+      } else {
+        // ============ IMAGE EXPORT (Legacy/Adjusted) ============
+        // For image export, we compress into one continuous view but headers remain.
+        try {
+          // Combine all groups for counting
+          const totalStudents = groups.reduce((sum, g) => sum + g.data.length, 0);
+          if (totalStudents > 100) {
+            const confirm = await Swal.fire({
+              title: 'ข้อมูลมีจำนวนมาก',
+              text: `มีข้อมูลนักเรียน ${totalStudents} คน แนะนำให้ส่งออกเป็น PDF แทนเพื่อความชัดเจน`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'ยังคงส่งออกรูปภาพ',
+              cancelButtonText: 'ยกเลิก'
+            });
+            if (!confirm.isConfirmed) return;
+          }
+
+          const loadingOverlay = document.createElement('div');
+          loadingOverlay.style.cssText = `
+              position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+              background: rgba(255,255,255,0.9); z-index: 20000;
+              display: flex; align-items: center; justify-content: center; font-size: 24px;
+          `;
+          loadingOverlay.textContent = 'กำลังสร้างรูปภาพ...';
+          document.body.appendChild(loadingOverlay);
+
+          const tempDiv = document.createElement('div');
+          tempDiv.style.cssText = `
+              position: fixed; left: 0; top: 0; width: 800px; height: auto;
+              background: #ffffff; padding: 40px; color: #000000;
+              font-family: 'Prompt', 'Sarabun', Arial, sans-serif; z-index: 19999;
+          `;
+
+          const groupsHtml = groups.map(group => {
+            const rows = group.data.map((s, idx) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 10px; text-align: center;">${idx + 1}</td>
+                  <td style="padding: 10px; text-align: center;">${s.id}</td>
+                  <td style="padding: 10px;">${s.name}</td>
+                  <td style="padding: 10px; text-align: center; font-weight: bold; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.score}</td>
+                  <td style="padding: 10px; text-align: center;">${s.evaluation}</td>
+                </tr>
+              `).join('');
+
+            return `
+                <div style="margin-bottom: 40px;">
+                  <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px;">
+                    <h2 style="margin: 0 0 5px 0; font-size: 20px;">ห้องเรียน: ${group.className}</h2>
+                    <p style="margin: 0; font-size: 14px;">ครูที่ปรึกษา: ${group.teacherName}</p>
+                  </div>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                      <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                         <th style="padding: 10px; text-align: center;">ลำดับ</th>
+                         <th style="padding: 10px; text-align: center;">รหัส</th>
+                         <th style="padding: 10px; text-align: left;">ชื่อ-นามสกุล</th>
+                         <th style="padding: 10px; text-align: center;">คะแนน</th>
+                         <th style="padding: 10px; text-align: center;">ผลประเมิน</th>
+                      </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                  </table>
+                </div>
+              `;
+          }).join('');
+
+          tempDiv.innerHTML = `
+            <div style="text-align: center; margin-bottom: 30px;">
+               <h1 style="color: #1e293b; font-size: 24px;">${title}</h1>
+            </div>
+            ${groupsHtml}
+            <div style="margin-top: 20px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                <p style="margin: 0; color: #94a3b8; font-size: 12px;">สร้างรายงานเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+            </div>
+          `;
+
+          document.body.appendChild(tempDiv);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          const canvas = await html2canvas(tempDiv, {
+            scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff'
+          });
+
+          const link = document.createElement('a');
+          link.download = title.replace(/ /g, '_') + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+
+          document.body.removeChild(tempDiv);
+          document.body.removeChild(loadingOverlay);
+          Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'ส่งออกรูปภาพเรียบร้อยแล้ว', timer: 2000, showConfirmButton: false });
+        } catch (err) {
+          console.error('Image Export error:', err);
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถส่งออกข้อมูลได้: ' + err.message });
+        }
+      }
+    }
+  </script>
+
+  <!-- Reporting Modal (Restored & Enhanced) -->
+  <div class="student-search-overlay" id="reportModal">
+    <div class="report-modal">
+      <div class="report-header">
+        <h3><i class="fas fa-file-alt"></i> รายงานสรุปคะแนนพฤติกรรม</h3>
+        <button class="qr-close-btn" onclick="closeReportModal()"
+          style="position: absolute; right: 20px; top: 20px; color: white; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+      </div>
+      <div class="report-body">
+        <div class="report-form-group">
+          <label>ระดับชั้น <span class="required-indicator" style="color: red;">*</span></label>
+          <select class="report-select" id="reportClass"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px;">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="report-form-group">
+          <label>รายเดือน <span class="required-indicator" style="color: red;">*</span></label>
+          <select class="report-select" id="reportMonth"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px;">
+            <option value="all">ทุกเดือน (ทั้งปี)</option>
+            <option value="0">มกราคม</option>
+            <option value="1">กุมภาพันธ์</option>
+            <option value="2">มีนาคม</option>
+            <option value="3">เมษายน</option>
+            <option value="4">พฤษภาคม</option>
+            <option value="5">มิถุนายน</option>
+            <option value="6">กรกฎาคม</option>
+            <option value="7">สิงหาคม</option>
+            <option value="8">กันยายน</option>
+            <option value="9">ตุลาคม</option>
+            <option value="10">พฤศจิกายน</option>
+            <option value="11">ธันวาคม</option>
+          </select>
+        </div>
+        <div class="report-form-group">
+          <label>เลือกปีการศึกษา <span class="required-indicator" style="color: red;">*</span></label>
+          <select class="report-select" id="reportYear"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px;">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="report-form-group">
+          <label>สถานะพฤติกรรม <span class="required-indicator" style="color: red;">*</span></label>
+          <select class="report-select" id="reportFilter"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 20px;">
+            <option value="all">ทั้งหมด (ทุกคน)</option>
+            <option value="failed">ไม่ผ่านเกณฑ์ (ปรับแก้คะแนนด่วน)</option>
+            <option value="passed">ผ่านเกณฑ์ (คะแนนปกติ)</option>
+            <option value="excellent">เด็กดีศรีเทพา</option>
+          </select>
+        </div>
+
+        <div class="report-actions" style="display: flex; gap: 10px;">
+          <button class="report-btn btn-image" onclick="exportReport('image')"
+            style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #3b82f6; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fas fa-image"></i> ส่งออกรูปภาพ
+          </button>
+          <button class="report-btn btn-pdf" onclick="exportReport('pdf')"
+            style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #ef4444; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fas fa-file-pdf"></i> ส่งออก PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photos Manager Modal -->
+  <div class="student-search-overlay" id="photosManagerModal">
+    <div class="student-search-modal" style="max-width: 900px; max-height: 90vh;">
+      <div class="student-search-header"
+        style="background: linear-gradient(135deg, #38b2ac, #319795); color: white; border-radius: 20px 20px 0 0;">
+        <h3 style="margin: 0;"><i class="fas fa-images"></i> จัดการรูปนักเรียน (edstudent)</h3>
+        <button onclick="closePhotosManager()"
+          style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      <div style="padding: 20px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+          <button class="btn btn-success" onclick="document.getElementById('folderUploadInput').click()">
+            <i class="fas fa-folder-open"></i> อัพโหลดโฟลเดอร์
+          </button>
+          <input type="file" id="folderUploadInput" webkitdirectory directory multiple accept="image/*"
+            style="display: none;" onchange="uploadFolderPhotos(this)">
+          <button class="btn btn-primary" onclick="loadStudentPhotos()">
+            <i class="fas fa-sync"></i> โหลดรูปภาพ
+          </button>
+          <button class="btn btn-info" onclick="downloadAllPhotos()"
+            style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <i class="fas fa-download"></i> ดาวน์โหลดทั้งหมด
+          </button>
+          <div id="photosCount" style="display: flex; align-items: center; color: #64748b;">
+            รวม: <span id="photosTotal" style="font-weight: bold; margin-left: 5px;">0</span> รูป
+          </div>
+        </div>
+        <div id="uploadProgress"
+          style="display: none; margin-bottom: 15px; background: #f0fdf4; padding: 15px; border-radius: 10px; border-left: 4px solid #10b981;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-spinner fa-spin" style="color: #10b981;"></i>
+            <span id="uploadProgressText">กำลังอัพโหลด...</span>
+          </div>
+          <div style="background: #e2e8f0; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden;">
+            <div id="uploadProgressBar"
+              style="background: linear-gradient(90deg, #10b981, #059669); height: 100%; width: 0%; transition: width 0.3s;">
+            </div>
+          </div>
+        </div>
+        <div id="photosGallery"
+          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; max-height: 60vh; overflow-y: auto; padding: 10px;">
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;">
+            <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;"></i>
+            <p>กดปุ่ม "โหลดรูปภาพ" เพื่อดูรายการ</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Preview Modal -->
+  <div class="student-search-overlay" id="photoPreviewModal" style="z-index: 10000;">
+    <div style="background: white; border-radius: 20px; padding: 20px; max-width: 500px; width: 95%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin: 0;"><i class="fas fa-user"></i> <span id="previewStudentId">-</span></h3>
+        <button onclick="closePhotoPreview()"
+          style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      <img id="previewImage" src="" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-danger" onclick="deleteCurrentPhoto()" style="flex: 1;">
+          <i class="fas fa-trash"></i> ลบรูปภาพ
+        </button>
+        <button class="btn btn-primary" onclick="closePhotoPreview()" style="flex: 1;">
+          <i class="fas fa-check"></i> ปิด
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Late Report Modal -->
+  <style>
+    .rpt-cat-card {
+      padding: 14px 10px;
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid #e2e8f0;
+      background: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rpt-cat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+      border-color: #a5b4fc;
+    }
+
+    .rpt-cat-card.active {
+      border-color: #818cf8 !important;
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff) !important;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .rpt-cat-card.active .rpt-cat-label {
+      color: #4338ca !important;
+    }
+
+    .rpt-cat-card .rpt-cat-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #64748b;
+      transition: color 0.3s;
+    }
+
+    .rpt-cat-card .rpt-cat-icon {
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+      transition: transform 0.3s;
+    }
+
+    .rpt-cat-card:hover .rpt-cat-icon {
+      transform: scale(1.15);
+    }
+
+    .rpt-filter-select {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      background: #f8fafc;
+      font-weight: 500;
+      color: #334155;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      outline: none;
+    }
+
+    .rpt-filter-select:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15);
+    }
+
+    #lateReportResults::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #lateReportResults::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #lateReportResults::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    #lateReportResults::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .rpt-export-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      transition: all 0.3s;
+    }
+
+    .rpt-export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+  </style>
+  <div class="student-search-overlay" id="lateReportModal">
+    <div class="student-search-modal"
+      style="max-width: 960px; max-height: 92vh; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
+
+      <!-- Header -->
+      <div style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        padding: 24px 28px;
+        display: flex; align-items: center; justify-content: space-between;
+        position: relative; overflow: hidden;
+      ">
+        <div
+          style="position: absolute; top: -50%; left: -20%; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%;">
+        </div>
+        <div
+          style="position: absolute; bottom: -60%; right: -10%; width: 250px; height: 250px; background: rgba(255,255,255,0.05); border-radius: 50%;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; z-index: 1;">
+          <div
+            style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+            📊</div>
+          <div>
+            <h3
+              style="margin: 0; color: white; font-size: 1.3rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              สรุปรายงานพฤติกรรม</h3>
+            <p style="margin: 2px 0 0; color: rgba(255,255,255,0.75); font-size: 0.82rem;">
+              ระบบติดตามและวิเคราะห์พฤติกรรมนักเรียน</p>
+          </div>
+        </div>
+        <button onclick="closeLateReportModal()" style="
+          background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+          color: white; width: 40px; height: 40px; border-radius: 12px; font-size: 1.2rem; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 1;
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+          onmouseout="this.style.background='rgba(255,255,255,0.15)'">&times;</button>
+      </div>
+
+      <div style="padding: 24px; background: #f8fafc;">
+        <!-- Category Cards -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;"
+          id="reportCategoryCards">
+          <div class="rpt-cat-card active" data-value="มาสาย" onclick="selectReportCategory(this)">
+            <div class="rpt-cat-icon">🕐</div>
+            <div class="rpt-cat-label">มาสาย</div>
+          </div>
+          <div class="rpt-cat-card" data-value="บุหรี่" onclick="selectReportCategory(this)">
+            <div class="rpt-cat-icon">🚬</div>
+            <div class="rpt-cat-label">บุหรี่</div>
+          </div>
+          <div class="rpt-cat-card" data-value="บุหรี่ไฟฟ้า" onclick="selectReportCategory(this)">
+            <div class="rpt-cat-icon">⚡</div>
+            <div class="rpt-cat-label">บุหรี่ไฟฟ้า</div>
+          </div>
+          <div class="rpt-cat-card" data-value="โดดเรียน" onclick="selectReportCategory(this)">
+            <div class="rpt-cat-icon">🏃</div>
+            <div class="rpt-cat-label">โดดเรียน</div>
+          </div>
+        </div>
+
+        <!-- Hidden select -->
+        <select id="lateReportCategory" style="display: none;">
+          <option value="มาสาย" selected>มาสาย</option>
+          <option value="บุหรี่">บุหรี่</option>
+          <option value="บุหรี่ไฟฟ้า">บุหรี่ไฟฟ้า</option>
+          <option value="โดดเรียน">โดดเรียน</option>
+        </select>
+
+        <!-- Filter Bar -->
+        <div style="
+          display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+          background: white; padding: 16px 20px; border-radius: 16px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-bottom: 20px;
+        ">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-calendar-alt" style="color: #818cf8;"></i>
+            <select id="lateReportMonth" onchange="loadLateReport()" class="rpt-filter-select">
+              <option value="">ทุกเดือน</option>
+              <option value="1">มกราคม</option>
+              <option value="2">กุมภาพันธ์</option>
+              <option value="3">มีนาคม</option>
+              <option value="4">เมษายน</option>
+              <option value="5">พฤษภาคม</option>
+              <option value="6">มิถุนายน</option>
+              <option value="7">กรกฎาคม</option>
+              <option value="8">สิงหาคม</option>
+              <option value="9">กันยายน</option>
+              <option value="10">ตุลาคม</option>
+              <option value="11">พฤศจิกายน</option>
+              <option value="12">ธันวาคม</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-layer-group" style="color: #818cf8;"></i>
+            <select id="lateReportYear" onchange="loadLateReport()" class="rpt-filter-select">
+              <option value="2567">พ.ศ. 2567</option>
+              <option value="2568">พ.ศ. 2568</option>
+              <option value="2569">พ.ศ. 2569</option>
+            </select>
+          </div>
+          <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+            <span id="lateReportCount" style="
+              background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e;
+              padding: 8px 18px; border-radius: 30px; font-weight: 700; font-size: 0.9rem;
+              box-shadow: 0 2px 8px rgba(245,158,11,0.15);
+            ">รวม: 0 ครั้ง</span>
+            <button onclick="exportLateReportToExcel()" class="rpt-export-btn">
+              <i class="fas fa-file-excel"></i> ส่งออก Excel
+            </button>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div id="lateReportResults" style="
+          max-height: 50vh; overflow-y: auto; border-radius: 16px;
+          background: white; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;
+        ">
+          <div style="text-align: center; padding: 50px 20px; color: #94a3b8;">
+            <div
+              style="width: 80px; height: 80px; background: linear-gradient(135deg, #eef2ff, #e0e7ff); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem;">
+              📋</div>
+            <p style="font-weight: 600; color: #64748b; margin-bottom: 4px;">เลือกประเภทและเดือน</p>
+            <p style="font-size: 0.85rem;">เพื่อดูรายงานพฤติกรรมนักเรียน</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // Photos Manager Functions
+    let currentPreviewStudentId = null;
+
+    function openPhotosManager() {
+      document.getElementById('photosManagerModal').classList.add('show');
+      loadStudentPhotos();
+    }
+
+    function closePhotosManager() {
+      document.getElementById('photosManagerModal').classList.remove('show');
+    }
+
+    async function loadStudentPhotos() {
+      const gallery = document.getElementById('photosGallery');
+      gallery.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #38b2ac;"></i><p>กำลังโหลด...</p></div>';
+
+      try {
+        const response = await fetch('/api/list-student-photos');
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          const photos = result.photos;
+          document.getElementById('photosTotal').textContent = photos.length;
+
+          if (photos.length === 0) {
+            gallery.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #94a3b8;"><i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;"></i><p>ไม่พบรูปภาพในโฟลเดอร์ edstudent</p></div>';
+            return;
+          }
+
+          gallery.innerHTML = photos.map(photo => `
+            <div class="photo-card" onclick="previewPhoto('${photo.student_id}', '${photo.path}')" 
+                 style="background: #f8fafc; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s; border: 2px solid transparent;">
+              <img src="${photo.path}" style="width: 100%; height: 150px; object-fit: cover;" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23e2e8f0%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2212%22>No Image</text></svg>'">
+              <div style="padding: 10px; text-align: center;">
+                <div style="font-weight: 600; color: #1e293b;">${photo.student_id}</div>
+                <div style="font-size: 0.75rem; color: #94a3b8;">${formatFileSize(photo.size)}</div>
+              </div>
+            </div>
+          `).join('');
+
+        } else {
+          throw new Error(result.message || 'Failed to load photos');
+        }
+      } catch (error) {
+        console.error('Load photos error:', error);
+        gallery.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;"><i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 10px;"></i><p>เกิดข้อผิดพลาด: ${error.message}</p></div>`;
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function previewPhoto(studentId, imagePath) {
+      currentPreviewStudentId = studentId;
+      document.getElementById('previewStudentId').textContent = 'รหัส: ' + studentId;
+      document.getElementById('previewImage').src = imagePath;
+      document.getElementById('photoPreviewModal').classList.add('show');
+    }
+
+    function closePhotoPreview() {
+      document.getElementById('photoPreviewModal').classList.remove('show');
+      currentPreviewStudentId = null;
+    }
+
+    async function deleteCurrentPhoto() {
+      if (!currentPreviewStudentId) return;
+
+      const confirmed = await Swal.fire({
+        icon: 'warning',
+        title: 'ยืนยันการลบ',
+        text: `ต้องการลบรูปของรหัส ${currentPreviewStudentId} หรือไม่?`,
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'ลบ',
+        cancelButtonText: 'ยกเลิก'
+      });
+
+      if (!confirmed.isConfirmed) return;
+
+      try {
+        const response = await fetch('/api/delete-student-photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student_id: currentPreviewStudentId })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          showToast('success', 'ลบรูปภาพเรียบร้อยแล้ว');
+          closePhotoPreview();
+          loadStudentPhotos();
+        } else {
+          throw new Error(result.message || 'Failed to delete');
+        }
+      } catch (error) {
+        Swal.fire({ icon: 'error', title: 'ลบไม่สำเร็จ', text: error.message });
+      }
+    }
+
+    // Upload folder photos function
+    async function uploadFolderPhotos(input) {
+      const files = Array.from(input.files).filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f.name));
+
+      if (files.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'ไม่พบรูปภาพ', text: 'ไม่พบไฟล์รูปภาพ (jpg, png, gif) ในโฟลเดอร์ที่เลือก' });
+        input.value = '';
+        return;
+      }
+
+      // Show progress
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressText = document.getElementById('uploadProgressText');
+      const progressBar = document.getElementById('uploadProgressBar');
+      progressDiv.style.display = 'block';
+      progressBar.style.width = '0%';
+
+      let success = 0;
+      let failed = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Use filename (without extension) as student ID
+        const studentId = file.name.replace(/\.(jpg|jpeg|png|gif)$/i, '');
+
+        progressText.textContent = `กำลังอัพโหลด ${i + 1}/${files.length}: ${studentId}`;
+        progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
+
+        try {
+          // Read file as base64
+          const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          // Upload to server
+          const response = await fetch('/api/upload-student-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              student_id: studentId,
+              image_data: base64
+            })
+          });
+
+          const result = await response.json();
+          if (result.status === 'success') {
+            success++;
+          } else {
+            failed++;
+          }
+        } catch (error) {
+          console.error(`Failed to upload ${studentId}:`, error);
+          failed++;
+        }
+      }
+
+      // Hide progress
+      progressDiv.style.display = 'none';
+      input.value = '';
+
+      // Show result
+      Swal.fire({
+        icon: failed === 0 ? 'success' : 'info',
+        title: 'อัพโหลดเสร็จสิ้น',
+        html: `สำเร็จ: <strong>${success}</strong> รูป<br>ล้มเหลว: <strong>${failed}</strong> รูป`
+      });
+
+      // Refresh gallery
+      loadStudentPhotos();
+    }
+
+    // Download all photos as ZIP function
+    async function downloadAllPhotos() {
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressText = document.getElementById('uploadProgressText');
+      const progressBar = document.getElementById('uploadProgressBar');
+
+      try {
+        // First, get list of photos
+        progressDiv.style.display = 'block';
+        progressText.textContent = 'กำลังดึงรายการรูปภาพ...';
+        progressBar.style.width = '0%';
+
+        const response = await fetch('/api/list-student-photos');
+        const result = await response.json();
+
+        if (result.status !== 'success' || !result.photos || result.photos.length === 0) {
+          progressDiv.style.display = 'none';
+          Swal.fire({ icon: 'warning', title: 'ไม่พบรูปภาพ', text: 'ไม่มีรูปภาพในโฟลเดอร์ edstudent' });
+          return;
+        }
+
+        const photos = result.photos;
+        const zip = new JSZip();
+        const folder = zip.folder('edstudent');
+        let added = 0;
+
+        for (let i = 0; i < photos.length; i++) {
+          const photo = photos[i];
+          progressText.textContent = `กำลังเตรียมไฟล์ ${i + 1}/${photos.length}: ${photo.student_id}`;
+          progressBar.style.width = `${((i + 1) / photos.length) * 80}%`;
+
+          try {
+            // Fetch image
+            const imgResponse = await fetch(photo.path);
+            const blob = await imgResponse.blob();
+
+            // Add to ZIP
+            folder.file(photo.filename, blob);
+            added++;
+          } catch (err) {
+            console.error(`Failed to add ${photo.student_id}:`, err);
+          }
+        }
+
+        // Generate ZIP
+        progressText.textContent = 'กำลังสร้างไฟล์ ZIP...';
+        progressBar.style.width = '90%';
+
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+        // Download ZIP
+        progressText.textContent = 'กำลังดาวน์โหลด...';
+        progressBar.style.width = '100%';
+
+        const url = URL.createObjectURL(zipBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `edstudent_${new Date().toISOString().slice(0, 10)}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        progressDiv.style.display = 'none';
+
+        Swal.fire({
+          icon: 'success',
+          title: 'ดาวน์โหลดเสร็จสิ้น',
+          text: `สร้างไฟล์ ZIP สำเร็จ (${added} รูป)`
+        });
+
+      } catch (error) {
+        progressDiv.style.display = 'none';
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
+      }
+    }
+
+    // Late Report Functions
+    function openLateReportModal() {
+      document.getElementById('lateReportModal').classList.add('show');
+      // Set default month to current month
+      const now = new Date();
+      document.getElementById('lateReportMonth').value = now.getMonth() + 1;
+      // Set default year to current Buddhist year
+      const buddhistYear = now.getFullYear() + 543;
+      const yearSelect = document.getElementById('lateReportYear');
+      // Find and select the closest year option
+      for (let opt of yearSelect.options) {
+        if (parseInt(opt.value) === buddhistYear) {
+          opt.selected = true;
+          break;
+        }
+      }
+      loadLateReport();
+    }
+
+    function closeLateReportModal() {
+      document.getElementById('lateReportModal').classList.remove('show');
+    }
+
+    function selectReportCategory(el) {
+      document.querySelectorAll('.rpt-cat-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('lateReportCategory').value = el.dataset.value;
+      loadLateReport();
+    }
+
+    function getFilterKeywords(category) {
+      const map = {
+        'มาสาย': ['มาสาย', 'late'],
+        'บุหรี่': ['สูบบุหรี่', 'บุหรี่'],
+        'บุหรี่ไฟฟ้า': ['บุหรี่ไฟฟ้า'],
+        'โดดเรียน': ['โดดเรียน', 'หนีเรียน']
+      };
+      return map[category] || [category];
+    }
+
+    async function exportLateReportToExcel() {
+      const month = document.getElementById('lateReportMonth').value;
+      const yearBE = parseInt(document.getElementById('lateReportYear').value);
+      const yearCE = yearBE - 543;
+      const category = document.getElementById('lateReportCategory').value;
+      const keywords = getFilterKeywords(category);
+
+      try {
+        const response = await fetch('log.json?v=' + Date.now());
+        const logs = await response.json();
+
+        // Filter by category keywords
+        let lateEntries = logs.filter(log => {
+          const reason = (log.reason || '');
+          return keywords.some(kw => reason.includes(kw));
+        });
+
+        // Filter by month and year
+        if (month || yearBE) {
+          lateEntries = lateEntries.filter(log => {
+            const logDate = new Date(log.timestamp);
+            if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
+            if (yearBE && logDate.getFullYear() !== yearCE) return false;
+            return true;
+          });
+        }
+
+        if (lateEntries.length === 0) {
+          Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูล', text: `ไม่พบข้อมูล "${category}" ในเดือนที่เลือก` });
+          return;
+        }
+
+        // Group by student
+        const studentMap = {};
+        lateEntries.forEach(entry => {
+          const id = entry.student_id;
+          if (!studentMap[id]) {
+            studentMap[id] = { name: entry.student_name, count: 0, lastDate: entry.timestamp };
+          }
+          studentMap[id].count++;
+          if (new Date(entry.timestamp) > new Date(studentMap[id].lastDate)) {
+            studentMap[id].lastDate = entry.timestamp;
+          }
+        });
+
+        // Convert to array
+        const studentList = Object.entries(studentMap)
+          .map(([id, data]) => ({ id, ...data }))
+          .sort((a, b) => b.count - a.count);
+
+        // Prepare Excel data
+        const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        const monthName = month ? monthNames[parseInt(month)] : 'ทั้งหมด';
+        const sheetName = `รายงาน${category}`;
+
+        const excelData = studentList.map((s, i) => ({
+          'ลำดับ': i + 1,
+          'รหัสนักเรียน': s.id,
+          'ชื่อ-นามสกุล': s.name,
+          'จำนวนครั้ง': s.count,
+          'วันที่ล่าสุด': new Date(s.lastDate).toLocaleDateString('th-TH')
+        }));
+
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(excelData);
+
+        // Set column widths
+        ws['!cols'] = [
+          { wch: 8 },   // ลำดับ
+          { wch: 15 },  // รหัส
+          { wch: 30 },  // ชื่อ
+          { wch: 12 },  // จำนวน
+          { wch: 15 }   // วันที่
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+        // Generate filename
+        const filename = `รายงาน${category}_${monthName}_${yearBE}.xlsx`;
+        XLSX.writeFile(wb, filename);
+
+        Swal.fire({ icon: 'success', title: 'ส่งออกสำเร็จ', text: `บันทึกไฟล์ ${filename}` });
+
+      } catch (error) {
+        console.error('Export error:', error);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
+      }
+    }
+
+    async function loadLateReport() {
+      const resultsDiv = document.getElementById('lateReportResults');
+      const countSpan = document.getElementById('lateReportCount');
+      const month = document.getElementById('lateReportMonth').value;
+      const yearBE = parseInt(document.getElementById('lateReportYear').value);
+      const yearCE = yearBE - 543; // Convert to Christian Era
+
+      resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #f59e0b;"></i><p>กำลังโหลดข้อมูล...</p></div>';
+
+      try {
+        const response = await fetch('log.json?v=' + Date.now());
+        const logs = await response.json();
+
+        // Filter by selected category
+        const category = document.getElementById('lateReportCategory').value;
+        const keywords = getFilterKeywords(category);
+        let lateEntries = logs.filter(log => {
+          const reason = (log.reason || '');
+          return keywords.some(kw => reason.includes(kw));
+        });
+
+        // Filter by month and year
+        if (month || yearBE) {
+          lateEntries = lateEntries.filter(log => {
+            const logDate = new Date(log.timestamp);
+            if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
+            if (yearBE && logDate.getFullYear() !== yearCE) return false;
+            return true;
+          });
+        }
+
+        // Sort by date descending
+        lateEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        countSpan.textContent = `รวม: ${lateEntries.length} ครั้ง`;
+
+        if (lateEntries.length === 0) {
+          resultsDiv.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+              <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 10px; color: #10b981;"></i>
+              <p>ไม่พบข้อมูล "${category}" ในเดือนที่เลือก</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Group by student
+        const studentMap = {};
+        lateEntries.forEach(entry => {
+          const id = entry.student_id;
+          if (!studentMap[id]) {
+            studentMap[id] = {
+              name: entry.student_name,
+              count: 0,
+              entries: []
+            };
+          }
+          studentMap[id].count++;
+          studentMap[id].entries.push(entry);
+        });
+
+        // Convert to array and sort by count
+        const studentList = Object.entries(studentMap)
+          .map(([id, data]) => ({ id, ...data }))
+          .sort((a, b) => b.count - a.count);
+
+        // Build table HTML
+        const categoryIcons = { 'มาสาย': '🕐', 'บุหรี่': '🚬', 'บุหรี่ไฟฟ้า': '⚡', 'โดดเรียน': '🏃' };
+        const catIcon = categoryIcons[category] || '📋';
+        let html = `
+          <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+            <thead>
+              <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">#</th>
+                <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">รหัส</th>
+                <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">ชื่อ-นามสกุล</th>
+                <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">จำนวนครั้ง</th>
+                <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.5px;">วันที่ล่าสุด</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        studentList.forEach((student, index) => {
+          const latestDate = new Date(student.entries[0].timestamp).toLocaleDateString('th-TH', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          });
+          const countColor = student.count >= 5 ? 'linear-gradient(135deg, #ef4444, #dc2626)' : (student.count >= 3 ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #10b981, #059669)');
+          const rankBg = index === 0 ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : (index === 1 ? 'linear-gradient(135deg, #94a3b8, #64748b)' : (index === 2 ? 'linear-gradient(135deg, #d97706, #b45309)' : 'none'));
+          const rankColor = index < 3 ? 'white' : '#64748b';
+
+          html += `
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+              <td style="padding: 14px 16px; text-align: center;">
+                <span style="
+                  display: inline-flex; align-items: center; justify-content: center;
+                  width: 30px; height: 30px; border-radius: 10px;
+                  background: ${rankBg}; color: ${rankColor};
+                  font-weight: 700; font-size: 0.85rem;
+                  ${index < 3 ? 'box-shadow: 0 2px 8px rgba(0,0,0,0.15);' : ''}
+                ">${index + 1}</span>
+              </td>
+              <td style="padding: 14px 16px; font-family: 'Courier New', monospace; font-size: 0.9rem; color: #475569;">${student.id}</td>
+              <td style="padding: 14px 16px; font-weight: 600; color: #1e293b;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span>${student.name}</span>
+                </div>
+              </td>
+              <td style="padding: 14px 16px; text-align: center;">
+                <span style="
+                  background: ${countColor}; color: white;
+                  padding: 5px 16px; border-radius: 20px;
+                  font-weight: 700; font-size: 0.9rem;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                  display: inline-block;
+                ">${student.count}</span>
+              </td>
+              <td style="padding: 14px 16px; color: #64748b; font-size: 0.9rem;">
+                <i class="fas fa-calendar-day" style="margin-right: 6px; color: #a5b4fc;"></i>${latestDate}
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        resultsDiv.innerHTML = html;
+
+      } catch (error) {
+        console.error('Load late report error:', error);
+        resultsDiv.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #ef4444;">
+            <i class="fas fa-exclamation-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+            <p>เกิดข้อผิดพลาด: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Add hover effect via JS
+    document.head.insertAdjacentHTML('beforeend', `
+      <style>
+        .photo-card:hover {
+          transform: translateY(-5px);
+          border-color: #38b2ac !important;
+          box-shadow: 0 10px 25px rgba(56, 178, 172, 0.2);
+        }
+      </style>
+    `);
+  </script>
+
 </body>
+
 
 </html>

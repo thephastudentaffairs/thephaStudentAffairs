@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -2250,6 +2254,45 @@
             text-align: center;
         }
 
+        /* ===== Profile Viewer Modal Styles ===== */
+        .profile-viewer-image-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 4px solid white;
+        }
+
+        .profile-viewer-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-viewer-image:hover {
+            transform: scale(1.05);
+        }
+
+        .no-profile-image {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            text-align: center;
+        }
+
+        .no-profile-image i {
+            font-size: 5rem;
+            margin-bottom: 15px;
+        }
+
 
         .modal-max-width-500 {
             max-width: 500px;
@@ -2414,6 +2457,52 @@
             padding: 6px 16px;
             border-radius: 20px;
             font-weight: 600;
+        }
+
+        .manage-student-details {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-icon {
+            width: 36px;
+            height: 36px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6366f1;
+            font-size: 1.1rem;
+        }
+
+        .detail-info {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
         }
 
         .manage-options {
@@ -2591,6 +2680,109 @@
             }
         }
 
+        /* ===== Monthly Report Modal Styles ===== */
+        .report-modal {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 95%;
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            padding: 25px 30px;
+            color: white;
+            position: relative;
+        }
+
+        .report-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+
+        .report-body {
+            padding: 30px;
+        }
+
+        .report-form-group {
+            margin-bottom: 20px;
+        }
+
+        .report-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        .report-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 1rem;
+            color: #1e293b;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .report-select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .report-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .report-btn {
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-family: 'Prompt', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-image {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .report-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            filter: brightness(1.1);
+        }
+
+        .report-btn:active {
+            transform: translateY(-1px);
+        }
+
         .required-indicator {
             color: #ef4444;
         }
@@ -2693,6 +2885,15 @@
                         </div>
                         <span>ค้นหา นร.</span>
                     </button>
+
+                    <!-- Monthly Report Button -->
+                    <button class="action-btn" onclick="openReportModal()"
+                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                        <div class="btn-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <span>รายงานสรุป</span>
+                    </button>
                 </div>
             </div>
 
@@ -2725,6 +2926,38 @@
         let filteredStudents = [];
         let teacherClass = null;
         let scoreHistory = []; // Store score history from log.json
+        let refreshTimer = null; // Timer for real-time updates
+
+        // Helper functions for status and academic info
+        function getStatusPointText(statuspoint) {
+            const statusMap = {
+                'urgent': 'ไม่ผ่านเกณฑ์ ปรับแก้พฤติกรรมด่วน',
+                'risk': 'เริ่มมีความเสี่ยงไม่ผ่านเกณฑ์',
+                'normal': 'ปกติ (ผ่านเกณฑ์)',
+                'excellent': 'เด็กดีศรีเทพพธา'
+            };
+            return statusMap[statuspoint] || 'ปกติ (ผ่านเกณฑ์)';
+        }
+
+        function getStatusPointIcon(statuspoint) {
+            const iconMap = {
+                'urgent': '🚨',
+                'risk': '⚠️',
+                'normal': '✅',
+                'excellent': '⭐'
+            };
+            return iconMap[statuspoint] || '✅';
+        }
+
+        function getAcademicStatusText(status) {
+            const statusMap = {
+                'normal': 'กำลังศึกษาอยู่',
+                'Absent': 'ขาดเรียนนาน',
+                'moved': 'ย้ายแล้ว',
+                'notnormal': 'พักการเรียน'
+            };
+            return statusMap[status] || 'กำลังศึกษาอยู่';
+        }
 
         // 1. Initial Load
         async function init() {
@@ -2755,31 +2988,69 @@
                 document.getElementById('teacherClassDisplay').textContent = 'ห้อง ' + formatClassName(teacherClass);
                 document.getElementById('classTitle').textContent = formatClassName(teacherClass);
 
-                // Fetch students
-                const stRes = await fetch('user2.1.json');
-                const stData = await stRes.json();
+                // First Load
+                await loadData(false);
 
-                // เก็บนักเรียนทุกคนไว้สำหรับ QR Scanner
-                window.allStudents = stData;
-                console.log('✅ Loaded all students:', stData.length, 'students');
-                console.log('Sample student data:', stData.slice(0, 2));
+                // Start Polling
+                startRealTimeMonitoring();
 
-                // แสดงเฉพาะนักเรียนในห้องของครู
-                students = stData.filter(s => s.class == teacherClass);
-                originalStudents = JSON.parse(JSON.stringify(students));
-                filteredStudents = [...students];
-
-                // Load score history from log.json
-                await loadScoreHistory();
-
-                updateStats();
-                renderTable();
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) stopRealTimeMonitoring();
+                    else startRealTimeMonitoring();
+                });
 
             } catch (err) {
                 console.error(err);
                 showToast('error', 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
             } finally {
                 showLoading(false);
+            }
+        }
+
+        function startRealTimeMonitoring() {
+            if (refreshTimer) return;
+            refreshTimer = setInterval(() => loadData(true), 5000);
+        }
+
+        function stopRealTimeMonitoring() {
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+                refreshTimer = null;
+            }
+        }
+
+        async function loadData(isSilent = false) {
+            if (!isSilent) showLoading(true);
+            try {
+                const timestamp = new Date().getTime();
+                const stRes = await fetch(`user2.1.json?v=${timestamp}`);
+                const stData = await stRes.json();
+
+                window.allStudents = stData;
+                students = stData.filter(s => String(s.class) === String(teacherClass));
+                originalStudents = JSON.parse(JSON.stringify(students));
+
+                // Keep search filter
+                const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+                if (searchTerm) {
+                    filteredStudents = students.filter(s =>
+                        s.name.toLowerCase().includes(searchTerm) ||
+                        String(s.id).includes(searchTerm)
+                    );
+                } else {
+                    filteredStudents = [...students];
+                }
+
+                // Load logs
+                const logRes = await fetch(`log.json?v=${timestamp}`);
+                scoreHistory = await logRes.json();
+
+                updateStats();
+                renderTable();
+            } catch (err) {
+                console.error('Data Load Error:', err);
+            } finally {
+                if (!isSilent) showLoading(false);
             }
         }
 
@@ -2858,9 +3129,19 @@
         }
 
         // View student score history
-        function viewStudentHistory(studentId, studentName) {
+        async function viewStudentHistory(studentId, studentName) {
             const modal = document.getElementById('historyModal');
-            const studentHistory = scoreHistory.filter(h => h.student_id === studentId);
+
+            // Real-time Fetch latest history before showing
+            try {
+                const timestamp = new Date().getTime();
+                const logRes = await fetch(`log.json?v=${timestamp}`);
+                scoreHistory = await logRes.json();
+            } catch (e) {
+                console.error('Failed to pre-fetch history:', e);
+            }
+
+            const studentHistory = scoreHistory.filter(h => String(h.student_id) === String(studentId));
 
             // Update student info in modal
             document.getElementById('historyStudentName').textContent = studentName;
@@ -3260,6 +3541,21 @@
             document.getElementById('manageStudentName').textContent = name;
             document.getElementById('manageStudentId').textContent = `รหัส: ${id}`;
 
+            // Find student details
+            const student = window.allStudents ? window.allStudents.find(s => String(s.id) === String(id)) : null;
+
+            if (student) {
+                document.getElementById('manageStudentAcademic').textContent = getAcademicStatusText(student.status);
+                const statusIcon = getStatusPointIcon(student.statuspoint || 'normal');
+                const statusText = getStatusPointText(student.statuspoint || 'normal');
+                document.getElementById('manageStudentStatus').textContent = `${statusIcon} ${statusText}`;
+                document.getElementById('manageStudentScore').textContent = `${student.score} คะแนน`;
+            } else {
+                document.getElementById('manageStudentAcademic').textContent = '-';
+                document.getElementById('manageStudentStatus').textContent = '-';
+                document.getElementById('manageStudentScore').textContent = '-';
+            }
+
             // Set Avatar
             const avatarDiv = document.getElementById('manageStudentAvatar');
             const timestamp = new Date().getTime();
@@ -3353,7 +3649,7 @@
             document.getElementById('uploadProfileModal').classList.remove('show');
         }
 
-        function handleProfileImageSelect(input) {
+        function previewProfileImage(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
 
@@ -3405,7 +3701,7 @@
             }
         }
 
-        async function uploadProfileImage() {
+        async function saveProfileImage() {
             if (!croppedImageBase64) {
                 showToast('error', 'กรุณาเลือกรูปภาพ');
                 return;
@@ -3554,7 +3850,8 @@
                     student_name: studentName,
                     reason: reason,
                     teacher: currentUser ? currentUser.name : 'Unknown',
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
                 };
 
                 // Send to server API
@@ -3858,7 +4155,8 @@
                     image_before: beforeBase64,
                     image_after: afterBase64,
                     teacher: currentUser ? currentUser.name : 'Unknown',
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
                 };
 
                 // Send to server
@@ -3895,6 +4193,198 @@
                 showLoading(false);
                 console.error('Submit work error:', error);
                 showToast('error', 'ส่งงานไม่สำเร็จ: ' + error.message);
+            }
+        }
+
+        // Report Modal Logic
+        function openReportModal() {
+            const modal = document.getElementById('reportModal');
+            populateReportYears();
+            modal.classList.add('show');
+        }
+
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('show');
+        }
+
+        function populateReportYears() {
+            const yearSelect = document.getElementById('reportYear');
+            const currentYearEn = new Date().getFullYear();
+            const currentYearTh = currentYearEn + 543;
+
+            yearSelect.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const yearTh = currentYearTh - i;
+                const yearEn = currentYearEn - i;
+                const option = document.createElement('option');
+                option.value = yearEn;
+                option.textContent = `ปีการศึกษา ${yearTh}`;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        async function exportReport(type) {
+            const month = document.getElementById('reportMonth').value;
+            const year = parseInt(document.getElementById('reportYear').value);
+            const filter = document.getElementById('reportFilter').value;
+
+            showLoading(true, 'กำลังเตรียมรายงาน...');
+
+            try {
+                // Fetch latest data for report
+                const timestamp = new Date().getTime();
+                const logRes = await fetch(`log.json?v=${timestamp}`);
+                const logs = await logRes.json();
+
+                // 1. Reconstruct historical scores
+                let reportStudents = JSON.parse(JSON.stringify(students));
+
+                // Determine the end date of selected period
+                let endDate;
+                if (month === 'all') {
+                    endDate = new Date(year, 11, 31, 23, 59, 59, 999); // End of year
+                } else {
+                    const m = parseInt(month);
+                    endDate = new Date(year, m + 1, 0, 23, 59, 59, 999); // Last day of selected month
+                }
+
+                // Undo logs that happened AFTER the endDate
+                const logsToUndo = logs.filter(l => new Date(l.timestamp) > endDate);
+
+                reportStudents.forEach(s => {
+                    const studentLogs = logsToUndo.filter(l => String(l.student_id) === String(s.id));
+                    studentLogs.forEach(l => {
+                        const change = l.change || l.score_change || l.deduction || 0;
+                        s.score -= change; // Reverse the change to go back in time
+                    });
+                });
+
+                // 2. Filter based on criteria
+                let finalData = [];
+                if (filter === 'all') {
+                    finalData = reportStudents;
+                } else if (filter === 'failed') {
+                    finalData = reportStudents.filter(s => s.score < 60);
+                } else if (filter === 'passed') {
+                    finalData = reportStudents.filter(s => s.score >= 60);
+                } else if (filter === 'excellent') {
+                    finalData = reportStudents.filter(s => {
+                        const hasDeductions = logs.some(l =>
+                            String(l.student_id) === String(s.id) &&
+                            (l.change < 0 || l.deduction < 0) &&
+                            new Date(l.timestamp) <= endDate
+                        );
+                        return s.score >= 100 && !hasDeductions;
+                    });
+                }
+
+                if (finalData.length === 0) {
+                    showToast('error', 'ไม่พบข้อมูลตามเงื่อนไขที่เลือก');
+                    return;
+                }
+
+                // Sort by name
+                finalData.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+
+                const monthName = month === 'all' ? 'ทุกเดือน' :
+                    ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][parseInt(month)];
+                const yearTh = year + 543;
+                const title = `รายงานสรุปคะแนนพฤติกรรม ${monthName} ปีการศึกษา ${yearTh}`;
+
+                if (type === 'pdf') {
+                    await generateExport(finalData, title, true);
+                } else {
+                    await generateExport(finalData, title, false);
+                }
+
+            } catch (err) {
+                console.error('Report error:', err);
+                showToast('error', 'เกิดข้อผิดพลาดในการสร้างรายงาน');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function generateExport(data, title, isPdf) {
+            // Create temporary container for rendering
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'fixed';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '0';
+            tempDiv.style.width = '800px';
+            tempDiv.style.background = 'white';
+            tempDiv.style.padding = '40px';
+            tempDiv.style.fontFamily = "'Prompt', sans-serif";
+
+            let tableRows = data.map((s, idx) => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 12px; text-align: center;">${s.id}</td>
+                    <td style="padding: 12px;">${s.name}</td>
+                    <td style="padding: 12px; text-align: center; font-weight: bold; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.score}</td>
+                    <td style="padding: 12px; text-align: center;">${s.score < 60 ? '❌ ไม่ผ่าน' : '✅ ผ่าน'}</td>
+                </tr>
+            `).join('');
+
+            tempDiv.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px;">
+                    <h1 style="color: #1e293b; margin: 0 0 10px 0; font-size: 24px;">${title}</h1>
+                    <p style="color: #64748b; margin: 0; font-size: 16px;">
+                        ห้องเรียน: ${formatClassName(teacherClass)} | ครูที่ปรึกษา: ${teacher.name}
+                    </p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 15px; text-align: center;">ลำดับ</th>
+                            <th style="padding: 15px; text-align: center;">รหัส</th>
+                            <th style="padding: 15px; text-align: left;">ชื่อ-นามสกุล</th>
+                            <th style="padding: 15px; text-align: center;">คะแนน</th>
+                            <th style="padding: 15px; text-align: center;">ผลประเมิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <div style="margin-top: 40px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                    <p style="margin: 0; color: #94a3b8; font-size: 12px;">สร้างรายงานเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+                </div>
+            `;
+
+            document.body.appendChild(tempDiv);
+
+            try {
+                const canvas = await html2canvas(tempDiv, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+
+                if (isPdf) {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save(`${title.replace(/ /g, '_')}.pdf`);
+                    showToast('success', 'ส่งออก PDF สำเร็จ');
+                } else {
+                    const link = document.createElement('a');
+                    link.download = `${title.replace(/ /g, '_')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    showToast('success', 'ส่งออกรูปภาพสำเร็จ');
+                }
+            } catch (err) {
+                console.error('Export error:', err);
+                showToast('error', 'ไม่สามารถส่งออกข้อมูลได้');
+            } finally {
+                document.body.removeChild(tempDiv);
             }
         }
 
@@ -4139,94 +4629,188 @@
             </div>
         </div>
     </div>
-    </div>
     <!-- Manage Student Modal -->
-    <div class="history-modal-overlay" id="manageStudentModal">
-        <div class="manage-student-modal" style="max-width: 480px; width: 95%;">
-            <!-- Premium Header -->
+    <div class="student-search-overlay" id="manageStudentModal">
+        <div class="report-modal" style="max-width: 450px;">
             <div class="manage-student-header">
                 <h3><i class="fas fa-user-cog"></i> จัดการนักเรียน</h3>
-                <button class="history-close-btn" onclick="closeManageStudentModal()"
-                    style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white;">×</button>
             </div>
-
-            <!-- Student Profile Section -->
             <div class="manage-student-profile">
                 <div class="manage-avatar-wrapper">
-                    <div class="manage-avatar" id="manageStudentAvatar"
-                        onclick="openProfileViewer(currentManageId, currentManageName)">
+                    <div class="manage-avatar" id="manageStudentAvatar">
                         <i class="fas fa-user"></i>
                     </div>
-                    <div class="manage-avatar-badge">
-                        <i class="fas fa-check"></i>
+                    <div class="manage-avatar-badge" onclick="openUploadProfileModal()">
+                        <i class="fas fa-camera"></i>
                     </div>
                 </div>
                 <div class="manage-student-name" id="manageStudentName">-</div>
                 <div class="manage-student-id" id="manageStudentId">รหัส: -</div>
             </div>
 
-            <!-- Action Options -->
+            <!-- Student Profile Details Section -->
+            <div class="manage-student-details">
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="detail-info">
+                        <div class="detail-label">สถานะการเรียน</div>
+                        <div class="detail-value" id="manageStudentAcademic">-</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="fas fa-star"></i></div>
+                    <div class="detail-info">
+                        <div class="detail-label">สถานะพฤติกรรม</div>
+                        <div class="detail-value" id="manageStudentStatus">-</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="detail-info">
+                        <div class="detail-label">คะแนนปัจจุบัน</div>
+                        <div class="detail-value" id="manageStudentScore">-</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="manage-options">
                 <button class="manage-option-btn" onclick="openHistoryFromManage()">
                     <div class="manage-option-icon">
                         <i class="fas fa-history"></i>
                     </div>
                     <div class="manage-option-content">
-                        <span>ดูประวัติคะแนน</span>
-                        <div class="manage-option-desc">ดูประวัติการเพิ่ม/หักคะแนนทั้งหมด</div>
+                        <span>ประวัติคะแนน</span>
+                        <div class="manage-option-desc">ดูประวัติการเพิ่ม/ลดคะแนนทั้งหมด</div>
                     </div>
                     <i class="fas fa-chevron-right manage-option-arrow"></i>
                 </button>
-                <button class="manage-option-btn" onclick="openUploadProfileModal()">
-                    <div class="manage-option-icon">
-                        <i class="fas fa-camera"></i>
+                <button class="manage-option-btn" onclick="closeManageStudentModal()">
+                    <div class="manage-option-icon" style="background: linear-gradient(135deg, #64748b, #475569);">
+                        <i class="fas fa-times"></i>
                     </div>
                     <div class="manage-option-content">
-                        <span>เปลี่ยนรูปโปรไฟล์</span>
-                        <div class="manage-option-desc">อัปโหลดหรือเปลี่ยนรูปนักเรียน</div>
+                        <span>ปิดหน้าต่าง</span>
+                        <div class="manage-option-desc">กลับสู่หน้ารายชื่อนักเรียน</div>
                     </div>
-                    <i class="fas fa-chevron-right manage-option-arrow"></i>
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upload Profile Modal -->
-    <div class="history-modal-overlay" id="uploadProfileModal">
-        <div class="history-modal modal-max-width-400">
-            <div class="history-modal-header">
-                <h3><i class="fas fa-camera"></i> เปลี่ยนรูปโปรไฟล์</h3>
-                <button class="history-close-btn" onclick="closeUploadProfileModal()">×</button>
-            </div>
-
-            <div class="upload-preview-container">
-                <div class="upload-preview" onclick="document.getElementById('profileImageInput').click()">
-                    <img id="profilePreview" class="profile-preview-hidden">
-                    <i class="fas fa-cloud-upload-alt" id="profilePlaceholder"></i>
-                </div>
-                <p class="profile-instruction">แตะที่วงกลมเพื่อเลือกรูปภาพ</p>
-                <input type="file" id="profileImageInput" accept="image/*" class="hidden-input"
-                    onchange="handleProfileImageSelect(this)">
-            </div>
-
-            <div class="qr-form-buttons">
-                <button class="qr-btn qr-btn-cancel" onclick="closeUploadProfileModal()">ยกเลิก</button>
-                <button class="qr-btn qr-btn-submit" onclick="uploadProfileImage()">บันทึก</button>
             </div>
         </div>
     </div>
 
     <!-- Profile Viewer Modal -->
-    <div class="profile-viewer-overlay" id="profileViewerModal" onclick="closeProfileViewer(event)">
-        <div class="profile-viewer-content" onclick="event.stopPropagation()">
-            <button class="profile-viewer-close" onclick="closeProfileViewer(event)">
-                <i class="fas fa-times"></i>
-            </button>
-            <div id="profileViewerImageContainer">
-                <!-- Image or placeholder will be inserted here -->
+    <div class="student-search-overlay" id="profileViewerModal" onclick="closeProfileViewer(event)"
+        style="z-index: 10200;">
+        <div class="report-modal" style="max-width: 400px; padding: 25px;" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="profileViewerName" style="margin: 0; font-size: 1.5rem; color: #1e293b;">-</h3>
+                <button onclick="closeProfileViewer()"
+                    style="border: none; background: #f1f5f9; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; color: #64748b; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="profile-viewer-name" id="profileViewerName">-</div>
-            <div class="profile-viewer-id" id="profileViewerId">รหัส: -</div>
+            <div id="profileViewerId"
+                style="color: #6366f1; background: #eef2ff; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; font-weight: 600;">
+                รหัส: -</div>
+            <div id="profileViewerImageContainer" class="profile-viewer-image-container">
+                <div class="no-profile-image">
+                    <i class="fas fa-user-graduate"></i>
+                    <p>ไม่มีรูปโปรไฟล์</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="color: #64748b; font-size: 0.85rem;"><i class="fas fa-info-circle"></i> รูปภาพที่จัดเก็บในระบบ
+                    edstudent</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Profile Modal -->
+    <div class="student-search-overlay" id="uploadProfileModal" style="z-index: 10100;">
+        <div class="report-modal" style="max-width: 450px;">
+            <div class="report-header"
+                style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 20px 25px;">
+                <h3><i class="fas fa-camera"></i> อัปโหลดรูปโปรไฟล์</h3>
+            </div>
+            <div class="report-body" style="padding: 30px;">
+                <div class="upload-preview-container"
+                    style="background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 24px; padding: 40px 20px;">
+                    <div class="upload-preview" onclick="document.getElementById('profileImageInput').click()"
+                        style="width: 200px; height: 200px; border: 4px solid white; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                        <input type="file" id="profileImageInput" class="hidden-input" accept="image/*"
+                            onchange="previewProfileImage(this)">
+                        <div id="profilePlaceholder">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 4rem; color: #cbd5e1;"></i>
+                            <p style="margin-top: 10px; font-weight: 600; color: #94a3b8;">คลิกเพื่อเลือกรูป</p>
+                        </div>
+                        <img id="profilePreview" class="profile-preview-hidden"
+                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    </div>
+                    <p class="profile-instruction" style="margin-top: 20px;">เลือกรูปภาพนักเรียนที่ชัดเจน (JPG/PNG)</p>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">
+                        ระบบจะทำการตัดรูปส่วนกลางให้อัตโนมัติเป็นวงกลม</p>
+                </div>
+                <div class="report-actions" style="grid-template-columns: 1fr 1fr; margin-top: 25px;">
+                    <button class="report-btn" onclick="closeUploadProfileModal()"
+                        style="background: #f1f5f9; color: #475569; padding: 12px; border-radius: 12px; font-weight: 600;">ยกเลิก</button>
+                    <button class="report-btn" onclick="saveProfileImage()"
+                        style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px; border-radius: 12px; font-weight: 700;">บันทึกรูปภาพ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporting Modal -->
+    <div class="student-search-overlay" id="reportModal">
+        <div class="report-modal">
+            <div class="report-header">
+                <h3><i class="fas fa-file-alt"></i> รายงานสรุปคะแนนพฤติกรรม</h3>
+                <button class="qr-close-btn" onclick="closeReportModal()"
+                    style="position: absolute; right: 20px; top: 20px; color: white;">×</button>
+            </div>
+            <div class="report-body">
+                <div class="report-form-group">
+                    <label>รายเดือน <span class="required-indicator">*</span></label>
+                    <select class="report-select" id="reportMonth">
+                        <option value="all">ทุกเดือน (ทั้งปี)</option>
+                        <option value="0">มกราคม</option>
+                        <option value="1">กุมภาพันธ์</option>
+                        <option value="2">มีนาคม</option>
+                        <option value="3">เมษายน</option>
+                        <option value="4">พฤษภาคม</option>
+                        <option value="5">มิถุนายน</option>
+                        <option value="6">กรกฎาคม</option>
+                        <option value="7">สิงหาคม</option>
+                        <option value="8">กันยายน</option>
+                        <option value="9">ตุลาคม</option>
+                        <option value="10">พฤศจิกายน</option>
+                        <option value="11">ธันวาคม</option>
+                    </select>
+                </div>
+                <div class="report-form-group">
+                    <label>เลือกปีการศึกษา <span class="required-indicator">*</span></label>
+                    <select class="report-select" id="reportYear">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="report-form-group">
+                    <label>สถานะพฤติกรรม <span class="required-indicator">*</span></label>
+                    <select class="report-select" id="reportFilter">
+                        <option value="all">ทั้งหมด (ทุกคน)</option>
+                        <option value="failed">ต่ำกว่าเกณฑ์ (ติด มส./คะแนนน้อย)</option>
+                        <option value="passed">ผ่านเกณฑ์ (คะแนนปกติ)</option>
+                        <option value="excellent">เด็กดีศรีเทพพธา (100+ และไม่มีประวัติเสีย)</option>
+                    </select>
+                </div>
+
+                <div class="report-actions">
+                    <button class="report-btn btn-image" onclick="exportReport('image')">
+                        <i class="fas fa-image"></i> ส่งออกเป็นรูปภาพ
+                    </button>
+                    <button class="report-btn btn-pdf" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> ส่งออกเป็น PDF
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -4234,6 +4818,7 @@
     <div class="footer-section">
         © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
     </div>
+
 </body>
 
 </html>

@@ -84,6 +84,22 @@ function saveLog(logs) {
     }
 }
 
+// Calculate statuspoint based on score and deduction history
+function calculateStatusPoint(student, logs) {
+    const score = student.score || 100;
+
+    // Check if student has any deduction history
+    const hasDeductions = logs.some(log =>
+        String(log.student_id) === String(student.id) &&
+        (log.change < 0 || log.deduction < 0 || log.type === 'deduction')
+    );
+
+    if (score < 60) return 'urgent';
+    if (score < 80) return 'risk';
+    if (score === 100 && !hasDeductions) return 'excellent';
+    return 'normal';
+}
+
 const server = http.createServer(async (req, res) => {
     const urlParts = req.url.split('?');
     const pathname = urlParts[0];
@@ -157,9 +173,12 @@ const server = http.createServer(async (req, res) => {
             const oldScore = student.score;
             student.score = parseInt(score);
 
+            // Update statuspoint
+            const logs = loadLog();
+            student.statuspoint = calculateStatusPoint(student, logs);
+
             if (saveStudents(students)) {
                 // Log the change
-                const logs = loadLog();
                 logs.push({
                     student_id: id,
                     student_name: student.name,
@@ -172,7 +191,7 @@ const server = http.createServer(async (req, res) => {
                 });
                 saveLog(logs);
 
-                console.log(`[API] Score updated: ${id} (${oldScore} -> ${student.score})`);
+                console.log(`[API] Score updated: ${id} (${oldScore} -> ${student.score}), statuspoint: ${student.statuspoint}`);
                 sendJSON(res, { status: 'success', message: 'Score updated successfully' });
             } else {
                 sendJSON(res, { status: 'error', message: 'Failed to save data' }, 500);
@@ -211,7 +230,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/save-toadmin' && req.method === 'POST') {
         try {
             const body = await parseBody(req);
-            const { student_id, student_name, reason, deduction, new_score } = body;
+            const { student_id, student_name, reason, deduction, new_score, teacher, status } = body;
 
             // Update student score
             const students = loadStudents();
@@ -219,10 +238,15 @@ const server = http.createServer(async (req, res) => {
 
             if (student && new_score !== undefined) {
                 student.score = parseInt(new_score);
+
+                // Update statuspoint after deduction
+                const logs = loadLog();
+                student.statuspoint = calculateStatusPoint(student, logs);
+
                 saveStudents(students);
             }
 
-            // Log the action
+            // Log the action to log.json
             const logs = loadLog();
             logs.push({
                 student_id,
@@ -234,6 +258,30 @@ const server = http.createServer(async (req, res) => {
                 type: 'deduction'
             });
             saveLog(logs);
+
+            // Also save to toadmin.json for admin view
+            let toAdminData = [];
+            try {
+                if (!fs.existsSync('./toadmin.json')) {
+                    fs.writeFileSync('./toadmin.json', '[]', 'utf8');
+                }
+                const data = fs.readFileSync('./toadmin.json', 'utf8');
+                toAdminData = JSON.parse(data);
+            } catch (e) {
+                toAdminData = [];
+            }
+
+            toAdminData.push({
+                student_id,
+                student_name,
+                reason,
+                teacher: teacher || 'Unknown',
+                timestamp: new Date().toISOString(),
+                status: status || 'pending',
+                type: 'deduction'
+            });
+
+            fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
 
             console.log(`[API] Deduction logged: ${student_id} - ${reason}`);
             sendJSON(res, { status: 'success', message: 'Record saved' });
@@ -249,25 +297,66 @@ const server = http.createServer(async (req, res) => {
         try {
             const body = await parseBody(req);
 
-            // Load existing work records
-            let works = [];
-            try {
-                const data = fs.readFileSync('./work.json', 'utf8');
-                works = JSON.parse(data);
-            } catch (e) {
-                works = [];
+            // 1. Process Images
+            const { image_before, image_after, student_id, ...otherData } = body;
+            let beforePath = null;
+            let afterPath = null;
+
+            // Create profly directory if it doesn't exist
+            const proflyDir = './profly';
+            if (!fs.existsSync(proflyDir)) {
+                fs.mkdirSync(proflyDir, { recursive: true });
             }
 
-            // Add new work record
-            works.push({
-                ...body,
-                timestamp: new Date().toISOString()
-            });
+            // Save Before Image
+            if (image_before && image_before.startsWith('data:image')) {
+                const base64Data = image_before.replace(/^data:image\/\w+;base64,/, '');
+                const fileName = `${student_id}_before_${Date.now()}.jpg`;
+                const filePath = path.join(proflyDir, fileName);
+                fs.writeFileSync(filePath, base64Data, 'base64');
+                beforePath = '/profly/' + fileName;
+            }
 
-            fs.writeFileSync('./work.json', JSON.stringify(works, null, 2), 'utf8');
+            // Save After Image
+            if (image_after && image_after.startsWith('data:image')) {
+                const base64Data = image_after.replace(/^data:image\/\w+;base64,/, '');
+                const fileName = `${student_id}_after_${Date.now()}.jpg`;
+                const filePath = path.join(proflyDir, fileName);
+                fs.writeFileSync(filePath, base64Data, 'base64');
+                afterPath = '/profly/' + fileName;
+            }
 
-            console.log(`[API] Work saved: ${body.student_id}`);
-            sendJSON(res, { status: 'success', message: 'Work saved' });
+            // 2. Prepare Data for toadmin.json
+            let toAdminData = [];
+            try {
+                // Initialize if not exists
+                if (!fs.existsSync('./toadmin.json')) {
+                    fs.writeFileSync('./toadmin.json', '[]', 'utf8');
+                }
+                const data = fs.readFileSync('./toadmin.json', 'utf8');
+                toAdminData = JSON.parse(data);
+            } catch (e) {
+                toAdminData = [];
+                console.error('Error loading toadmin.json, initializing empty array', e);
+            }
+
+            // Add new record
+            const newRecord = {
+                ...otherData,
+                student_id,
+                image_before: beforePath || null, // Use path if saved
+                image_after: afterPath || null,
+                timestamp: new Date().toISOString(),
+                type: 'work_submission',
+                status: otherData.status || 'pending' // Allow override status
+            };
+
+            toAdminData.push(newRecord);
+
+            fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
+
+            console.log(`[API] Work saved to toadmin.json: ${student_id}, Images: ${beforePath}, ${afterPath}`);
+            sendJSON(res, { status: 'success', message: 'Work saved successfully' });
         } catch (e) {
             console.error('[API] save-work error:', e);
             sendJSON(res, { status: 'error', message: e.message }, 500);
@@ -301,6 +390,132 @@ const server = http.createServer(async (req, res) => {
             sendJSON(res, { status: 'success', message: 'Profile image saved' });
         } catch (e) {
             console.error('[API] upload-student-profile error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Update ToAdmin Status (mark as completed)
+    if (pathname === '/api/update-toadmin-status' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { index, admin_name, reason } = body;
+
+            if (index === undefined) {
+                sendJSON(res, { status: 'error', message: 'Missing index' }, 400);
+                return;
+            }
+
+            let toAdminData = [];
+            try {
+                if (fs.existsSync('./toadmin.json')) {
+                    const data = fs.readFileSync('./toadmin.json', 'utf8');
+                    toAdminData = JSON.parse(data);
+                }
+            } catch (e) {
+                console.error('Error loading toadmin.json', e);
+                sendJSON(res, { status: 'error', message: 'Failed to load data' }, 500);
+                return;
+            }
+
+            if (index >= 0 && index < toAdminData.length) {
+                toAdminData[index].status = 'completed';
+                if (admin_name) toAdminData[index].admin_name = admin_name;
+                if (reason) toAdminData[index].admin_reason = reason; // Store admin reason separately or override
+                // toAdminData[index].score_updated = true; // Optional flag
+
+                fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
+                console.log(`[API] ToAdmin status updated for index ${index}`);
+                sendJSON(res, { status: 'success', message: 'Status updated' });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Invalid index' }, 404);
+            }
+        } catch (e) {
+            console.error('[API] update-toadmin-status error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Get Student Logs (for notifications)
+    if (pathname === '/api/student-logs' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { student_id } = body;
+
+            if (!student_id) {
+                sendJSON(res, { status: 'error', message: 'Missing student_id' }, 400);
+                return;
+            }
+
+            const logs = loadLog();
+            // Filter logs for this student
+            const studentLogs = logs.filter(log => String(log.student_id) === String(student_id));
+
+            // Sort by latest first
+            studentLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            sendJSON(res, { status: 'success', logs: studentLogs });
+        } catch (e) {
+            console.error('[API] student-logs error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: List Student Photos from edstudent folder
+    if (pathname === '/api/list-student-photos' && req.method === 'GET') {
+        try {
+            const dirPath = './edstudent';
+            let photos = [];
+
+            if (fs.existsSync(dirPath)) {
+                const files = fs.readdirSync(dirPath);
+                photos = files
+                    .filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f))
+                    .map(f => {
+                        const stats = fs.statSync(path.join(dirPath, f));
+                        const studentId = f.replace(/\.(jpg|jpeg|png|gif)$/i, '');
+                        return {
+                            filename: f,
+                            student_id: studentId,
+                            path: '/edstudent/' + f,
+                            size: stats.size,
+                            modified: stats.mtime
+                        };
+                    });
+            }
+
+            console.log(`[API] Listed ${photos.length} student photos`);
+            sendJSON(res, { status: 'success', photos });
+        } catch (e) {
+            console.error('[API] list-student-photos error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Delete Student Photo
+    if (pathname === '/api/delete-student-photo' && req.method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { student_id } = body;
+
+            if (!student_id) {
+                sendJSON(res, { status: 'error', message: 'Missing student_id' }, 400);
+                return;
+            }
+
+            const filePath = `./edstudent/${student_id}.jpg`;
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                console.log(`[API] Deleted photo: ${student_id}`);
+                sendJSON(res, { status: 'success', message: 'Photo deleted' });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Photo not found' }, 404);
+            }
+        } catch (e) {
+            console.error('[API] delete-student-photo error:', e);
             sendJSON(res, { status: 'error', message: e.message }, 500);
         }
         return;
