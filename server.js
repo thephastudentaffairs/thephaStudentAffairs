@@ -419,13 +419,16 @@ const server = http.createServer(async (req, res) => {
             }
 
             if (index >= 0 && index < toAdminData.length) {
-                toAdminData[index].status = 'completed';
+                // Allow custom status (e.g., 'rejected'), default to 'completed'
+                const newStatus = body.status || 'completed';
+                toAdminData[index].status = newStatus;
+
                 if (admin_name) toAdminData[index].admin_name = admin_name;
                 if (reason) toAdminData[index].admin_reason = reason; // Store admin reason separately or override
                 // toAdminData[index].score_updated = true; // Optional flag
 
                 fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
-                console.log(`[API] ToAdmin status updated for index ${index}`);
+                console.log(`[API] ToAdmin status updated for index ${index} -> ${newStatus}`);
                 sendJSON(res, { status: 'success', message: 'Status updated' });
             } else {
                 sendJSON(res, { status: 'error', message: 'Invalid index' }, 404);
@@ -540,7 +543,13 @@ const server = http.createServer(async (req, res) => {
             }
         } else {
             console.log('200 OK:', filePath);
-            res.writeHead(200, { 'Content-Type': contentType });
+            res.writeHead(200, {
+                'Content-Type': contentType,
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'Surrogate-Control': 'no-store'
+            });
             res.end(content);
         }
     });

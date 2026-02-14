@@ -925,37 +925,63 @@
         <div class="menu-label">โปรไฟล์</div>
         <div class="menu-desc">ข้อมูลส่วนตัว</div>
       </div>
+      <div class="menu-item delay-4" onclick="openModal('notifications')">
+        <div class="menu-icon icon-notifications"
+          style="background: linear-gradient(135deg, rgba(255, 159, 67, 0.2), rgba(255, 107, 107, 0.2)) !important; color: #ff9f43 !important;">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div class="menu-label">การแจ้งเตือน</div>
+        <div class="menu-desc">ติดตามสถานะคำร้อง</div>
+      </div>
     </div>
 
-    <!-- Info Section -->
-    <div class="glass-card">
-      <h3 style="margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-info-circle" style="color: var(--secondary)"></i> ข้อมูลโดยสังเขป
-      </h3>
-      <ul class="info-list">
-        <li class="info-item">
-          <div class="info-icon"><i class="fas fa-user"></i></div>
-          <div class="info-content">
-            <div class="info-content__label">ชื่อ-นามสกุล</div>
-            <div class="info-content__value" id="infoName">-</div>
-          </div>
-        </li>
-        <li class="info-item">
-          <div class="info-icon"><i class="fas fa-id-badge"></i></div>
-          <div class="info-content">
-            <div class="info-content__label">รหัสนักเรียน</div>
-            <div class="info-content__value" id="infoId">-</div>
-          </div>
-        </li>
-        <li class="info-item">
-          <div class="info-icon"><i class="fas fa-heartbeat"></i></div>
-          <div class="info-content">
-            <div class="info-content__label">สถานะพฤติกรรม</div>
-            <div class="info-content__value" id="infoStatus">-</div>
-          </div>
-        </li>
-      </ul>
+
+  </div>
+
+  <!-- Modal Template -->
+  <div class="modal-overlay" id="mainModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Title</div>
+        <button class="btn-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content injected via JS -->
+      </div>
     </div>
+  </div>
+
+  <!-- Info Section -->
+  <div class="glass-card">
+    <h3 style="margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+      <i class="fas fa-info-circle" style="color: var(--secondary)"></i> ข้อมูลโดยสังเขป
+    </h3>
+    <ul class="info-list">
+      <li class="info-item">
+        <div class="info-icon"><i class="fas fa-user"></i></div>
+        <div class="info-content">
+          <div class="info-content__label">ชื่อ-นามสกุล</div>
+          <div class="info-content__value" id="infoName">-</div>
+        </div>
+      </li>
+      <li class="info-item">
+        <div class="info-icon"><i class="fas fa-id-badge"></i></div>
+        <div class="info-content">
+          <div class="info-content__label">รหัสนักเรียน</div>
+          <div class="info-content__value" id="infoId">-</div>
+        </div>
+      </li>
+      <li class="info-item">
+        <div class="info-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="info-content">
+          <div class="info-content__label">สถานะพฤติกรรม</div>
+          <div class="info-content__value" id="infoStatus">-</div>
+        </div>
+      </li>
+    </ul>
+  </div>
   </div>
 
   <!-- Main Modal -->
@@ -1260,35 +1286,45 @@
 
     // --- Modal System ---
     async function openModal(type) {
-      const modalOverlay = document.getElementById('mainModalOverlay');
-      const titleEl = document.getElementById('modalTitle');
-      const contentEl = document.getElementById('modalContent');
+      const modal = document.getElementById('mainModalOverlay'); // Kept original ID for modal overlay
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalContent'); // Kept original ID for modal content
 
-      // Clear previous content
-      contentEl.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-circle-notch fa-spin"></i> กำลังโหลด...</div>';
+      let content = {
+        title: '',
+        body: ''
+      };
 
-      let data = { title: '', body: '' };
+      // Clear previous content and show loading
+      body.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-circle-notch fa-spin"></i> กำลังโหลด...</div>';
 
       switch (type) {
         case 'history':
-          data = await getHistoryContent();
+          content = await getHistoryContent();
           break;
         case 'rules':
-          data = getRulesContent();
+          content = getRulesContent();
           break;
-        case 'qrcode':
-          data = getQRContent();
+        case 'qrcode': // Kept original 'qrcode' type
+          content = getQRContent();
           break;
         case 'profile':
-          data = getProfileContent();
+          content = getProfileContent();
+          break;
+        case 'notifications': // NEW BLOCK
+          content = getNotificationsContent();
+          // Load data after modal opens
+          setTimeout(loadStudentNotifications, 100);
           break;
       }
 
-      titleEl.innerHTML = data.title;
-      contentEl.innerHTML = data.body;
-      modalOverlay.classList.add('active');
+      title.innerHTML = content.title;
+      body.innerHTML = content.body;
 
-      if (type === 'qrcode') {
+      modal.classList.add('active');
+
+      // Init QR if needed
+      if (type === 'qrcode') { // Kept original 'qrcode' type
         setTimeout(() => {
           const qrBox = document.getElementById('qrCanvas');
           if (qrBox) {
@@ -1371,7 +1407,6 @@
             <ul>
                 <li><strong style="color:var(--danger)">-10</strong> : มาสาย / แต่งกายผิดระเบียบ</li>
                 <li><strong style="color:var(--danger)">-10</strong> : ไม่สวมหมวกกันน็อค</li>
-                <li><strong style="color:var(--danger)">-10</strong> : หนีเรียน (ต่อครั้ง)</li>
                 <li><strong style="color:var(--danger)">-20</strong> : ทะเลาะวิวาท / ก้าวร้าว</li>
                 <li><strong style="color:var(--danger)">-30</strong> : สูบบุหรี่ / สิ่งเสพติด / พกอาวุธ</li>
                 <li><strong style="color:var(--danger)">-60</strong> : บุหรี่ไฟฟ้า</li>
@@ -1406,6 +1441,98 @@
             </div>
         `
       };
+    }
+
+    function getNotificationsContent() {
+      return {
+        title: '<i class="fas fa-bell"></i> การแจ้งเตือน',
+        body: `
+            <div id="notificationList" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin"></i> กำลังโหลด...
+                </div>
+            </div>
+        `
+      };
+    }
+
+    async function loadStudentNotifications() {
+      const list = document.getElementById('notificationList');
+      if (!list) return;
+
+      try {
+        const response = await fetch('/toadmin.json');
+        const data = await response.json();
+
+        // Filter by current student ID
+        const myNotifications = data.filter(item => String(item.student_id) === String(currentUser.id));
+
+        // Sort by timestamp desc
+        myNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if (myNotifications.length === 0) {
+          list.innerHTML = `
+              <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                  <i class="fas fa-bell-slash" style="font-size: 3em; margin-bottom: 15px; opacity: 0.5;"></i>
+                  <br>ไม่มีการแจ้งเตือน
+              </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = myNotifications.map(item => {
+          const date = new Date(item.timestamp).toLocaleString('th-TH');
+          let statusColor = '#f7b733'; // Pending = Yellow
+          let statusIcon = 'fa-clock';
+          let statusText = 'รอการตรวจสอบ';
+          let bgColor = 'rgba(247, 183, 51, 0.1)';
+          let borderColor = 'rgba(247, 183, 51, 0.3)';
+
+          if (item.status === 'completed') {
+            statusColor = '#00b09b'; // Success = Green
+            statusIcon = 'fa-check-circle';
+            statusText = 'อนุมัติแล้ว';
+            bgColor = 'rgba(0, 176, 155, 0.1)';
+            borderColor = 'rgba(0, 176, 155, 0.3)';
+          } else if (item.status === 'rejected') {
+            statusColor = '#ff5f6d'; // Rejected = Red
+            statusIcon = 'fa-times-circle';
+            statusText = 'ถูกปฏิเสธ';
+            bgColor = 'rgba(255, 95, 109, 0.1)';
+            borderColor = 'rgba(255, 95, 109, 0.3)';
+          }
+
+          const reason = item.admin_reason || item.reason || item.detail || '-';
+
+          return `
+              <div style="background: ${bgColor}; border: 1px solid ${borderColor}; border-radius: 12px; padding: 15px;">
+                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                      <div style="font-weight: 600; color: ${statusColor}; display: flex; align-items: center; gap: 6px;">
+                          <i class="fas ${statusIcon}"></i> ${statusText}
+                      </div>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">${date}</div>
+                  </div>
+                  <div style="color: var(--text-main); margin-bottom: 8px;">
+                      ${item.detail || item.reason || 'ส่งคำร้อง'}
+                  </div>
+                  ${item.status === 'rejected' ? `
+                      <div style="font-size: 0.9rem; color: #ff5f6d; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                          <i class="fas fa-comment-alt"></i> เหตุผล: ${reason}
+                      </div>
+                  ` : ''}
+                  ${item.status === 'completed' && item.admin_reason ? `
+                      <div style="font-size: 0.9rem; color: #00b09b; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                          <i class="fas fa-comment-check"></i> ${item.admin_reason}
+                      </div>
+                  ` : ''}
+              </div>
+          `;
+        }).join('');
+
+      } catch (e) {
+        console.error(e);
+        list.innerHTML = '<div style="text-align: center; color: var(--danger);">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+      }
     }
 
     function getQRContent() {
