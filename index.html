@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบคะแนนพฤติกรรม - โรงเรียนเทพา</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #fbbf24;
+      /* Amber-400 */
+      --primary-hover: #f59e0b;
+      --bg-dark: #0f172a;
+      /* Slate 900 */
+      --bg-card: #1e293b;
+      /* Slate 800 */
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --student-color: #3b82f6;
+      --teacher-color: #ef4444;
+      --admin-color: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Prompt', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(251, 191, 36, 0.1) 0px, transparent 50%);
+      color: var(--text-main);
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    /* Decoration Circles (Lightweight) */
+    .deco-circle {
+      position: fixed;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .deco-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--primary);
+      filter: blur(80px);
+      /* Static blur is cheap */
+      opacity: 0.1;
+      top: -100px;
+      right: -100px;
+    }
+
+    .deco-2 {
+      width: 250px;
+      height: 250px;
+      background: var(--student-color);
+      filter: blur(80px);
+      opacity: 0.1;
+      bottom: -50px;
+      left: -50px;
+    }
+
+    /* Container */
+    .main-container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .logo-box {
+      width: 90px;
+      height: 90px;
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 10px;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Card */
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 25px;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+
+    .tab-indicator {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: calc(33.33% - 5.3px);
+      height: calc(100% - 8px);
+      background: var(--primary);
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
+    }
+
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      transition: color 0.3s;
+      user-select: none;
+    }
+
+    .tab-btn.active {
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i.icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      transition: 0.3s;
+    }
+
+    .form-input {
+      width: 100%;
+      background: #0f172a;
+      border: 2px solid var(--border);
+      color: white;
+      padding: 14px 45px;
+      border-radius: 14px;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      background: #151e32;
+    }
+
+    .form-input:focus+i.icon {
+      color: var(--primary);
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .toggle-pass:hover {
+      color: var(--text-main);
+    }
+
+    /* Button */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: var(--primary);
+      color: #000;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    /* Role Specific Styles */
+    body[data-role="student"] {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+    }
+
+    body[data-role="student"] .tab-indicator {
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+    }
+
+    body[data-role="teacher"] {
+      --primary: #ef4444;
+      --primary-hover: #dc2626;
+    }
+
+    body[data-role="teacher"] .tab-indicator {
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+    }
+
+    body[data-role="admin"] {
+      --primary: #a855f7;
+      --primary-hover: #9333ea;
+    }
+
+    body[data-role="admin"] .tab-indicator {
+      box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4);
+    }
+
+    body[data-role="student"] .tab-btn.active,
+    body[data-role="teacher"] .tab-btn.active,
+    body[data-role="admin"] .tab-btn.active {
+      color: white;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .btn-submit.loading .spinner {
+      display: block;
+    }
+
+    .btn-submit.loading span,
+    .btn-submit.loading i {
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #1e293b;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border-left: 5px solid var(--primary);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 300px;
+      animation: slideIn 0.3s ease;
+      max-width: 90vw;
+    }
+
+    .toast.success {
+      border-color: #10b981;
+    }
+
+    .toast.error {
+      border-color: #ef4444;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast.hide {
+      animation: slideOut 0.3s forwards;
+    }
+
+    @keyframes slideOut {
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .main-container {
+        max-width: 100%;
+        padding: 0 5px;
+      }
+
+      .login-card {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body data-role="student">
+
+  <div class="deco-circle deco-1"></div>
+  <div class="deco-circle deco-2"></div>
+
+  <div class="main-container">
+    <div class="header">
+      <div class="logo-box">
+        <img src="logo.png" alt="Logo">
+      </div>
+      <h1>โรงเรียนเทพา</h1>
+      <p>ระบบคะแนนพฤติกรรมนักเรียน Digital Score</p>
+    </div>
+
+    <div class="login-card">
+      <div class="tabs">
+        <div class="tab-indicator" id="tabIndicator"></div>
+        <div class="tab-btn active" onclick="updateUI('student', 0)">นักเรียน</div>
+        <div class="tab-btn" onclick="updateUI('teacher', 1)">อาจารย์</div>
+        <div class="tab-btn" onclick="updateUI('admin', 2)">ผู้ดูแล</div>
+      </div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" id="userLabel">รหัสนักเรียน</label>
+          <div class="input-wrapper">
+            <input type="text" class="form-input" id="userInput" placeholder="กรอกรหัสนักเรียน" required
+              autocomplete="off">
+            <i class="fas fa-user icon"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">รหัสผ่าน</label>
+          <div class="input-wrapper">
+            <input type="password" class="form-input" id="password" placeholder="กรอกรหัสผ่าน" required>
+            <i class="fas fa-lock icon"></i>
+            <i class="fas fa-eye toggle-pass" onclick="togglePass()"></i>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <i class="fas fa-arrow-right"></i>
+          <span>เข้าสู่ระบบ</span>
+          <div class="spinner"></div>
+        </button>
+      </form>
+    </div>
+
+    <div class="footer">
+      © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    let currentRole = 'student';
+
+    function updateUI(role, index) {
+      currentRole = role;
+      document.body.setAttribute('data-role', role);
+
+      const indicator = document.getElementById('tabIndicator');
+      const tabs = document.querySelectorAll('.tab-btn');
+      const userLabel = document.getElementById('userLabel');
+      const userInput = document.getElementById('userInput');
+
+      // Move Indicator
+      indicator.style.left = `calc(${index * 33.33}% + 4px)`;
+
+      // Update Tab Styles
+      tabs.forEach(t => t.classList.remove('active'));
+      tabs[index].classList.add('active');
+
+      // Clear & Update Inputs
+      userInput.value = '';
+      document.getElementById('password').value = '';
+
+      if (role === 'student') {
+        userLabel.textContent = 'รหัสนักเรียน';
+        userInput.placeholder = 'กรอกรหัสนักเรียน';
+      } else if (role === 'teacher') {
+        userLabel.textContent = 'ชื่อผู้ใช้อาจารย์';
+        userInput.placeholder = 'กรอกชื่อผู้ใช้งาน';
+      } else {
+        userLabel.textContent = 'ชื่อผู้ดูแล';
+        userInput.placeholder = 'กรอกชื่อผู้ดูแล';
+      }
+    }
+
+    function togglePass() {
+      const p = document.getElementById('password');
+      const icon = document.querySelector('.toggle-pass');
+
+      if (p.type === 'password') {
+        p.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        icon.style.color = 'var(--text-main)';
+      } else {
+        p.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        icon.style.color = '';
+      }
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const userId = document.getElementById('userInput').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('submitBtn');
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        let response, users;
+        let dataFile = '';
+
+        if (currentRole === 'student') {
+          // Try multiple file variations for robustness
+          const files = ['user2.1.json', 'user2.1', 'user2_1.json'];
+          for (const f of files) {
+            try {
+              let r = await fetch(f);
+              if (r.ok) { response = r; dataFile = f; break; }
+            } catch (e) { }
+          }
+        } else if (currentRole === 'teacher') {
+          dataFile = 'th.json';
+          response = await fetch(dataFile);
+        } else if (currentRole === 'admin') {
+          dataFile = 'TPAC.json';
+          response = await fetch(dataFile);
+        }
+
+        if (!response || !response.ok) throw new Error('Load failed');
+        users = await response.json();
+
+        if (!Array.isArray(users)) throw new Error('Invalid data');
+
+        const user = users.find(u => u.id === userId && u.password === password);
+
+        await new Promise(r => setTimeout(r, 600)); // Small delay for UX
+
+        if (user) {
+          const userData = { ...user, role: currentRole };
+          sessionStorage.setItem('currentUser', JSON.stringify(userData));
+
+          showToast('success', 'เข้าสู่ระบบสำเร็จ');
+
+          setTimeout(() => {
+            if (currentRole === 'student') window.location.href = 'home.html';
+            else if (currentRole === 'teacher') window.location.href = 'th.html';
+            else if (currentRole === 'admin') window.location.href = 'teacher-dashboard.html';
+          }, 1000);
+        } else {
+          showToast('error', 'ข้อมูลไม่ถูกต้อง');
+          document.getElementById('password').value = '';
+        }
+
+      } catch (error) {
+        console.error(error);
+        showToast('error', 'ระบบขัดข้อง ติดต่อผู้ดูแล');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    function showToast(type, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+
+      const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+
+      toast.innerHTML = `
+        ${icon}
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+
+</html>

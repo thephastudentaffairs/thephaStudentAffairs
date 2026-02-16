@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้าหลัก - ระบบคะแนนพฤติกรรม</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --primary: #00f2fe;
+      --secondary: #4facfe;
+      --accent: #f093fb;
+      --accent-dark: #f5576c;
+      --text-main: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.7);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --card-hover: rgba(255, 255, 255, 0.1);
+      --success: #00b09b;
+      --warning: #f7b733;
+      --danger: #ff5f6d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Prompt', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #0f0c29;
+      background: linear-gradient(135deg, #24243e, #302b63, #0f0c29);
+      min-height: 100vh;
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Animation */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(240, 147, 251, 0.15) 0%, transparent 50%);
+      z-index: -1;
+      animation: ambientPulse 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes ambientPulse {
+      0% {
+        opacity: 0.5;
+        transform: scale(1);
+      }
+
+      100% {
+        opacity: 0.8;
+        transform: scale(1.1);
+      }
+    }
+
+    @keyframes wave {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      10% {
+        transform: rotate(14deg);
+      }
+
+      20% {
+        transform: rotate(-8deg);
+      }
+
+      30% {
+        transform: rotate(14deg);
+      }
+
+      40% {
+        transform: rotate(-4deg);
+      }
+
+      50% {
+        transform: rotate(10deg);
+      }
+
+      60% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 40px;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(15, 12, 41, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      background: linear-gradient(to right, #00f2fe, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+    }
+
+    .brand img {
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-details {
+      text-align: right;
+      display: none;
+      /* Hidden on very small screens */
+    }
+
+    @media (min-width: 768px) {
+      .user-details {
+        display: block;
+      }
+    }
+
+    .user-name {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .user-id {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .btn-logout {
+      background: rgba(255, 95, 109, 0.1);
+      color: #ff5f6d;
+      border: 1px solid rgba(255, 95, 109, 0.3);
+      padding: 8px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .btn-logout:hover {
+      background: #ff5f6d;
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 95, 109, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Glass Card */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: var(--glass-shadow);
+      margin-bottom: 25px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Score Section */
+    .score-section {
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 20px;
+      animation: fadeInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .score-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+      animation: rotate 20s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .score-title {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-value {
+      font-size: 6rem;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      text-shadow: 0 10px 30px rgba(0, 242, 254, 0.3);
+      position: relative;
+      z-index: 1;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .score-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 25px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s;
+    }
+
+    /* Status Colors */
+    .status-normal {
+      color: #00b09b;
+      border-color: rgba(0, 176, 155, 0.3);
+      background: rgba(0, 176, 155, 0.1);
+    }
+
+    .status-risk {
+      color: #f7b733;
+      border-color: rgba(247, 183, 51, 0.3);
+      background: rgba(247, 183, 51, 0.1);
+    }
+
+    .status-urgent {
+      color: #ff5f6d;
+      border-color: rgba(255, 95, 109, 0.5);
+      background: rgba(255, 95, 109, 0.15);
+      animation: pulse-red 2s infinite;
+    }
+
+    .status-excellent {
+      color: #f7b733;
+      background: linear-gradient(135deg, rgba(247, 183, 51, 0.1), rgba(252, 74, 26, 0.1));
+      border-color: #f7b733;
+      box-shadow: 0 0 20px rgba(247, 183, 51, 0.4);
+      animation: glow-gold 3s infinite alternate;
+    }
+
+    @keyframes pulse-red {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 95, 109, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(255, 95, 109, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 95, 109, 0);
+      }
+    }
+
+    @keyframes glow-gold {
+      0% {
+        box-shadow: 0 0 10px rgba(247, 183, 51, 0.4);
+      }
+
+      100% {
+        box-shadow: 0 0 25px rgba(247, 183, 51, 0.7);
+      }
+    }
+
+    /* Menu Grid */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .menu-item {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.6s ease-out backwards;
+    }
+
+    .menu-item:hover {
+      transform: translateY(-8px) scale(1.02);
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .menu-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .menu-item:hover::after {
+      opacity: 1;
+    }
+
+    .menu-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 1.8rem;
+      color: var(--text-main);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-item:hover .menu-icon {
+      transform: scale(1.1) rotate(5deg);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .menu-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Specific Menu Gradients for Icons */
+    .icon-history {
+      background: linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2)) !important;
+      color: #4facfe !important;
+    }
+
+    .icon-rules {
+      background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2)) !important;
+      color: #f093fb !important;
+    }
+
+    .icon-qr {
+      background: linear-gradient(135deg, rgba(255, 222, 225, 0.2), rgba(255, 219, 148, 0.2)) !important;
+      color: #ff9a9e !important;
+    }
+
+    .icon-profile {
+      background: linear-gradient(135deg, rgba(67, 233, 123, 0.2), rgba(56, 249, 215, 0.2)) !important;
+      color: #43e97b !important;
+    }
+
+    /* Animation Delays */
+    .delay-1 {
+      animation-delay: 0.1s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.3s;
+    }
+
+    .delay-4 {
+      animation-delay: 0.4s;
+    }
+
+    /* Info List */
+    .info-list {
+      list-style: none;
+      padding: 0;
+      animation: fadeInUp 0.8s ease-out 0.4s backwards;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      color: var(--secondary);
+    }
+
+    .info-content__label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .info-content__value {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: rgba(22, 22, 40, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(22, 22, 40, 0.98);
+      z-index: 10;
+    }
+
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .modal-body {
+      padding: 25px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Modal Content Styling */
+    .modal-body h3 {
+      color: var(--text-main);
+      margin: 20px 0 10px;
+      font-size: 1.2rem;
+      border-left: 3px solid var(--secondary);
+      padding-left: 10px;
+    }
+
+    .modal-body ul {
+      padding-left: 20px;
+    }
+
+    .modal-body li {
+      margin-bottom: 8px;
+    }
+
+    /* Animations */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Profile Modal Specifics */
+    .profile-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .profile-img-container {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 15px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .profile-img-container:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-badge {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: var(--primary);
+      color: #000;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #161628;
+      font-size: 0.8rem;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(22, 22, 40, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 15px 20px;
+      border-radius: 12px;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      transform: translateX(100%);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: auto;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-icon {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .toast-msg {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .toast-success {
+      border-left-color: var(--success);
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-error {
+      border-left-color: var(--danger);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    .toast-info {
+      border-left-color: var(--primary);
+    }
+
+    .toast-info .toast-icon {
+      color: var(--primary);
+    }
+
+    /* Profile Viewer Overlay */
+    .pv-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .pv-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .pv-img {
+      max-width: 90%;
+      max-height: 70vh;
+      border-radius: 20px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .pv-overlay.active .pv-img {
+      transform: scale(1);
+    }
+
+    .pv-close {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .pv-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 480px) {
+      .score-value {
+        font-size: 4rem;
+      }
+
+      .navbar-content {
+        padding: 0 15px;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .menu-item {
+        padding: 15px;
+      }
+
+      .menu-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div class="brand">
+        <img src="logo.png" alt="Logo">
+        <span>TPAC System</span>
+      </div>
+      <div class="user-menu">
+        <div class="user-details" style="text-align: right;">
+          <div class="user-name" id="navUserName">...</div>
+          <div class="user-id" id="navUserId">...</div>
+        </div>
+        <button class="btn-logout" onclick="logout()">
+          <i class="fas fa-power-off"></i>
+          <span style="display: none;">ออก</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Score Card -->
+    <div class="glass-card score-section">
+      <h2 class="score-title">คะแนนพฤติกรรมของคุณ</h2>
+      <div class="score-value" id="scoreValue">-</div>
+      <p class="score-subtitle">จากคะแนนเต็ม 100 คะแนน</p>
+      <div id="statusBadgeContainer">
+        <span class="status-pill status-normal" id="statusBadge">
+          <i class="fas fa-check-circle"></i> ปกติ
+        </span>
+      </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="menu-grid">
+      <div class="menu-item delay-1" onclick="openModal('history')">
+        <div class="menu-icon icon-history"><i class="fas fa-history"></i></div>
+        <div class="menu-label">ประวัติ</div>
+        <div class="menu-desc">การเคลื่อนไหวคะแนน</div>
+      </div>
+      <div class="menu-item delay-2" onclick="openModal('rules')">
+        <div class="menu-icon icon-rules"><i class="fas fa-book-open"></i></div>
+        <div class="menu-label">กฎระเบียบ</div>
+        <div class="menu-desc">เกณฑ์การตัดคะแนน</div>
+      </div>
+      <div class="menu-item delay-3" onclick="openModal('qrcode')">
+        <div class="menu-icon icon-qr"><i class="fas fa-qrcode"></i></div>
+        <div class="menu-label">QR Code</div>
+        <div class="menu-desc">สำหรับแสดงให้ครู</div>
+      </div>
+      <div class="menu-item delay-4" onclick="openModal('profile')">
+        <div class="menu-icon icon-profile"><i class="fas fa-user-astronaut"></i></div>
+        <div class="menu-label">โปรไฟล์</div>
+        <div class="menu-desc">ข้อมูลส่วนตัว</div>
+      </div>
+      <div class="menu-item delay-4" onclick="openModal('notifications')">
+        <div class="menu-icon icon-notifications"
+          style="background: linear-gradient(135deg, rgba(255, 159, 67, 0.2), rgba(255, 107, 107, 0.2)) !important; color: #ff9f43 !important;">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div class="menu-label">การแจ้งเตือน</div>
+        <div class="menu-desc">ติดตามสถานะคำร้อง</div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Modal Template -->
+  <div class="modal-overlay" id="mainModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Title</div>
+        <button class="btn-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Section -->
+  <div class="glass-card">
+    <h3 style="margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+      <i class="fas fa-info-circle" style="color: var(--secondary)"></i> ข้อมูลโดยสังเขป
+    </h3>
+    <ul class="info-list">
+      <li class="info-item">
+        <div class="info-icon"><i class="fas fa-user"></i></div>
+        <div class="info-content">
+          <div class="info-content__label">ชื่อ-นามสกุล</div>
+          <div class="info-content__value" id="infoName">-</div>
+        </div>
+      </li>
+      <li class="info-item">
+        <div class="info-icon"><i class="fas fa-id-badge"></i></div>
+        <div class="info-content">
+          <div class="info-content__label">รหัสนักเรียน</div>
+          <div class="info-content__value" id="infoId">-</div>
+        </div>
+      </li>
+      <li class="info-item">
+        <div class="info-icon"><i class="fas fa-heartbeat"></i></div>
+        <div class="info-content">
+          <div class="info-content__label">สถานะพฤติกรรม</div>
+          <div class="info-content__value" id="infoStatus">-</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  </div>
+
+  <!-- Main Modal -->
+  <div class="modal-overlay" id="mainModalOverlay" onclick="closeModal()">
+    <div class="modal" id="mainModal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Title</h3>
+        <button class="btn-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="modalContent">
+        <!-- Dynamic Content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Viewer Overlay -->
+  <div class="pv-overlay" id="profileViewer" onclick="closeProfileViewer()">
+    <button class="pv-close" onclick="closeProfileViewer()">&times;</button>
+    <div id="pvImageContainer"></div>
+    <div style="margin-top: 20px; text-align: center; color: white;">
+      <h2 id="pvName" style="margin-bottom: 5px;"></h2>
+      <p id="pvId" style="opacity: 0.7;"></p>
+    </div>
+  </div>
+
+  <!-- Logout Confirm Modal -->
+  <div class="modal-overlay" id="logoutConfirmOverlay" style="z-index: 3000;">
+    <div class="glass-card"
+      style="max-width: 380px; width: 90%; text-align: center; padding: 40px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+      <div style="font-size: 3.5rem; margin-bottom: 20px; display: inline-block; animation: wave 2s infinite;">👋</div>
+      <h3
+        style="font-size: 1.6rem; margin-bottom: 10px; font-weight: 700; background: linear-gradient(to right, #fff, #ffc371); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        ออกจากระบบ</h3>
+      <p style="color: var(--text-muted); margin-bottom: 30px; line-height: 1.6;">
+        คุณต้องการจบการทำงาน<br>ในเซสชั่นนี้ใช่หรือไม่?</p>
+      <div style="display: flex; gap: 15px;">
+        <button onclick="closeLogoutModal()"
+          style="flex: 1; padding: 14px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-weight: 600; cursor: pointer; transition: all 0.2s;">ยกเลิก</button>
+        <button onclick="confirmLogout()"
+          style="flex: 1; padding: 14px; border-radius: 15px; border: none; background: linear-gradient(135deg, #ff5f6d, #ffc371); color: white; font-weight: 600; cursor: pointer; box-shadow: 0 10px 20px rgba(255, 95, 109, 0.3); transition: all 0.2s; transform: scale(1);">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Score Submission Modal -->
+  <div class="modal-overlay" id="scoreSubmitOverlay" onclick="closeScoreSubmitModal()">
+    <div class="modal" style="max-width: 500px;" onclick="event.stopPropagation()">
+      <div class="modal-header" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+        <h3 class="modal-title" style="-webkit-text-fill-color: #000; color: #000;">
+          <i class="fas fa-plus-circle"></i> ส่งขอเพิ่มคะแนน
+        </h3>
+        <button class="btn-close" onclick="closeScoreSubmitModal()" style="color: #000;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <!-- Student Info -->
+        <div
+          style="background: linear-gradient(135deg, rgba(0,242,254,0.1), rgba(79,172,254,0.1)); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+          <div style="font-weight: 700; color: var(--primary);" id="submitStudentName">-</div>
+          <div style="font-size: 0.9rem; color: var(--text-muted);" id="submitStudentId">รหัส: -</div>
+        </div>
+
+        <!-- Detail Input -->
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px;">
+            รายละเอียดงาน / การแก้ไข
+          </label>
+          <textarea id="submitDetail" placeholder="ระบุรายละเอียดงานหรือสิ่งที่แก้ไข..." style="
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            font-size: 1rem;
+            resize: none;
+            font-family: inherit;
+          "></textarea>
+        </div>
+
+        <!-- Image Uploads -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+          <div style="text-align: center;">
+            <input type="file" id="beforeImageInput" accept="image/*" style="display: none;"
+              onchange="previewImage(this, 'beforePreview')">
+            <div onclick="document.getElementById('beforeImageInput').click()" style="
+              border: 2px dashed rgba(255,255,255,0.2);
+              border-radius: 12px;
+              padding: 30px 15px;
+              cursor: pointer;
+              transition: all 0.3s;
+              min-height: 120px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+            " id="beforeBox">
+              <i class="fas fa-camera" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+              <div style="color: var(--text-muted); font-size: 0.9rem;">ก่อนทำ</div>
+              <img id="beforePreview" src=""
+                style="display: none; max-width: 100%; max-height: 80px; margin-top: 10px; border-radius: 8px;">
+            </div>
+          </div>
+          <div style="text-align: center;">
+            <input type="file" id="afterImageInput" accept="image/*" style="display: none;"
+              onchange="previewImage(this, 'afterPreview')">
+            <div onclick="document.getElementById('afterImageInput').click()" style="
+              border: 2px dashed rgba(255,255,255,0.2);
+              border-radius: 12px;
+              padding: 30px 15px;
+              cursor: pointer;
+              transition: all 0.3s;
+              min-height: 120px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+            " id="afterBox">
+              <i class="fas fa-edit" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+              <div style="color: var(--text-muted); font-size: 0.9rem;">หลังทำ</div>
+              <img id="afterPreview" src=""
+                style="display: none; max-width: 100%; max-height: 80px; margin-top: 10px; border-radius: 8px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display: flex; gap: 10px;">
+          <button onclick="closeScoreSubmitModal()" style="
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+          ">ยกเลิก</button>
+          <button onclick="submitScoreRequest()" style="
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          "><i class="fas fa-paper-plane"></i> บันทึกผลงาน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // --- Configuration & State ---
+    const CONFIG = {
+      checkInterval: 3000,
+      animationDuration: 300
+    };
+
+    let currentUser = null;
+    let pollInterval = null;
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+      initSession();
+    });
+
+    function initSession() {
+      const storedUser = sessionStorage.getItem('currentUser');
+      if (!storedUser) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      currentUser = JSON.parse(storedUser);
+      updateUI(currentUser);
+      startPolling();
+
+      // Welcome Toast
+      setTimeout(() => {
+        showToast('success', 'ยินดีต้อนรับ', `สวัสดีคุณ ${currentUser.name.split(' ')[0]}`);
+      }, 500);
+    }
+
+    // --- Data Handling & Polling ---
+    function startPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+
+      pollInterval = setInterval(async () => {
+        try {
+          const timestamp = Date.now();
+          const response = await fetch(`user2.1.json?v=${timestamp}`);
+          if (!response.ok) return;
+
+          const students = await response.json();
+          const latestData = students.find(s => s.id === currentUser.id);
+
+          if (latestData) {
+            checkForUpdates(latestData);
+          }
+        } catch (error) {
+          console.error("Polling error:", error);
+        }
+      }, CONFIG.checkInterval);
+    }
+
+    function checkForUpdates(newData) {
+      let hasChanges = false;
+
+      // Score Change
+      if (newData.score !== currentUser.score) {
+        const diff = newData.score - currentUser.score;
+        const type = diff > 0 ? 'success' : 'error';
+        const sign = diff > 0 ? '+' : '';
+        showToast(type, 'คะแนนเปลี่ยนแปลง', `คะแนนของคุณ ${sign}${diff} (ใหม่: ${newData.score})`);
+        currentUser.score = newData.score;
+        animateScoreUpdate(newData.score);
+        hasChanges = true;
+      }
+
+      // Status Point Change
+      const newStatusPoint = newData.statuspoint || 'normal';
+      const currentStatusPoint = currentUser.statuspoint || 'normal';
+      if (newStatusPoint !== currentStatusPoint) {
+        showToast('info', 'สถานะเปลี่ยน', `สถานะพฤติกรรมของคุณเปลี่ยนเป็น "${getLocalizedStatus(newStatusPoint)}"`);
+        currentUser.statuspoint = newStatusPoint;
+        hasChanges = true;
+      }
+
+      // Other fields
+      currentUser.status = newData.status;
+
+      if (hasChanges) {
+        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateUI(currentUser);
+      }
+    }
+
+    // --- UI Updates ---
+    function updateUI(user) {
+      // Navbar
+      document.getElementById('navUserName').textContent = user.name;
+      document.getElementById('navUserId').textContent = `ID: ${user.id}`;
+      document.getElementById('infoName').textContent = user.name;
+      document.getElementById('infoId').textContent = user.id;
+
+      // Score
+      const scoreEl = document.getElementById('scoreValue');
+      if (scoreEl.textContent !== String(user.score)) {
+        scoreEl.textContent = user.score || 0;
+      }
+
+      // Status Badge & Info
+      const statusKey = user.statuspoint || 'normal';
+      const statusConfig = getStatusConfig(statusKey);
+
+      const badgeHTML = `<i class="${statusConfig.icon}"></i> ${statusConfig.text}`;
+      const badgeEl = document.getElementById('statusBadge');
+
+      badgeEl.className = `status-pill ${statusConfig.class}`;
+      badgeEl.innerHTML = badgeHTML;
+      document.getElementById('infoStatus').textContent = statusConfig.text;
+    }
+
+    // --- Animation ---
+    function animateScoreUpdate(newVal) {
+      const el = document.getElementById('scoreValue');
+      el.style.transform = 'scale(1.2)';
+      el.style.textShadow = '0 0 50px var(--primary)';
+      setTimeout(() => {
+        el.textContent = newVal;
+        el.style.transform = 'scale(1)';
+        el.style.textShadow = '0 10px 30px rgba(0, 242, 254, 0.3)';
+      }, 300);
+    }
+
+    // --- Helpers ---
+    function getStatusConfig(status) {
+      const map = {
+        'normal': { text: 'ปกติ', class: 'status-normal', icon: 'fas fa-check-circle' },
+        'risk': { text: 'เริ่มมีความเสี่ยง', class: 'status-risk', icon: 'fas fa-exclamation-triangle' },
+        'urgent': { text: 'ปรับปรุงด่วน', class: 'status-urgent', icon: 'fas fa-radiation' },
+        'excellent': { text: 'เด็กดีศรีเทพา', class: 'status-excellent', icon: 'fas fa-star' }
+      };
+      return map[status] || map.normal;
+    }
+
+    function getLocalizedStatus(status) {
+      return getStatusConfig(status).text;
+    }
+
+    // --- Modal System ---
+    async function openModal(type) {
+      const modal = document.getElementById('mainModalOverlay'); // Kept original ID for modal overlay
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalContent'); // Kept original ID for modal content
+
+      let content = {
+        title: '',
+        body: ''
+      };
+
+      // Clear previous content and show loading
+      body.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-circle-notch fa-spin"></i> กำลังโหลด...</div>';
+
+      switch (type) {
+        case 'history':
+          content = await getHistoryContent();
+          break;
+        case 'rules':
+          content = getRulesContent();
+          break;
+        case 'qrcode': // Kept original 'qrcode' type
+          content = getQRContent();
+          break;
+        case 'profile':
+          content = getProfileContent();
+          break;
+        case 'notifications': // NEW BLOCK
+          content = getNotificationsContent();
+          // Load data after modal opens
+          setTimeout(loadStudentNotifications, 100);
+          break;
+      }
+
+      title.innerHTML = content.title;
+      body.innerHTML = content.body;
+
+      modal.classList.add('active');
+
+      // Init QR if needed
+      if (type === 'qrcode') { // Kept original 'qrcode' type
+        setTimeout(() => {
+          const qrBox = document.getElementById('qrCanvas');
+          if (qrBox) {
+            new QRCode(qrBox, {
+              text: currentUser.id,
+              width: 200,
+              height: 200,
+              colorDark: "#24243e",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+            });
+          }
+        }, 100);
+      }
+    }
+
+    function closeModal() {
+      const modalOverlay = document.getElementById('mainModalOverlay');
+      modalOverlay.classList.remove('active');
+    }
+
+    // --- Modal Content Generators ---
+    async function getHistoryContent() {
+      try {
+        const res = await fetch('log.json');
+        if (!res.ok) throw new Error('Load failed');
+        const logs = await res.json();
+
+        // Filter last 3 months
+        const limitDate = new Date();
+        limitDate.setMonth(limitDate.getMonth() - 3);
+
+        const userLogs = logs
+          .filter(l => l.student_id === currentUser.id && new Date(l.timestamp) > limitDate)
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if (userLogs.length === 0) {
+          return {
+            title: '<i class="fas fa-history"></i> ประวัติคะแนน',
+            body: '<div style="text-align:center; padding: 30px; color: var(--text-muted);">ยังไม่มีประวัติการเปลี่ยนแปลงคะแนนเร็วๆ นี้</div>'
+          };
+        }
+
+        let html = '<ul style="list-style:none;">';
+        userLogs.forEach(log => {
+          const date = new Date(log.timestamp).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const isPositive = log.change > 0;
+          const color = isPositive ? 'var(--success)' : 'var(--danger)';
+          const sign = isPositive ? '+' : '';
+
+          html += `
+                        <li style="padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 500;">${log.reason}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);"><i class="far fa-clock"></i> ${date}</div>
+                            </div>
+                            <div style="font-weight: 700; font-size: 1.1rem; color: ${color};">
+                                ${sign}${log.change}
+                            </div>
+                        </li>
+                    `;
+        });
+        html += '</ul>';
+
+        return {
+          title: '<i class="fas fa-history"></i> ประวัติคะแนน',
+          body: html
+        };
+
+      } catch (e) {
+        return { title: 'ข้อผิดพลาด', body: 'ไม่สามารถโหลดข้อมูลประวัติได้' };
+      }
+    }
+
+    function getRulesContent() {
+      return {
+        title: '<i class="fas fa-book-open"></i> กฎระเบียบ',
+        body: `
+            <h3>🚫 การหักคะแนน</h3>
+            <ul>
+                <li><strong style="color:var(--danger)">-10</strong> : มาสาย / แต่งกายผิดระเบียบ</li>
+                <li><strong style="color:var(--danger)">-10</strong> : ไม่สวมหมวกกันน็อค</li>
+                <li><strong style="color:var(--danger)">-20</strong> : ทะเลาะวิวาท / ก้าวร้าว</li>
+                <li><strong style="color:var(--danger)">-30</strong> : สูบบุหรี่ / สิ่งเสพติด / พกอาวุธ</li>
+                <li><strong style="color:var(--danger)">-60</strong> : บุหรี่ไฟฟ้า</li>
+            </ul>
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255,165,0,0.1); border-left: 3px solid orange; border-radius: 8px; font-size: 0.9rem;">
+                <i class="fas fa-lightbulb"></i> พฤติกรรมดีมีโอกาสได้รับคะแนนเพิ่มตามดุลยพินิจของครู
+            </div>
+            
+            <!-- Score Submission Button -->
+            <div style="margin-top: 25px; text-align: center;">
+              <button onclick="openScoreSubmitModal()" style="
+                background: linear-gradient(135deg, #43e97b, #38f9d7);
+                border: none;
+                padding: 15px 30px;
+                border-radius: 15px;
+                color: #000;
+                font-weight: 700;
+                font-size: 1rem;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 10px 25px rgba(67, 233, 123, 0.3);
+                transition: all 0.3s;
+              ">
+                <i class="fas fa-plus-circle"></i>
+                ส่งขอเพิ่มคะแนน
+              </button>
+              <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 10px;">
+                ส่งหลักฐานการทำความดี/ช่วยเหลือโรงเรียน
+              </p>
+            </div>
+        `
+      };
+    }
+
+    function getNotificationsContent() {
+      return {
+        title: '<i class="fas fa-bell"></i> การแจ้งเตือน',
+        body: `
+            <div id="notificationList" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin"></i> กำลังโหลด...
+                </div>
+            </div>
+        `
+      };
+    }
+
+    async function loadStudentNotifications() {
+      const list = document.getElementById('notificationList');
+      if (!list) return;
+
+      try {
+        const response = await fetch('/toadmin.json');
+        const data = await response.json();
+
+        // Filter by current student ID
+        const myNotifications = data.filter(item => String(item.student_id) === String(currentUser.id));
+
+        // Sort by timestamp desc
+        myNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if (myNotifications.length === 0) {
+          list.innerHTML = `
+              <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                  <i class="fas fa-bell-slash" style="font-size: 3em; margin-bottom: 15px; opacity: 0.5;"></i>
+                  <br>ไม่มีการแจ้งเตือน
+              </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = myNotifications.map(item => {
+          const date = new Date(item.timestamp).toLocaleString('th-TH');
+          let statusColor = '#f7b733'; // Pending = Yellow
+          let statusIcon = 'fa-clock';
+          let statusText = 'รอการตรวจสอบ';
+          let bgColor = 'rgba(247, 183, 51, 0.1)';
+          let borderColor = 'rgba(247, 183, 51, 0.3)';
+
+          if (item.status === 'completed') {
+            statusColor = '#00b09b'; // Success = Green
+            statusIcon = 'fa-check-circle';
+            statusText = 'อนุมัติแล้ว';
+            bgColor = 'rgba(0, 176, 155, 0.1)';
+            borderColor = 'rgba(0, 176, 155, 0.3)';
+          } else if (item.status === 'rejected') {
+            statusColor = '#ff5f6d'; // Rejected = Red
+            statusIcon = 'fa-times-circle';
+            statusText = 'ถูกปฏิเสธ';
+            bgColor = 'rgba(255, 95, 109, 0.1)';
+            borderColor = 'rgba(255, 95, 109, 0.3)';
+          }
+
+          const reason = item.admin_reason || item.reason || item.detail || '-';
+
+          return `
+              <div style="background: ${bgColor}; border: 1px solid ${borderColor}; border-radius: 12px; padding: 15px;">
+                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                      <div style="font-weight: 600; color: ${statusColor}; display: flex; align-items: center; gap: 6px;">
+                          <i class="fas ${statusIcon}"></i> ${statusText}
+                      </div>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">${date}</div>
+                  </div>
+                  <div style="color: var(--text-main); margin-bottom: 8px;">
+                      ${item.detail || item.reason || 'ส่งคำร้อง'}
+                  </div>
+                  ${item.status === 'rejected' ? `
+                      <div style="font-size: 0.9rem; color: #ff5f6d; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                          <i class="fas fa-comment-alt"></i> เหตุผล: ${reason}
+                      </div>
+                  ` : ''}
+                  ${item.status === 'completed' && item.admin_reason ? `
+                      <div style="font-size: 0.9rem; color: #00b09b; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+                          <i class="fas fa-comment-check"></i> ${item.admin_reason}
+                      </div>
+                  ` : ''}
+              </div>
+          `;
+        }).join('');
+
+      } catch (e) {
+        console.error(e);
+        list.innerHTML = '<div style="text-align: center; color: var(--danger);">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+      }
+    }
+
+    function getQRContent() {
+      return {
+        title: '<i class="fas fa-qrcode"></i> QR Student ID',
+        body: `
+            <div style="text-align: center; padding: 10px;">
+                <div class="qr-wrapper" style="position: relative; display: inline-block; padding: 20px; border-radius: 20px; background: rgba(255,255,255,0.05); box-shadow: 0 0 30px rgba(0, 242, 254, 0.2); border: 1px solid rgba(255,255,255,0.1);">
+                    <div class="qr-scan-line" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #00f2fe; box-shadow: 0 0 10px #00f2fe; animation: scan 3s infinite ease-in-out; opacity: 0.7; pointer-events: none;"></div>
+                    
+                    <div id="qrCanvas" style="background: white; padding: 15px; border-radius: 12px; display: block; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));"></div>
+                    
+                    <div style="margin-top: 15px; font-family: 'Courier New', monospace; letter-spacing: 2px;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Student ID</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; background: linear-gradient(to right, #fff, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(0, 242, 254, 0.5);">${currentUser.id}</div>
+                    </div>
+                    
+                    <!-- Decorative corners -->
+                    <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; border-top: 2px solid #00f2fe; border-left: 2px solid #00f2fe; border-top-left-radius: 10px;"></div>
+                    <div style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-top: 2px solid #00f2fe; border-right: 2px solid #00f2fe; border-top-right-radius: 10px;"></div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; width: 20px; height: 20px; border-bottom: 2px solid #00f2fe; border-left: 2px solid #00f2fe; border-bottom-left-radius: 10px;"></div>
+                    <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; border-bottom: 2px solid #00f2fe; border-right: 2px solid #00f2fe; border-bottom-right-radius: 10px;"></div>
+                </div>
+                
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 25px;">
+                    <i class="fas fa-wifi" style="animation: pulse 2s infinite;"></i> พร้อมสำหรับการสแกน
+                </p>
+            </div>
+            <style>
+                @keyframes scan {
+                    0% { top: 10%; opacity: 0; }
+                    10% { opacity: 1; }
+                    90% { opacity: 1; }
+                    100% { top: 90%; opacity: 0; }
+                }
+            </style>
+        `
+      };
+    }
+
+    function getProfileContent() {
+      const timestamp = Date.now();
+      const imgSrc = `edstudent/${currentUser.id}.jpg?v=${timestamp}`;
+
+      return {
+        title: '<i class="fas fa-user-circle"></i> ข้อมูลส่วนตัว',
+        body: `
+            <div class="profile-header">
+                <div class="profile-img-container" onclick="openProfileViewer('${imgSrc}')">
+                    <img src="${imgSrc}" class="profile-img" onerror="this.src='https://ui-avatars.com/api/?name=${currentUser.name}&background=random&color=fff'">
+                    <div class="profile-badge"><i class="fas fa-search-plus"></i></div>
+                </div>
+                <h3 style="border: none; margin: 0;">${currentUser.name}</h3>
+                <p style="color: var(--text-muted);">${currentUser.id}</p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: var(--text-muted); font-size: 0.8rem;">สถานะการเรียน</label>
+                    <div style="font-weight: 500;">${getAcademicStatus(currentUser.status)}</div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="color: var(--text-muted); font-size: 0.8rem;">ระดับพฤติกรรม</label>
+                    <div style="font-weight: 500;">${getLocalizedStatus(currentUser.statuspoint || 'normal')}</div>
+                </div>
+                <div>
+                    <label style="color: var(--text-muted); font-size: 0.8rem;">คะแนนสะสม</label>
+                    <div style="font-weight: 500;">${currentUser.score} คะแนน</div>
+                </div>
+            </div>
+        `
+      };
+    }
+
+    function getAcademicStatus(st) {
+      const map = {
+        'normal': 'กำลังศึกษาอยู่',
+        'Absent': 'ขาดเรียนนาน',
+        'moved': 'ย้ายสถานศึกษา',
+        'notnormal': 'พักการเรียน'
+      };
+      return map[st] || 'กำลังศึกษาอยู่';
+    }
+
+    // --- Profile Viewer ---
+    function openProfileViewer(src) {
+      if (!src) return;
+      const pv = document.getElementById('profileViewer');
+      const imgContainer = document.getElementById('pvImageContainer');
+      document.getElementById('pvName').textContent = currentUser.name;
+      document.getElementById('pvId').textContent = currentUser.id;
+
+      imgContainer.innerHTML = `<img src="${src}" class="pv-img" onerror="this.src='https://ui-avatars.com/api/?name=${currentUser.name}&size=512'">`;
+      pv.classList.add('active');
+    }
+
+    function closeProfileViewer() {
+      document.getElementById('profileViewer').classList.remove('active');
+    }
+
+    // --- Toast System ---
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+
+      const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-times-circle',
+        info: 'fas fa-info-circle',
+        warning: 'fas fa-exclamation-triangle'
+      };
+
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <div class="toast-icon"><i class="${icons[type] || icons.info}"></i></div>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+        </div>
+      `;
+
+      container.appendChild(toast);
+
+      // Trigger animation
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      // Auto Remove
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove());
+      }, 4000);
+    }
+
+    // --- Logout ---
+    function logout() {
+      const overlay = document.getElementById('logoutConfirmOverlay');
+      overlay.classList.add('active');
+    }
+
+    function closeLogoutModal() {
+      const overlay = document.getElementById('logoutConfirmOverlay');
+      overlay.classList.remove('active');
+    }
+
+    function confirmLogout() {
+      closeLogoutModal();
+      clearInterval(pollInterval);
+      sessionStorage.removeItem('currentUser');
+
+      // Fancy exit
+      document.body.style.opacity = '0';
+      document.body.style.transform = 'scale(0.95)';
+      document.body.style.transition = 'all 0.5s ease';
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 500);
+    }
+
+    // --- Score Submission Functions ---
+    function openScoreSubmitModal() {
+      closeModal(); // Close rules modal first
+
+      // Populate student info
+      document.getElementById('submitStudentName').textContent = currentUser.name;
+      document.getElementById('submitStudentId').textContent = 'รหัส: ' + currentUser.id;
+
+      // Clear previous inputs
+      document.getElementById('submitDetail').value = '';
+      document.getElementById('beforeImageInput').value = '';
+      document.getElementById('afterImageInput').value = '';
+      document.getElementById('beforePreview').style.display = 'none';
+      document.getElementById('afterPreview').style.display = 'none';
+
+      // Show modal
+      document.getElementById('scoreSubmitOverlay').classList.add('active');
+    }
+
+    function closeScoreSubmitModal() {
+      document.getElementById('scoreSubmitOverlay').classList.remove('active');
+    }
+
+    function previewImage(input, previewId) {
+      const file = input.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const preview = document.getElementById(previewId);
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function getBase64FromInput(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input.files || !input.files[0]) return '';
+
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(input.files[0]);
+      });
+    }
+
+    async function submitScoreRequest() {
+      const detail = document.getElementById('submitDetail').value.trim();
+      const beforeInput = document.getElementById('beforeImageInput');
+      const afterInput = document.getElementById('afterImageInput');
+
+      // Validate all fields
+      if (!detail) {
+        showToast('error', 'กรุณากรอกข้อมูล', 'ระบุรายละเอียดงาน/การแก้ไข');
+        return;
+      }
+
+      if (!beforeInput.files || beforeInput.files.length === 0) {
+        showToast('error', 'กรุณาแนบรูป', 'กรุณาอัพโหลดรูป "ก่อนทำ"');
+        return;
+      }
+
+      if (!afterInput.files || afterInput.files.length === 0) {
+        showToast('error', 'กรุณาแนบรูป', 'กรุณาอัพโหลดรูป "หลังทำ"');
+        return;
+      }
+
+      // Show loading
+      showToast('info', 'กำลังส่ง...', 'กรุณารอสักครู่');
+
+      try {
+        const beforeBase64 = await getBase64FromInput('beforeImageInput');
+        const afterBase64 = await getBase64FromInput('afterImageInput');
+
+        const data = {
+          student_id: currentUser.id,
+          student_name: currentUser.name,
+          detail: detail,
+          image_before: beforeBase64,
+          image_after: afterBase64,
+          teacher: 'นักเรียนส่งเอง',
+          timestamp: new Date().toISOString(),
+          status: 'pending',
+          type: 'work',
+          save_folder: 'profly' // Tell server to save images to profly folder
+        };
+
+        const response = await fetch('/api/save-work', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          showToast('success', 'ส่งเสร็จสิ้น', 'รอครูตรวจสอบและอนุมัติ');
+          closeScoreSubmitModal();
+        } else {
+          throw new Error(result.message || 'Failed to submit');
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        showToast('error', 'เกิดข้อผิดพลาด', error.message);
+      }
+    }
+
+  </script>
+
+  <div class="footer-section">
+    © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
+  </div>
+
+  <style>
+    .footer-section {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      color: #fff;
+      font-size: 14px;
+      text-align: center;
+
+      /* background: rgba(0,0,0,0.6); 
+    padding: 6px 20px;
+    border-radius: 8px; */
+
+      backdrop-filter: blur(6px);
+    }
+  </style>
+</body>
+
+</html>
