@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -39,15 +40,18 @@
 
         /* Navbar */
         .navbar {
-            background: white;
-            padding: 15px 30px;
+            background: rgba(15, 12, 41, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 8px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .nav-brand {
@@ -56,7 +60,20 @@
             gap: 12px;
             font-weight: 700;
             font-size: 1.25rem;
-            color: var(--primary);
+            color: #fff;
+        }
+
+        .nav-brand img {
+            height: 100px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .nav-brand-tpac {
+            height: 150px !important;
+            /* 1.5x of School Logo (100px) */
+            margin-left: 10px;
+            mix-blend-mode: screen;
         }
 
         .nav-user {
@@ -67,32 +84,40 @@
 
         .user-info {
             text-align: right;
+            color: #fff;
         }
 
         .user-name {
             font-weight: 600;
             display: block;
+            color: #fff;
         }
 
         .user-class {
             font-size: 0.85rem;
-            color: #64748b;
+            color: rgba(255, 255, 255, 0.7);
+            display: block;
         }
 
         .logout-btn {
-            padding: 8px 16px;
-            background: #fee2e2;
-            color: var(--danger);
-            border: none;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 600;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
         }
 
         .logout-btn:hover {
-            background: var(--danger);
-            color: white;
+            background: rgba(239, 68, 68, 0.25);
+            transform: translateY(-2px);
         }
 
         /* Container */
@@ -154,6 +179,32 @@
         .icon-high {
             background: #fef9c3;
             color: #a16207;
+        }
+
+        .icon-urgent {
+            background: #fee2e2;
+            color: #dc2626;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+
+        .emergency-text {
+            color: #dc2626;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(220, 38, 38, 0.2);
         }
 
         .stat-info h4 {
@@ -2797,124 +2848,165 @@
 
     <nav class="navbar">
         <div class="nav-brand">
-            <i class="fas fa-school"></i>
-            <span>ระบบครูที่ปรึกษา</span>
+            <img src="logo.png" alt="School Logo">
+            <img src="LOGOprogram/logoV2.png" alt="TPAC System" class="nav-brand-tpac">
         </div>
         <div class="nav-user">
             <div class="user-info">
                 <span class="user-name" id="teacherName">กำลังโหลด...</span>
                 <span class="user-class" id="teacherClassDisplay">ห้อง -</span>
             </div>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+            <button class="logout-btn" onclick="logout()" title="ออกจากระบบ">
+                <i class="fas fa-power-off"></i>
             </button>
         </div>
     </nav>
 
     <div class="container">
-        <div class="header-section">
-            <h1 class="page-title">จัดการคะแนนพฤติกรรม</h1>
+        <div class="header-section"
+            style="background: white; padding: 40px; border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); margin-bottom: 40px; border: 1px solid #edf2f7; position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; top: -30px; right: -30px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);">
+            </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon icon-total"><i class="fas fa-users"></i></div>
-                    <div class="stat-info">
-                        <h4>นักเรียนทั้งหมด</h4>
-                        <div class="value" id="statTotal">0</div>
-                    </div>
+            <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 20px;">
+                <div
+                    style="width: 48px; height: 48px; background: linear-gradient(135deg, #6366f1, #4338ca); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.25);">
+                    <i class="fas fa-chalkboard-teacher" style="font-size: 1.4rem;"></i>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon icon-avg"><i class="fas fa-chart-line"></i></div>
-                    <div class="stat-info">
-                        <h4>คะแนนเฉลี่ย</h4>
-                        <div class="value" id="statAvg">0</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon icon-high"><i class="fas fa-award"></i></div>
-                    <div class="stat-info">
-                        <h4>ดีเยี่ยม (>=80)</h4>
-                        <div class="value" id="statHigh">0</div>
-                    </div>
+                <h1 class="page-title"
+                    style="margin-bottom: 0; font-size: 2.2rem; color: #0f172a; font-weight: 800; letter-spacing: -0.025em;">
+                    ระบบครูที่ปรึกษา</h1>
+            </div>
+
+            <div style="padding-left: 66px;">
+                <p class="page-description"
+                    style="color: #475569; font-size: 1.1rem; max-width: 850px; line-height: 1.8; font-weight: 500;">
+                    แจ้งเหตุนักเรียนที่พฤติกรรมไม่เหมาะสมทุกประเภท ส่งคำขอเพิ่มคะแนนให้นักเรียน
+                    และสามารถจัดการแก้ไขข้อมูลนักเรียนได้แค่ห้องที่ปรึกษาเท่านั้น
+                </p>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <span
+                        style="background: #eff6ff; color: #1d4ed8; padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-check-circle" style="font-size: 0.9rem;"></i> จัดการเฉพาะห้องที่ปรึกษา
+                    </span>
+                    <span
+                        style="background: #f0fdf4; color: #15803d; padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-plus-circle" style="font-size: 0.9rem;"></i> ขอเพิ่มคะแนนพฤติกรรม
+                    </span>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="fas fa-list-ul"></i> รายชื่อนักเรียนห้อง <span id="classTitle">-</span>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-total"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <h4>นักเรียนทั้งหมด</h4>
+                    <div class="value" id="statTotal">0</div>
                 </div>
             </div>
-
-            <div class="controls">
-                <input type="text" class="search-input" id="searchInput" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..."
-                    oninput="handleSearch()">
-
-                <div class="action-buttons">
-                    <!-- Manual ID Input Button -->
-                    <button class="action-btn btn-enter-id" onclick="openManualInput()">
-                        <div class="btn-icon">
-                            <i class="fas fa-keyboard"></i>
-                        </div>
-                        <span>กรอกรหัส</span>
-                    </button>
-
-                    <!-- Camera Capture Button -->
-                    <label class="action-btn btn-camera">
-                        <div class="btn-icon">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <span>ถ่ายรูป QR</span>
-                        <input type="file" id="qrCameraInput" accept="image/*" class="hidden-input"
-                            onchange="processQRImage(this)">
-                    </label>
-
-                    <!-- Live QR Scanner Button -->
-                    <button class="action-btn btn-scan-qr" onclick="openQRScanner()">
-                        <div class="btn-icon">
-                            <i class="fas fa-qrcode"></i>
-                        </div>
-                        <span>สแกน QR</span>
-                    </button>
-
-                    <!-- Search All Students Button -->
-                    <button class="action-btn btn-search-all" onclick="openStudentSearchModal()">
-                        <div class="btn-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <span>ค้นหา นร.</span>
-                    </button>
-
-                    <!-- Monthly Report Button -->
-                    <button class="action-btn" onclick="openReportModal()"
-                        style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
-                        <div class="btn-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <span>รายงานสรุป</span>
-                    </button>
+            <div class="stat-card">
+                <div class="stat-icon icon-avg"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <h4>คะแนนเฉลี่ย</h4>
+                    <div class="value" id="statAvg">0</div>
                 </div>
             </div>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>รหัส</th>
-                            <th>ชื่อ-นามสกุล</th>
-                            <th>คะแนน</th>
-                            <th class="text-center">ประวัติ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentTable">
-                        <tr>
-                            <td colspan="4" class="text-center">กำลังโหลดข้อมูล...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <div class="stat-icon icon-high"><i class="fas fa-award"></i></div>
+                <div class="stat-info">
+                    <h4>ดีเยี่ยม (>=80)</h4>
+                    <div class="value" id="statHigh">0</div>
+                </div>
+            </div>
+            <div class="stat-card"
+                style="border: 2px solid rgba(220, 38, 38, 0.1); background: rgba(254, 242, 242, 0.5);">
+                <div class="stat-icon icon-urgent"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-info">
+                    <h4 class="emergency-text">คะแนนต่ำกว่า 60</h4>
+                    <div class="value emergency-text" id="statUrgent" style="font-size: 1.8rem;">0</div>
+                    <div style="font-size: 0.75rem; color: #dc2626; font-weight: 700;">ปรับแก้คะแนนด่วน!</div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-list-ul"></i> รายชื่อนักเรียนห้อง <span id="classTitle">-</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..."
+                oninput="handleSearch()">
+
+            <div class="action-buttons">
+                <!-- Manual ID Input Button -->
+                <button class="action-btn btn-enter-id" onclick="openManualInput()">
+                    <div class="btn-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <span>กรอกรหัส</span>
+                </button>
+
+                <!-- Camera Capture Button -->
+                <label class="action-btn btn-camera">
+                    <div class="btn-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <span>ถ่ายรูป QR</span>
+                    <input type="file" id="qrCameraInput" accept="image/*" class="hidden-input"
+                        onchange="processQRImage(this)">
+                </label>
+
+                <!-- Live QR Scanner Button -->
+                <button class="action-btn btn-scan-qr" onclick="openQRScanner()">
+                    <div class="btn-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <span>สแกน QR</span>
+                </button>
+
+                <!-- Search All Students Button -->
+                <button class="action-btn btn-search-all" onclick="openStudentSearchModal()">
+                    <div class="btn-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span>ค้นหา นร.</span>
+                </button>
+
+                <!-- Monthly Report Button -->
+                <button class="action-btn" onclick="openReportModal()"
+                    style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                    <div class="btn-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <span>รายงานสรุป</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>รหัส</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>คะแนน</th>
+                        <th class="text-center">ประวัติ</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTable">
+                    <tr>
+                        <td colspan="4" class="text-center">กำลังโหลดข้อมูล...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
@@ -2931,12 +3023,12 @@
         // Helper functions for status and academic info
         function getStatusPointText(statuspoint) {
             const statusMap = {
-                'urgent': 'ไม่ผ่านเกณฑ์ ปรับแก้พฤติกรรมด่วน',
+                'urgent': 'ไม่ผ่านเกณฑ์ (ปรับแก้คะแนนด่วน)',
                 'risk': 'เริ่มมีความเสี่ยงไม่ผ่านเกณฑ์',
-                'normal': 'ปกติ (ผ่านเกณฑ์)',
-                'excellent': 'เด็กดีศรีเทพพธา'
+                'normal': 'ผ่านเกณฑ์ (คะแนนปกติ)',
+                'excellent': 'เด็กดีศรีเทพา'
             };
-            return statusMap[statuspoint] || 'ปกติ (ผ่านเกณฑ์)';
+            return statusMap[statuspoint] || 'ผ่านเกณฑ์ (คะแนนปกติ)';
         }
 
         function getStatusPointIcon(statuspoint) {
@@ -3067,10 +3159,12 @@
             const total = students.length;
             const avg = total > 0 ? students.reduce((sum, s) => sum + s.score, 0) / total : 0;
             const high = students.filter(s => s.score >= 80).length;
+            const urgent = students.filter(s => s.score < 60).length;
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statAvg').textContent = avg.toFixed(1);
             document.getElementById('statHigh').textContent = high;
+            document.getElementById('statUrgent').textContent = urgent;
         }
 
         // 4. Render Table
@@ -3238,43 +3332,25 @@
         }
 
         function logout() {
-            const modal = document.getElementById('logoutModal');
-            const confirmStep = document.getElementById('confirmStep');
-            const successStep = document.getElementById('successStep');
-
-            // Reset to confirmation step
-            confirmStep.classList.remove('modal-content-hidden');
-            successStep.classList.add('modal-content-hidden');
-
-            modal.classList.add('show');
+            Swal.fire({
+                title: 'ยืนยันการออกจากระบบ?',
+                text: "คุณต้องการออกจากระบบหรือไม่?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#1e293b',
+                confirmButtonText: 'ใช่, ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก',
+                background: '#ffffff',
+                color: '#1e293b'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sessionStorage.removeItem('currentUser');
+                    window.location.href = 'index.html';
+                }
+            })
         }
 
-        function cancelLogout() {
-            const modal = document.getElementById('logoutModal');
-            modal.classList.remove('show');
-        }
-
-        function proceedLogout() {
-            const confirmStep = document.getElementById('confirmStep');
-            const successStep = document.getElementById('successStep');
-
-            // Show success step
-            confirmStep.classList.add('modal-content-hidden');
-            successStep.classList.remove('modal-content-hidden');
-        }
-
-        function confirmLogout() {
-            sessionStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
-
-        // Close modal when clicking outside
-        document.addEventListener('click', function (e) {
-            const modal = document.getElementById('logoutModal');
-            if (e.target === modal) {
-                modal.classList.remove('show');
-            }
-        });
 
         // QR Scanner Functions
         let html5QrcodeScanner = null;
@@ -4224,6 +4300,15 @@
             }
         }
 
+        function getClassSortValue(c) {
+            if (!c || c === '-') return 999999;
+            const s = String(c).trim();
+            const match = s.match(/ม\.(\d+)\/(\d+)/);
+            if (match) return parseInt(match[1]) * 100 + parseInt(match[2]);
+            const num = parseInt(s.replace(/\D/g, ''));
+            return isNaN(num) ? 999999 : num;
+        }
+
         async function exportReport(type) {
             const month = document.getElementById('reportMonth').value;
             const year = parseInt(document.getElementById('reportYear').value);
@@ -4260,23 +4345,34 @@
                     });
                 });
 
-                // 2. Filter based on criteria
                 let finalData = [];
+                const allWithEval = reportStudents.map(s => {
+                    const score = s.score || 0;
+                    const hasDeductions = logs.some(l =>
+                        String(l.student_id) === String(s.id) &&
+                        (l.change < 0 || l.deduction < 0) &&
+                        new Date(l.timestamp) <= endDate
+                    );
+
+                    let evalStatus = '';
+                    if (score >= 100 && !hasDeductions) {
+                        evalStatus = 'เด็กดีศรีเทพา';
+                    } else if (score < 60) {
+                        evalStatus = 'ไม่ผ่านเกณฑ์';
+                    } else {
+                        evalStatus = 'ผ่านเกณฑ์';
+                    }
+                    return { ...s, score, evaluation: evalStatus };
+                });
+
                 if (filter === 'all') {
-                    finalData = reportStudents;
+                    finalData = allWithEval;
                 } else if (filter === 'failed') {
-                    finalData = reportStudents.filter(s => s.score < 60);
+                    finalData = allWithEval.filter(s => s.score < 60);
                 } else if (filter === 'passed') {
-                    finalData = reportStudents.filter(s => s.score >= 60);
+                    finalData = allWithEval.filter(s => s.score >= 60);
                 } else if (filter === 'excellent') {
-                    finalData = reportStudents.filter(s => {
-                        const hasDeductions = logs.some(l =>
-                            String(l.student_id) === String(s.id) &&
-                            (l.change < 0 || l.deduction < 0) &&
-                            new Date(l.timestamp) <= endDate
-                        );
-                        return s.score >= 100 && !hasDeductions;
-                    });
+                    finalData = allWithEval.filter(s => s.evaluation === 'เด็กดีศรีเทพา');
                 }
 
                 if (finalData.length === 0) {
@@ -4284,8 +4380,13 @@
                     return;
                 }
 
-                // Sort by name
-                finalData.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+                // Sort by Class (M.1-M.6) then name
+                finalData.sort((a, b) => {
+                    const valA = getClassSortValue(a.class);
+                    const valB = getClassSortValue(b.class);
+                    if (valA !== valB) return valA - valB;
+                    return a.name.localeCompare(b.name, 'th');
+                });
 
                 const monthName = month === 'all' ? 'ทุกเดือน' :
                     ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][parseInt(month)];
@@ -4307,84 +4408,186 @@
         }
 
         async function generateExport(data, title, isPdf) {
-            // Create temporary container for rendering
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'fixed';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.top = '0';
-            tempDiv.style.width = '800px';
-            tempDiv.style.background = 'white';
-            tempDiv.style.padding = '40px';
-            tempDiv.style.fontFamily = "'Prompt', sans-serif";
-
-            let tableRows = data.map((s, idx) => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px; text-align: center;">${idx + 1}</td>
-                    <td style="padding: 12px; text-align: center;">${s.id}</td>
-                    <td style="padding: 12px;">${s.name}</td>
-                    <td style="padding: 12px; text-align: center; font-weight: bold; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.score}</td>
-                    <td style="padding: 12px; text-align: center;">${s.score < 60 ? '❌ ไม่ผ่าน' : '✅ ผ่าน'}</td>
-                </tr>
-            `).join('');
-
-            tempDiv.innerHTML = `
-                <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px;">
-                    <h1 style="color: #1e293b; margin: 0 0 10px 0; font-size: 24px;">${title}</h1>
-                    <p style="color: #64748b; margin: 0; font-size: 16px;">
-                        ห้องเรียน: ${formatClassName(teacherClass)} | ครูที่ปรึกษา: ${teacher.name}
-                    </p>
-                </div>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                            <th style="padding: 15px; text-align: center;">ลำดับ</th>
-                            <th style="padding: 15px; text-align: center;">รหัส</th>
-                            <th style="padding: 15px; text-align: left;">ชื่อ-นามสกุล</th>
-                            <th style="padding: 15px; text-align: center;">คะแนน</th>
-                            <th style="padding: 15px; text-align: center;">ผลประเมิน</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableRows}
-                    </tbody>
-                </table>
-                <div style="margin-top: 40px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-                    <p style="margin: 0; color: #94a3b8; font-size: 12px;">สร้างรายงานเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
-                </div>
-            `;
-
-            document.body.appendChild(tempDiv);
-
-            try {
-                const canvas = await html2canvas(tempDiv, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-
-                if (isPdf) {
+            if (isPdf) {
+                try {
                     const { jsPDF } = window.jspdf;
                     const pdf = new jsPDF('p', 'mm', 'a4');
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                    const imgProps = pdf.getImageProperties(imgData);
                     const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const ITEMS_PER_PAGE = 20;
+                    const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
-                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    for (let i = 0; i < totalPages; i++) {
+                        const start = i * ITEMS_PER_PAGE;
+                        const end = start + ITEMS_PER_PAGE;
+                        const pageData = data.slice(start, end);
+                        const isLastPage = (i === totalPages - 1);
+
+                        const tempDiv = document.createElement('div');
+                        tempDiv.style.cssText = `
+                            position: fixed; left: -10000px; top: 0; width: 800px;
+                            background: #ffffff; padding: 40px;
+                            color: #000000; font-family: 'Prompt', 'Sarabun', Arial, sans-serif;
+                            z-index: 1000; box-sizing: border-box;
+                        `;
+
+                        const tableRows = pageData.map((s, idx) => `
+                            <tr style="border-bottom: 1px solid #eee;">
+                                <td style="padding: 12px; text-align: center; font-size: 14px;">${start + idx + 1}</td>
+                                <td style="padding: 12px; text-align: center; font-size: 14px;">${s.id}</td>
+                                <td style="padding: 12px; font-size: 14px;">${s.name}</td>
+                                <td style="padding: 12px; text-align: center; font-weight: bold; font-size: 14px; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.score}</td>
+                                <td style="padding: 12px; text-align: center; font-size: 14px;">${s.evaluation || (s.score < 60 ? 'ไม่ผ่านเกณฑ์' : 'ผ่านเกณฑ์')}</td>
+                            </tr>
+                        `).join('');
+
+                        let signaturesHtml = '';
+                        if (isLastPage) {
+                            signaturesHtml = `
+                                <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center; font-size: 14px;">
+                                    <div style="width: 250px;">
+                                        <p style="margin-bottom: 40px;">ลงชื่อ.......................................................</p>
+                                        <p>(.......................................................)</p>
+                                        <p style="margin-top: 8px; font-weight: 600;">ผู้รายงาน</p>
+                                    </div>
+                                    <div style="width: 250px;">
+                                        <p style="margin-bottom: 40px;">ลงชื่อ.......................................................</p>
+                                        <p>(.......................................................)</p>
+                                        <p style="margin-top: 8px; font-weight: 600;">หัวหน้างานกิจการนักเรียน</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        tempDiv.innerHTML = `
+                            <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #3b82f6; padding-bottom: 15px;">
+                                <h1 style="color: #1e3a8a; margin: 0 0 5px 0; font-size: 24px; font-weight: 700;">รายงานสรุปคะแนนพฤติกรรม</h1>
+                                <h2 style="color: #1e40af; margin: 0 0 10px 0; font-size: 20px; font-weight: 600;">โรงเรียนเทพา</h2>
+                                <p style="color: #475569; margin: 0; font-size: 15px;">
+                                    <strong>ห้องเรียน:</strong> ${formatClassName(teacherClass)} | <strong>ครูที่ปรึกษา:</strong> ${teacher.name}
+                                </p>
+                                <p style="color: #475569; margin: 5px 0 0 0; font-size: 14px;">${title}</p>
+                            </div>
+
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                                <thead>
+                                    <tr style="background: #f1f5f9; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #cbd5e0;">
+                                        <th style="padding: 12px; text-align: center; font-size: 14px; width: 10%;">ลำดับ</th>
+                                        <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">รหัส</th>
+                                        <th style="padding: 12px; text-align: left; font-size: 14px; width: 45%;">ชื่อ-นามสกุล</th>
+                                        <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">คะแนน</th>
+                                        <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">ผลประเมิน</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${tableRows}</tbody>
+                            </table>
+
+                            ${signaturesHtml}
+
+                            <div style="margin-top: 30px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; justify-content: space-between;">
+                                <p style="margin: 0; color: #94a3b8; font-size: 11px;">หน้า ${i + 1} / ${totalPages}</p>
+                                <p style="margin: 0; color: #94a3b8; font-size: 11px;">พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+                            </div>
+                        `;
+
+                        document.body.appendChild(tempDiv);
+                        await new Promise(r => setTimeout(r, 500));
+                        const canvas = await html2canvas(tempDiv, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' });
+                        document.body.removeChild(tempDiv);
+
+                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                        let imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                        // SAFETY SCALING
+                        if (imgHeight > pdfHeight) {
+                            imgHeight = pdfHeight;
+                        }
+
+                        if (i > 0) pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
+                    }
+
                     pdf.save(`${title.replace(/ /g, '_')}.pdf`);
                     showToast('success', 'ส่งออก PDF สำเร็จ');
-                } else {
+                } catch (err) {
+                    console.error('PDF Export error:', err);
+                    showToast('error', 'ไม่สามารถส่งออก PDF ได้');
+                }
+            } else {
+                // IMAGE EXPORT: Render everything on one long canvas as before
+                const tempDiv = document.createElement('div');
+                tempDiv.style.cssText = `
+                    position: fixed; left: -10000px; top: 0; width: 800px;
+                    background: #ffffff; padding: 40px;
+                    color: #000000; font-family: 'Prompt', 'Sarabun', Arial, sans-serif;
+                    z-index: 1000; box-sizing: border-box;
+                `;
+
+                let tableRows = data.map((s, idx) => `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px; text-align: center; font-size: 14px;">${idx + 1}</td>
+                        <td style="padding: 12px; text-align: center; font-size: 14px;">${s.id}</td>
+                        <td style="padding: 12px; font-size: 14px;">${s.name}</td>
+                        <td style="padding: 12px; text-align: center; font-weight: bold; font-size: 14px; color: ${s.score < 60 ? '#ef4444' : '#10b981'};">${s.score}</td>
+                        <td style="padding: 12px; text-align: center; font-size: 14px;">${s.evaluation || (s.score < 60 ? 'ไม่ผ่านเกณฑ์' : 'ผ่านเกณฑ์')}</td>
+                    </tr>
+                `).join('');
+
+                tempDiv.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #3b82f6; padding-bottom: 15px;">
+                        <h1 style="color: #1e3a8a; margin: 0 0 5px 0; font-size: 24px; font-weight: 700;">รายงานสรุปคะแนนพฤติกรรม</h1>
+                        <h2 style="color: #1e40af; margin: 0 0 10px 0; font-size: 20px; font-weight: 600;">โรงเรียนเทพา</h2>
+                        <p style="color: #475569; margin: 0; font-size: 15px;">
+                            <strong>ห้องเรียน:</strong> ${formatClassName(teacherClass)} | <strong>ครูที่ปรึกษา:</strong> ${teacher.name}
+                        </p>
+                        <p style="color: #475569; margin: 5px 0 0 0; font-size: 14px;">${title}</p>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <thead>
+                            <tr style="background: #f1f5f9; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #cbd5e0;">
+                                <th style="padding: 12px; text-align: center; font-size: 14px; width: 10%;">ลำดับ</th>
+                                <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">รหัส</th>
+                                <th style="padding: 12px; text-align: left; font-size: 14px; width: 45%;">ชื่อ-นามสกุล</th>
+                                <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">คะแนน</th>
+                                <th style="padding: 12px; text-align: center; font-size: 14px; width: 15%;">ผลประเมิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+
+                    <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center; font-size: 14px;">
+                        <div style="width: 250px;">
+                            <p style="margin-bottom: 40px;">ลงชื่อ.......................................................</p>
+                            <p>(.......................................................)</p>
+                            <p style="margin-top: 8px; font-weight: 600;">ผู้รายงาน</p>
+                        </div>
+                        <div style="width: 250px;">
+                            <p style="margin-bottom: 40px;">ลงชื่อ.......................................................</p>
+                            <p>(.......................................................)</p>
+                            <p style="margin-top: 8px; font-weight: 600;">หัวหน้างานกิจการนักเรียน</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px; text-align: right; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                        <p style="margin: 0; color: #94a3b8; font-size: 11px;">พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+                    </div>
+                `;
+
+                document.body.appendChild(tempDiv);
+                try {
+                    const canvas = await html2canvas(tempDiv, { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' });
                     const link = document.createElement('a');
                     link.download = `${title.replace(/ /g, '_')}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     showToast('success', 'ส่งออกรูปภาพสำเร็จ');
+                } catch (err) {
+                    console.error('Image Export error:', err);
+                    showToast('error', 'ไม่สามารถส่งออกรูปภาพได้');
+                } finally {
+                    document.body.removeChild(tempDiv);
                 }
-            } catch (err) {
-                console.error('Export error:', err);
-                showToast('error', 'ไม่สามารถส่งออกข้อมูลได้');
-            } finally {
-                document.body.removeChild(tempDiv);
             }
         }
 
@@ -4465,8 +4668,8 @@
                                 <label for="qrReason5">5. บุหรี่ไฟฟ้า</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason6" value="การแต่งกายผิดระเบียบ">
-                                <label for="qrReason6">6. การแต่งกายผิดระเบียบ</label>
+                                <input type="checkbox" id="qrReason6" value="บุคลิกภาพ/การแต่งกายผิดระเบียบ">
+                                <label for="qrReason6">6. บุคลิกภาพ/การแต่งกายผิดระเบียบ</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
                                 <input type="checkbox" id="qrReason7" value="ทะเลาะวิวาท">
@@ -4554,33 +4757,6 @@
         </div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
-    <div class="logout-modal-overlay" id="logoutModal">
-        <div class="logout-modal">
-            <!-- Confirmation Step -->
-            <div id="confirmStep">
-                <div class="logout-warning-icon">
-                    <i class="fas fa-exclamation"></i>
-                </div>
-                <h3>ยืนยันการออกจากระบบ</h3>
-                <p>คุณต้องการออกจากระบบหรือไม่?</p>
-                <div class="logout-buttons">
-                    <button class="logout-cancel-btn" onclick="cancelLogout()">ยกเลิก</button>
-                    <button class="logout-ok-btn" onclick="proceedLogout()">ตกลง</button>
-                </div>
-            </div>
-
-            <!-- Success Step -->
-            <div id="successStep" class="modal-content-hidden">
-                <div class="logout-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <h3>สำเร็จ</h3>
-                <p>ออกจากระบบสำเร็จ</p>
-                <button class="logout-ok-btn" onclick="confirmLogout()">OK</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Score History Modal -->
     <div class="history-modal-overlay" id="historyModal">
@@ -4796,9 +4972,9 @@
                     <label>สถานะพฤติกรรม <span class="required-indicator">*</span></label>
                     <select class="report-select" id="reportFilter">
                         <option value="all">ทั้งหมด (ทุกคน)</option>
-                        <option value="failed">ต่ำกว่าเกณฑ์ (ติด มส./คะแนนน้อย)</option>
+                        <option value="failed">ไม่ผ่านเกณฑ์ (ปรับแก้คะแนนด่วน)</option>
                         <option value="passed">ผ่านเกณฑ์ (คะแนนปกติ)</option>
-                        <option value="excellent">เด็กดีศรีเทพพธา (100+ และไม่มีประวัติเสีย)</option>
+                        <option value="excellent">เด็กดีศรีเทพา</option>
                     </select>
                 </div>
 

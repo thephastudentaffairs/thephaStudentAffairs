@@ -12,18 +12,19 @@
   <style>
     :root {
       --primary: #fbbf24;
-      /* Amber-400 */
+      --primary-rgb: 251, 191, 36;
       --primary-hover: #f59e0b;
-      --bg-dark: #0f172a;
-      /* Slate 900 */
-      --bg-card: #1e293b;
-      /* Slate 800 */
-      --text-main: #f1f5f9;
+      --bg-dark: #070b14;
+      --bg-card: rgba(30, 41, 59, 0.4);
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border: #334155;
+      --border: rgba(255, 255, 255, 0.1);
       --student-color: #3b82f6;
+      --student-rgb: 59, 130, 246;
       --teacher-color: #ef4444;
+      --teacher-rgb: 239, 68, 68;
       --admin-color: #a855f7;
+      --admin-rgb: 168, 85, 247;
     }
 
     * {
@@ -57,24 +58,39 @@
     }
 
     .deco-1 {
-      width: 300px;
-      height: 300px;
-      background: var(--primary);
-      filter: blur(80px);
-      /* Static blur is cheap */
-      opacity: 0.1;
-      top: -100px;
-      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: var(--student-color);
+      filter: blur(100px);
+      opacity: 0.15;
+      top: -150px;
+      right: -150px;
+      animation: float 20s infinite alternate;
     }
 
     .deco-2 {
-      width: 250px;
-      height: 250px;
-      background: var(--student-color);
-      filter: blur(80px);
+      width: 350px;
+      height: 350px;
+      background: var(--primary);
+      filter: blur(100px);
       opacity: 0.1;
-      bottom: -50px;
-      left: -50px;
+      bottom: -100px;
+      left: -100px;
+      animation: float 25s infinite alternate-reverse;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(30px, 50px) scale(1.1);
+      }
+
+      100% {
+        transform: translate(-20px, 20px) scale(1);
+      }
     }
 
     /* Container */
@@ -95,30 +111,36 @@
     }
 
     .logo-box {
-      width: 90px;
-      height: 90px;
-      background: var(--bg-card);
-      border-radius: 24px;
-      padding: 10px;
-      margin: 0 auto 20px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--border);
+      width: 100%;
+      height: 180px;
+      margin: 0 auto 25px;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
-    .logo-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+    .tpac-logo {
+      height: 240px !important;
+      mix-blend-mode: screen;
+      filter: contrast(1.1) brightness(1.2) drop-shadow(0 0 30px rgba(59, 130, 246, 0.3));
+      transition: transform 0.3s ease;
+    }
+
+    .tpac-logo:hover {
+      transform: scale(1.05);
     }
 
     .header h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
+      font-size: 2.8rem;
+      font-weight: 700;
       color: var(--text-main);
       margin-bottom: 5px;
+      letter-spacing: -1px;
+      background: linear-gradient(to bottom, #fff, #94a3b8);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .header p {
@@ -128,11 +150,28 @@
 
     /* Card */
     .login-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 30px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      padding: 35px;
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+      pointer-events: none;
     }
 
     /* Tabs */
@@ -206,19 +245,20 @@
 
     .form-input {
       width: 100%;
-      background: #0f172a;
-      border: 2px solid var(--border);
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: white;
       padding: 14px 45px;
-      border-radius: 14px;
+      border-radius: 16px;
       font-size: 1rem;
       outline: none;
-      transition: 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .form-input:focus {
       border-color: var(--primary);
-      background: #151e32;
+      background: rgba(15, 23, 42, 0.8);
+      box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.15);
     }
 
     .form-input:focus+i.icon {
@@ -244,23 +284,25 @@
       width: 100%;
       padding: 16px;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       background: var(--primary);
       color: #000;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.1s, background 0.2s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 10px;
       margin-top: 10px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
     .btn-submit:hover {
       background: var(--primary-hover);
       transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
     }
 
     .btn-submit:active {
@@ -270,29 +312,32 @@
     /* Role Specific Styles */
     body[data-role="student"] {
       --primary: #3b82f6;
+      --primary-rgb: 59, 130, 246;
       --primary-hover: #2563eb;
     }
 
     body[data-role="student"] .tab-indicator {
-      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
 
     body[data-role="teacher"] {
       --primary: #ef4444;
+      --primary-rgb: 239, 68, 68;
       --primary-hover: #dc2626;
     }
 
     body[data-role="teacher"] .tab-indicator {
-      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
     body[data-role="admin"] {
       --primary: #a855f7;
+      --primary-rgb: 168, 85, 247;
       --primary-hover: #9333ea;
     }
 
     body[data-role="admin"] .tab-indicator {
-      box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
     }
 
     body[data-role="student"] .tab-btn.active,
@@ -414,7 +459,7 @@
   <div class="main-container">
     <div class="header">
       <div class="logo-box">
-        <img src="logo.png" alt="Logo">
+        <img src="LOGOprogram/logoV2.png" alt="TPAC System" class="tpac-logo">
       </div>
       <h1>โรงเรียนเทพา</h1>
       <p>ระบบคะแนนพฤติกรรมนักเรียน Digital Score</p>
