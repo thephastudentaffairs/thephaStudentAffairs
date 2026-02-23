@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบครูที่ปรึกษา - จัดการคะแนน</title>
+    <title>ระบบครูที่ปรึกษา - จัดการคะแนน (V2.1)</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -1254,6 +1254,44 @@
             background: white;
             color: var(--primary);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Sub-Tabs for Work Category */
+        .work-category-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 5px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .work-category-tab {
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #64748b;
+        }
+
+        .work-category-tab.active.in-school {
+            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+            color: white;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+        }
+
+        .work-category-tab.active.outside-school {
+            background: linear-gradient(135deg, #a855f7, #c084fc);
+            color: white;
+            box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
         }
 
         .upload-section {
@@ -2837,6 +2875,237 @@
         .required-indicator {
             color: #ef4444;
         }
+
+        /* ===== Dress Code Inspection Modal ===== */
+        .dresscode-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .dresscode-overlay.show {
+            display: flex;
+        }
+
+        .dresscode-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .dresscode-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .dresscode-header h3 {
+            font-size: 1.3rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .dresscode-header h3 i {
+            color: #ec4899;
+        }
+
+        .dresscode-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #64748b;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dresscode-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .dresscode-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #fdf2f8;
+            padding: 15px;
+            border-radius: 16px;
+            flex-wrap: wrap;
+            border: 1px solid #fce7f3;
+        }
+
+        .dresscode-control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .dresscode-control-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #be185d;
+        }
+
+        .dresscode-select {
+            padding: 8px 12px;
+            border: 1px solid #f9a8d4;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            outline: none;
+            min-width: 120px;
+        }
+
+        .dresscode-table-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .dresscode-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dresscode-table th {
+            background: #f8fafc;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .dresscode-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .dresscode-checkbox-cell {
+            text-align: center;
+        }
+
+        .dresscode-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dresscode-checkbox-label:hover {
+            background: #f1f5f9;
+        }
+
+        .dresscode-checkbox-label input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ec4899;
+        }
+
+        .checkbox-nails input:checked+span {
+            color: #d97706;
+        }
+
+        .checkbox-hair input:checked+span {
+            color: #4338ca;
+        }
+
+        .checkbox-clothes input:checked+span {
+            color: #15803d;
+        }
+
+        .row-highlight {
+            background-color: #fdf2f8;
+        }
+
+        .dresscode-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .dresscode-submit-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Prompt', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        }
+
+        .dresscode-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+        }
+
+        .btn-dresscode {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn-dresscode:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.5);
+        }
+
+        .btn-dresscode:hover .btn-icon {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .swal2-container {
+            z-index: 20000 !important;
+        }
     </style>
 </head>
 
@@ -2985,6 +3254,14 @@
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <span>รายงานสรุป</span>
+                </button>
+
+                <!-- Dress Code Inspection Button -->
+                <button class="action-btn btn-dresscode" onclick="openDressCodeModal()">
+                    <div class="btn-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <span>ตรวจแต่งกาย</span>
                 </button>
             </div>
         </div>
@@ -3343,8 +3620,19 @@
                 cancelButtonText: 'ยกเลิก',
                 background: '#ffffff',
                 color: '#1e293b'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
+                    const token = localStorage.getItem('tpac_token');
+                    if (token) {
+                        try {
+                            await fetch('/api/delete-cookie', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ token })
+                            });
+                        } catch (e) { console.error('Cookie delete failed:', e); }
+                    }
+                    localStorage.removeItem('tpac_token');
                     sessionStorage.removeItem('currentUser');
                     window.location.href = 'index.html';
                 }
@@ -3599,6 +3887,7 @@
                 resetQRDeductionCheckboxes();
 
                 document.getElementById('qrForm').classList.add('show');
+                switchWorkCategory('in-school'); // Default to in-school when opening
                 showToast('success', `พบนักเรียน: ${student.name}`);
             } else {
                 console.warn('Student not found:', searchId, 'in', window.allStudents.length, 'students');
@@ -3652,6 +3941,8 @@
 
         // ========== Profile Viewer Functions ==========
         function openProfileViewer(studentId, studentName) {
+            currentManageId = studentId;
+            currentManageName = studentName;
             const modal = document.getElementById('profileViewerModal');
             const container = document.getElementById('profileViewerImageContainer');
             const timestamp = new Date().getTime();
@@ -3676,6 +3967,69 @@
                 container.innerHTML = `<div class="no-profile-image"><i class="fas fa-user-graduate"></i></div>`;
             };
             img.src = imagePath;
+        }
+
+        function editProfileImage() {
+            closeProfileViewer();
+            setTimeout(() => {
+                openUploadProfileModal();
+            }, 300);
+        }
+
+        async function deleteProfileImage() {
+            if (!currentManageId) {
+                showToast('error', 'ไม่พบรหัสนักเรียน');
+                return;
+            }
+
+            const confirm = await Swal.fire({
+                title: 'ยืนยันการลบรูปภาพ?',
+                text: `คุณต้องการลบรูปโพรไฟล์ของ ${currentManageName} ใช่หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ลบรูปภาพ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (confirm.isConfirmed) {
+                showLoading(true);
+                try {
+                    const response = await fetch('/api/delete-student-photo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ student_id: currentManageId })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast('success', 'ลบรูปภาพเรียบร้อยแล้ว');
+                        closeProfileViewer();
+
+                        // Update avatars on page
+                        const avatars = document.querySelectorAll(`img[src*="${currentManageId}.jpg"]`);
+                        avatars.forEach(img => {
+                            img.src = ''; // Clear src
+                            // Set fallback icon if it was an img tag replacing inside a div
+                            if (img.parentElement && img.parentElement.classList.contains('manage-avatar')) {
+                                img.parentElement.innerHTML = '<i class="fas fa-user-graduate"></i>';
+                            } else {
+                                img.style.display = 'none'; // Or set a placeholder
+                            }
+                        });
+
+                        // If loadData is available, refresh data
+                        if (typeof loadData === 'function') loadData();
+                    } else {
+                        showToast('error', 'ไม่สามารถลบรูปภาพได้: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Delete Error:', error);
+                    showToast('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                } finally {
+                    showLoading(false);
+                }
+            }
         }
 
         function closeProfileViewer(event) {
@@ -3778,18 +4132,26 @@
         }
 
         async function saveProfileImage() {
+            console.log('[UPLOAD] saveProfileImage called. currentManageId:', currentManageId);
             if (!croppedImageBase64) {
+                console.warn('[UPLOAD] No croppedImageBase64 found.');
                 showToast('error', 'กรุณาเลือกรูปภาพ');
                 return;
             }
 
             // Send to server
-            sendProfileImage(croppedImageBase64);
+            console.log('[UPLOAD] Calling sendProfileImage...');
+            await sendProfileImage(croppedImageBase64);
         }
 
         async function sendProfileImage(base64Data) {
-            showLoading(true);
+            console.log('[UPLOAD] sendProfileImage starting. student_id:', currentManageId);
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) showLoading(true);
+            else console.error('[UPLOAD] loadingOverlay not found!');
+
             try {
+                console.log('[UPLOAD] Fetching /api/upload-student-profile...');
                 const response = await fetch('/api/upload-student-profile', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3799,7 +4161,9 @@
                     })
                 });
 
+                console.log('[UPLOAD] Response status:', response.status);
                 const result = await response.json();
+                console.log('[UPLOAD] Response body:', result);
 
                 if (result.status === 'success') {
                     showToast('success', 'อัปโหลดรูปโปรไฟล์เรียบร้อย');
@@ -3808,16 +4172,17 @@
                     // Refresh avatar in manage modal
                     const timestamp = new Date().getTime();
                     const avatarDiv = document.getElementById('manageStudentAvatar');
+                    console.log('[UPLOAD] Updating manageStudentAvatar preview...');
                     avatarDiv.innerHTML = `<img src="./edstudent/${currentManageId}.jpg?v=${timestamp}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">`;
 
                 } else {
                     showToast('error', 'เกิดข้อผิดพลาด: ' + result.message);
                 }
             } catch (error) {
-                console.error('Upload Error:', error);
+                console.error('[UPLOAD] Fetch error:', error);
                 showToast('error', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
             } finally {
-                showLoading(false);
+                if (overlay) showLoading(false);
             }
         }
         function toggleQRDeductionCheckbox(item) {
@@ -3855,6 +4220,7 @@
             const container = document.getElementById('qrDeductionReasonsContainer');
             const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
             const reasons = [];
+            let totalPts = 0;
 
             checkboxes.forEach(cb => {
                 if (cb.id === 'qrReasonOther') {
@@ -3865,9 +4231,21 @@
                 } else {
                     reasons.push(cb.value);
                 }
+
+                // Add points from data-pts attribute
+                const pts = parseInt(cb.getAttribute('data-pts')) || 0;
+                totalPts += pts;
             });
 
-            document.getElementById('qrReason').value = reasons.join(', ');
+            let reasonText = reasons.join(', ');
+            if (totalPts > 0) {
+                reasonText += ` (หัก ${totalPts} คะแนน)`;
+            }
+
+            document.getElementById('qrReason').value = reasonText;
+
+            // Store total points in a data attribute on the textarea for easy access during submission
+            document.getElementById('qrReason').setAttribute('data-total-pts', totalPts);
         }
 
         // Reset all deduction checkboxes for QR form
@@ -3904,11 +4282,17 @@
                 const studentId = document.getElementById('qrStudentId').value;
                 const studentName = document.getElementById('qrStudentName').value;
                 const reason = document.getElementById('qrReason').value.trim();
+                const deduction = parseInt(document.getElementById('qrReason').getAttribute('data-total-pts')) || 0;
 
                 if (!reason) {
                     showToast('error', 'กรุณาระบุสาเหตุ');
                     return;
                 }
+
+                // Get current student to calculate new score
+                const student = window.allStudents ? window.allStudents.find(s => String(s.id) === String(studentId)) : null;
+                const currentScore = student ? parseInt(student.score) : 100;
+                const newScore = currentScore - deduction;
 
                 // Get current user
                 let currentUser = null;
@@ -3925,9 +4309,13 @@
                     student_id: studentId,
                     student_name: studentName,
                     reason: reason,
+                    deduction: deduction,
+                    new_score: newScore,
                     teacher: currentUser ? currentUser.name : 'Unknown',
                     timestamp: new Date().toISOString(),
-                    status: 'pending'
+                    status: 'pending',
+                    location_type: currentWorkCategory,
+                    location: currentWorkCategory === 'outside-school' ? 'นอกโรงเรียน' : 'ในโรงเรียน'
                 };
 
                 // Send to server API
@@ -3945,6 +4333,13 @@
 
                 if (result.status === 'success') {
                     console.log('Saved to server:', data);
+
+                    // Update local data
+                    if (student) {
+                        student.score = newScore;
+                        // Refresh students locally if needed, though they will be reloaded on next browse
+                    }
+
                     showToast('success', 'บันทึกข้อมูลสำเร็จ');
                     closeQRScanner();
                 } else {
@@ -4124,6 +4519,23 @@
         }
 
         // ========== Work Submission Functions ==========
+        let currentWorkCategory = 'in-school';
+
+        function switchWorkCategory(category) {
+            currentWorkCategory = category;
+
+            // Update UI
+            document.getElementById('tabWorkInSchool').classList.toggle('active', category === 'in-school');
+            document.getElementById('tabWorkOutsideSchool').classList.toggle('active', category === 'outside-school');
+
+            // Optional: Update placeholders based on category
+            const detailInput = document.getElementById('workDetail');
+            if (category === 'in-school') {
+                detailInput.placeholder = 'ระบุรายละเอียดงานหรือสิ่งที่แก้ไข (ในโรงเรียน)...';
+            } else {
+                detailInput.placeholder = 'ระบุรายละเอียดงานหรือสิ่งที่แก้ไข (นอกโรงเรียน)...';
+            }
+        }
 
         // Switch between Deduction and Work Submission tabs
         function switchModalTab(tab) {
@@ -4228,6 +4640,8 @@
                     student_id: studentId,
                     student_name: studentName,
                     detail: detail,
+                    location_type: currentWorkCategory,
+                    location: currentWorkCategory === 'outside-school' ? 'นอกโรงเรียน' : 'ในโรงเรียน',
                     image_before: beforeBase64,
                     image_after: afterBase64,
                     teacher: currentUser ? currentUser.name : 'Unknown',
@@ -4262,6 +4676,7 @@
 
                     // Switch back to deduction tab
                     switchModalTab('deduction');
+                    switchWorkCategory('in-school');
                 } else {
                     throw new Error(result.message || 'Unknown error');
                 }
@@ -4591,6 +5006,227 @@
             }
         }
 
+        // ===== Dress Code Inspection (Batch) =====
+        function openDressCodeModal() {
+            const modal = document.getElementById('dressCodeModal');
+            const tbody = document.getElementById('dressCodeTableBody');
+
+            // Set current date
+            const today = new Date();
+            const year = today.getFullYear() + 543;
+            const month = today.getMonth() + 1; // 1-12
+
+            document.getElementById('dressCodeYear').value = year;
+            document.getElementById('dressCodeMonth').value = month;
+
+            // Render table
+            tbody.innerHTML = '';
+            const list = filteredStudents.length ? filteredStudents : students;
+
+            list.forEach((s, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center;">${index + 1}</td>
+                    <td style="text-align: center;">${s.id}</td>
+                    <td>${s.name}</td>
+                    <td class="dresscode-checkbox-cell checkbox-nails">
+                <label class="dresscode-checkbox-label" title="เล็บผ่าน">
+                    <input type="checkbox" data-type="nails" data-id="${s.id}" onchange="highlightRow(this)" checked>
+                </label>
+            </td>
+            <td class="dresscode-checkbox-cell checkbox-hair">
+                <label class="dresscode-checkbox-label" title="ผมผ่าน">
+                    <input type="checkbox" data-type="hair" data-id="${s.id}" onchange="highlightRow(this)" checked>
+                </label>
+            </td>
+            <td class="dresscode-checkbox-cell checkbox-clothes">
+                <label class="dresscode-checkbox-label" title="เสื้อผ้าผ่าน">
+                    <input type="checkbox" data-type="clothes" data-id="${s.id}" onchange="highlightRow(this)" checked>
+                 </label>
+            </td>
+                    <td>
+                        <input type="text" class="dresscode-select" style="width: 100%; border: 1px solid #e2e8f0;" 
+                            placeholder="..." data-id="${s.id}" id="note-${s.id}">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            loadDressCodeDraft();
+            modal.classList.add('show');
+        }
+
+        function closeDressCodeModal() {
+            document.getElementById('dressCodeModal').classList.remove('show');
+        }
+
+        function highlightRow(checkbox) {
+            const row = checkbox.closest('tr');
+            const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+            const isChecked = Array.from(checkboxes).some(cb => cb.checked);
+
+            if (isChecked) {
+                row.classList.add('row-highlight');
+            } else {
+                row.classList.remove('row-highlight');
+            }
+        }
+
+        function saveDressCodeDraft() {
+            const draft = [];
+            const list = filteredStudents.length ? filteredStudents : students;
+
+            list.forEach(s => {
+                const nailsInput = document.querySelector(`input[data-id="${s.id}"][data-type="nails"]`);
+                const hairInput = document.querySelector(`input[data-id="${s.id}"][data-type="hair"]`);
+                const clothesInput = document.querySelector(`input[data-id="${s.id}"][data-type="clothes"]`);
+                const noteInput = document.getElementById(`note-${s.id}`);
+
+                if (nailsInput && hairInput && clothesInput && noteInput) {
+                    const nails = nailsInput.checked;
+                    const hair = hairInput.checked;
+                    const clothes = clothesInput.checked;
+                    const note = noteInput.value.trim();
+
+                    // Only save if changed from default (all checked, no note)
+                    if (!nails || !hair || !clothes || note) {
+                        draft.push({ id: s.id, nails, hair, clothes, note });
+                    }
+                }
+            });
+
+            localStorage.setItem('dress_code_draft', JSON.stringify(draft));
+            showToast('success', 'บันทึกร่างเรียบร้อยแล้ว');
+        }
+
+        function loadDressCodeDraft() {
+            const raw = localStorage.getItem('dress_code_draft');
+            if (!raw) return;
+
+            try {
+                const draft = JSON.parse(raw);
+                draft.forEach(item => {
+                    const nailsInput = document.querySelector(`input[data-id="${item.id}"][data-type="nails"]`);
+                    const hairInput = document.querySelector(`input[data-id="${item.id}"][data-type="hair"]`);
+                    const clothesInput = document.querySelector(`input[data-id="${item.id}"][data-type="clothes"]`);
+                    const noteInput = document.getElementById(`note-${item.id}`);
+
+                    if (nailsInput) { nailsInput.checked = item.nails; highlightRow(nailsInput); }
+                    if (hairInput) { hairInput.checked = item.hair; highlightRow(hairInput); }
+                    if (clothesInput) { clothesInput.checked = item.clothes; highlightRow(clothesInput); }
+                    if (noteInput) noteInput.value = item.note || '';
+                });
+            } catch (e) {
+                console.error("Draft load error", e);
+            }
+        }
+
+        function clearDressCodeDraft() {
+            localStorage.removeItem('dress_code_draft');
+        }
+
+        async function submitDressCode() {
+            const month = document.getElementById('dressCodeMonth').value;
+            const year = document.getElementById('dressCodeYear').value;
+
+            const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            const monthName = monthNames[parseInt(month) - 1];
+
+            const list = filteredStudents.length ? filteredStudents : students;
+            const payload = [];
+
+            list.forEach(s => {
+                const nailsPassed = document.querySelector(`input[data-id="${s.id}"][data-type="nails"]`).checked;
+                const hairPassed = document.querySelector(`input[data-id="${s.id}"][data-type="hair"]`).checked;
+                const clothesPassed = document.querySelector(`input[data-id="${s.id}"][data-type="clothes"]`).checked;
+                const note = document.getElementById(`note-${s.id}`).value.trim();
+
+                // Unchecked = Fail
+                if (!nailsPassed || !hairPassed || !clothesPassed || note) {
+                    const failedItems = [];
+                    let deduction = 0;
+                    if (!nailsPassed) { failedItems.push('เล็บ'); deduction += 10; }
+                    if (!hairPassed) { failedItems.push('ผม'); deduction += 10; }
+                    if (!clothesPassed) { failedItems.push('การแต่งกาย'); deduction += 10; }
+
+                    let detail = `ตรวจแต่งกาย ${monthName} ${year}: `;
+                    if (failedItems.length > 0) {
+                        detail += failedItems.map(item => item + 'ไม่เรียบร้อย').join(', ');
+                    } else {
+                        detail += "ปกติ";
+                    }
+
+                    if (note) detail += ` | หมายเหตุ: ${note}`;
+
+                    payload.push({
+                        student_id: s.id,
+                        student_name: s.name,
+                        detail: detail,
+                        teacher: teacher ? teacher.name : 'Unknown',
+                        status: 'pending',
+                        inspection_type: 'dress_code',
+                        score_change: -deduction
+                    });
+                }
+            });
+
+            if (payload.length === 0) {
+                Swal.fire({ icon: 'info', title: 'ไม่พบรายการ', text: 'นักเรียนทุกคนผ่านเกณฑ์การแต่งกาย' });
+                return;
+            }
+
+            closeDressCodeModal();
+
+            const confirm = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล',
+                text: `มีนักเรียนที่ไม่ผ่านเกณฑ์จำนวน ${payload.length} คน ต้องการส่งข้อมูลให้ฝ่ายกิจการนักเรียนตรวจสอบใช่หรือไม่?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#6366f1',
+                confirmButtonText: 'ยืนยันการส่ง',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (!confirm.isConfirmed) {
+                document.getElementById('dressCodeModal').classList.add('show');
+                return;
+            }
+
+
+            showLoading(true, 'กำลังส่งข้อมูล...');
+            let successCount = 0;
+
+            for (const item of payload) {
+                try {
+                    const res = await fetch('/api/save-work', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(item)
+                    });
+                    if (res.ok) successCount++;
+                } catch (e) {
+                    console.error('Submit error for student:', item.student_id, e);
+                }
+            }
+
+            showLoading(false);
+
+            if (successCount > 0) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'ส่งข้อมูลเรียบร้อย',
+                    text: `ส่งข้อมูลการตรวจแต่งกายจำนวน ${successCount} รายการ สำเร็จ`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                clearDressCodeDraft();
+                closeDressCodeModal();
+            } else {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถส่งข้อมูลได้' });
+            }
+        }
+
         window.onload = init;
     </script>
 
@@ -4640,6 +5276,18 @@
                     <button class="modal-tab" onclick="switchModalTab('work')">แก้ไข/เพิ่มคะแนน</button>
                 </div>
 
+                <!-- Shared Category Tabs -->
+                <div class="work-category-tabs">
+                    <div class="work-category-tab in-school active" id="tabWorkInSchool"
+                        onclick="switchWorkCategory('in-school')">
+                        <i class="fas fa-school"></i> ในโรงเรียน
+                    </div>
+                    <div class="work-category-tab outside-school" id="tabWorkOutsideSchool"
+                        onclick="switchWorkCategory('outside-school')">
+                        <i class="fas fa-home"></i> นอกโรงเรียน
+                    </div>
+                </div>
+
                 <!-- Section 1: Deduction (Original) -->
                 <div id="section-deduction" class="section-content show">
                     <!-- Checkbox group for deduction reasons -->
@@ -4648,59 +5296,84 @@
                                 class="required-indicator">*</span></label>
                         <div class="deduction-reasons-grid">
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason1" value="มาสาย">
+                                <input type="checkbox" id="qrReason1" value="มาสาย" data-pts="10">
                                 <label for="qrReason1">1. มาสาย</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason2" value="ไม่สวมหมวกกันน็อค">
+                                <input type="checkbox" id="qrReason2" value="ไม่สวมหมวกกันน็อค" data-pts="10">
                                 <label for="qrReason2">2. ไม่สวมหมวกกันน็อค</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason3" value="หนีเรียน">
+                                <input type="checkbox" id="qrReason3" value="หนีเรียน" data-pts="10">
                                 <label for="qrReason3">3. หนีเรียน</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason4" value="สูบบุหรี่">
+                                <input type="checkbox" id="qrReason4" value="สูบบุหรี่" data-pts="30">
                                 <label for="qrReason4">4. สูบบุหรี่</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason5" value="บุหรี่ไฟฟ้า">
+                                <input type="checkbox" id="qrReason5" value="บุหรี่ไฟฟ้า" data-pts="60">
                                 <label for="qrReason5">5. บุหรี่ไฟฟ้า</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason6" value="บุคลิกภาพ/การแต่งกายผิดระเบียบ">
+                                <input type="checkbox" id="qrReason6" value="บุคลิกภาพ/การแต่งกายผิดระเบียบ"
+                                    data-pts="10">
                                 <label for="qrReason6">6. บุคลิกภาพ/การแต่งกายผิดระเบียบ</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason7" value="ทะเลาะวิวาท">
+                                <input type="checkbox" id="qrReason7" value="ทะเลาะวิวาท" data-pts="30">
                                 <label for="qrReason7">7. ทะเลาะวิวาท</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason8" value="ใช้สื่อโซเชียลไม่เหมาะสม">
+                                <input type="checkbox" id="qrReason8" value="ใช้สื่อโซเชียลไม่เหมาะสม" data-pts="60">
                                 <label for="qrReason8">8. ใช้สื่อโซเชียลไม่เหมาะสม</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason9" value="เล่นการพนัน">
+                                <input type="checkbox" id="qrReason9" value="เล่นการพนัน" data-pts="30">
                                 <label for="qrReason9">9. เล่นการพนัน</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason10" value="สิงห้องน้ำ">
+                                <input type="checkbox" id="qrReason10" value="สิงห้องน้ำ" data-pts="30">
                                 <label for="qrReason10">10. สิงห้องน้ำ</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason11" value="บูลลี่">
+                                <input type="checkbox" id="qrReason11" value="บูลลี่" data-pts="60">
                                 <label for="qrReason11">11. บูลลี่</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason12" value="ทำลายทรัพย์สินโรงเรียน">
+                                <input type="checkbox" id="qrReason12" value="ทำลายทรัพย์สินโรงเรียน" data-pts="30">
                                 <label for="qrReason12">12. ทำลายทรัพย์สินโรงเรียน</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReason13" value="แอบถ่ายรูป">
+                                <input type="checkbox" id="qrReason13" value="แอบถ่ายรูป" data-pts="20">
                                 <label for="qrReason13">13. แอบถ่ายรูป</label>
                             </div>
                             <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
-                                <input type="checkbox" id="qrReasonOther" value="อื่นๆ">
+                                <input type="checkbox" id="qrReason14" value="ผมยาว" data-pts="10">
+                                <label for="qrReason14">14. ผมยาว</label>
+                            </div>
+                            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                                <input type="checkbox" id="qrReason15" value="เล็บยาว / ทาสีเล็บ" data-pts="10">
+                                <label for="qrReason15">15. เล็บยาว / ทาสีเล็บ</label>
+                            </div>
+                            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                                <input type="checkbox" id="qrReason16" value="เครื่องแบบไม่เรียบร้อย" data-pts="10">
+                                <label for="qrReason16">16. เครื่องแบบไม่เรียบร้อย</label>
+                            </div>
+                            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                                <input type="checkbox" id="qrReason17" value="ใส่รองเท้าผิดระเบียบ" data-pts="10">
+                                <label for="qrReason17">17. ใส่รองเท้าผิดระเบียบ</label>
+                            </div>
+                            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                                <input type="checkbox" id="qrReason18" value="ไม่สวมถุงเท้า" data-pts="10">
+                                <label for="qrReason18">18. ไม่สวมถุงเท้า</label>
+                            </div>
+                            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                                <input type="checkbox" id="qrReason19" value="เจาะหู / ใส่ต่างหู" data-pts="10">
+                                <label for="qrReason19">19. เจาะหู / ใส่ต่างหู</label>
+                            </div>
+                            <div class="deduction-checkbox-item" onclick="toggleQRDeductionCheckbox(this)">
+                                <input type="checkbox" id="qrReasonOther" value="อื่นๆ" data-pts="0">
                                 <label for="qrReasonOther">อื่นๆ (ระบุ)</label>
                             </div>
                         </div>
@@ -4893,6 +5566,17 @@
                     <p>ไม่มีรูปโปรไฟล์</p>
                 </div>
             </div>
+            <div class="profile-viewer-actions"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
+                <button class="report-btn" onclick="editProfileImage()"
+                    style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-edit"></i> แก้ไขรูปภาพ
+                </button>
+                <button class="report-btn" onclick="deleteProfileImage()"
+                    style="background: #fee2e2; color: #ef4444; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fas fa-trash-alt"></i> ลบรูปภาพ
+                </button>
+            </div>
             <div style="margin-top: 20px; text-align: center;">
                 <p style="color: #64748b; font-size: 0.85rem;"><i class="fas fa-info-circle"></i> รูปภาพที่จัดเก็บในระบบ
                     edstudent</p>
@@ -4989,6 +5673,79 @@
             </div>
         </div>
     </div>
+
+    <!-- Dress Code Inspection Modal (Batch) -->
+    <div class="dresscode-overlay" id="dressCodeModal">
+        <div class="dresscode-modal">
+            <div class="dresscode-header">
+                <h3><i class="fas fa-user-check"></i> ตรวจการแต่งกาย (ทั้งห้องเรียน)</h3>
+                <button class="dresscode-close" onclick="closeDressCodeModal()">&times;</button>
+            </div>
+
+            <div class="dresscode-controls">
+                <div class="dresscode-control-group">
+                    <label>เดือน</label>
+                    <select class="dresscode-select" id="dressCodeMonth">
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                </div>
+                <div class="dresscode-control-group">
+                    <label>ปี พ.ศ.</label>
+                    <select class="dresscode-select" id="dressCodeYear">
+                        <option value="2569">2569</option>
+                        <option value="2570">2570</option>
+                        <option value="2571">2571</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dresscode-table-container">
+                <table class="dresscode-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">ที่</th>
+                            <th style="width: 80px; text-align: center;">รหัส</th>
+                            <th>ชื่อ - นามสกุล</th>
+                            <th style="width: 60px; text-align: center;" title="เล็บยาว/ทาสี">เล็บ</th>
+                            <th style="width: 60px; text-align: center;" title="ผมยาว/ผิดทรง/ทำสี">ผม</th>
+                            <th style="width: 60px; text-align: center;" title="แต่งกายผิดระเบียบ">ชุด</th>
+                            <th style="width: 150px;">หมายเหตุ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dressCodeTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="dresscode-footer">
+                <button class="qr-btn qr-btn-cancel" onclick="closeDressCodeModal()"
+                    style="background: #f1f5f9; color: #64748b;">ยกเลิก</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="qr-btn" onclick="saveDressCodeDraft()"
+                        style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+                        <i class="fas fa-edit"></i> บันทึกร่าง
+                    </button>
+                    <button class="dresscode-submit-btn" onclick="submitDressCode()">
+                        <i class="fas fa-check-circle"></i> ยืนยันการส่ง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Copyright Footer -->
     <div class="footer-section">

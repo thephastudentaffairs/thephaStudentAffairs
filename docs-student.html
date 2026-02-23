@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือนักเรียน — TPAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: #f0f7f0;
+            min-height: 100vh;
+            font-size: 18px;
+            color: #1e293b;
+            line-height: 1.8;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #166534, #22c55e);
+            color: white;
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'Prompt', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .top-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        /* Section */
+        .section {
+            background: white;
+            border-radius: 24px;
+            padding: 35px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #166534;
+        }
+
+        .section-title i {
+            width: 50px;
+            height: 50px;
+            background: #dcfce7;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #16a34a;
+        }
+
+        /* Description */
+        .desc {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 20px;
+            padding: 18px 22px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border-left: 5px solid #22c55e;
+        }
+
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            padding: 20px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list .icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .feature-list .text b {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 3px;
+        }
+
+        .feature-list .text span {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        /* Steps */
+        .step-list {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .step-list li {
+            counter-increment: step;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            position: relative;
+        }
+
+        .step-list li:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .step-num::before {
+            content: counter(step);
+        }
+
+        .step-text b {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 4px;
+            color: #166534;
+        }
+
+        .step-text span {
+            font-size: 1.05rem;
+            color: #475569;
+        }
+
+        /* Tip */
+        .tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 22px;
+            background: #eff6ff;
+            border: 2px solid #bfdbfe;
+            border-radius: 16px;
+            margin-top: 20px;
+            font-size: 1.05rem;
+            color: #1e40af;
+        }
+
+        .tip i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Colors */
+        .bg-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .bg-green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .bg-purple {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .bg-orange {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        .bg-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .bg-cyan {
+            background: #cffafe;
+            color: #0891b2;
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 25px 18px;
+            }
+
+            .top-title {
+                font-size: 1rem;
+            }
+
+            body {
+                font-size: 16px;
+            }
+
+            .feature-list .icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+
+            .step-num {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <a href="docs.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> กลับ
+        </a>
+        <span class="top-title">🎓 คู่มือนักเรียน</span>
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- ===== ภาพรวม ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-home"></i>
+                หน้าหลักของนักเรียน
+            </div>
+
+            <div class="desc">
+                เมื่อนักเรียนเข้าสู่ระบบ จะเห็น<b>คะแนนพฤติกรรม</b>ของตนเอง<br>
+                พร้อมเมนูต่างๆ ดังนี้
+            </div>
+
+            <ul class="feature-list">
+                <li>
+                    <div class="icon bg-blue"><i class="fas fa-chart-line"></i></div>
+                    <div class="text">
+                        <b>คะแนนพฤติกรรม</b>
+                        <span>แสดงคะแนนปัจจุบัน จากคะแนนเต็ม 100 คะแนน ระบบจะอัปเดตคะแนนให้อัตโนมัติทุก 3 วินาที</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-purple"><i class="fas fa-history"></i></div>
+                    <div class="text">
+                        <b>ประวัติคะแนน</b>
+                        <span>ดูว่าถูกหักคะแนนเมื่อไหร่ เพราะอะไร หรือได้เพิ่มคะแนนจากเรื่องอะไร</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-cyan"><i class="fas fa-qrcode"></i></div>
+                    <div class="text">
+                        <b>QR Code ส่วนตัว</b>
+                        <span>แสดงรหัส QR ของตัวเอง เอาไว้ให้ครูสแกนเพื่อค้นหาข้อมูลได้เร็ว</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-orange"><i class="fas fa-bell"></i></div>
+                    <div class="text">
+                        <b>การแจ้งเตือน</b>
+                        <span>ติดตามว่าคำขอเพิ่มคะแนนที่ส่งไป ผู้ดูแลอนุมัติหรือปฏิเสธแล้วหรือยัง</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-red"><i class="fas fa-bullhorn"></i></div>
+                    <div class="text">
+                        <b>แจ้งเหตุด่วน</b>
+                        <span>ถ้าเห็นเพื่อนทำผิดระเบียบ สามารถรายงานให้ครูทราบได้ทันที</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-green"><i class="fas fa-plus-circle"></i></div>
+                    <div class="text">
+                        <b>ขอเพิ่มคะแนน (ทำความดี)</b>
+                        <span>ส่งหลักฐานว่าทำความดี เช่น ทำความสะอาด ช่วยงานโรงเรียน พร้อมแนบรูปถ่าย</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ===== วิธีดูคะแนน ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-eye"></i>
+                วิธีดูคะแนนของตัวเอง
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เข้าสู่ระบบ</b>
+                        <span>เปิดเว็บแล้วกรอก "รหัสนักเรียน" กับ "รหัสผ่าน" แล้วกดปุ่ม <b>"เข้าสู่ระบบ"</b></span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>ดูคะแนน</b>
+                        <span>คะแนนจะแสดงเป็นตัวเลขใหญ่ อยู่ตรงกลางหน้าจอเลย ถ้าคะแนนสูง = ดี, คะแนนต่ำ =
+                            ต้องปรับปรุง</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>ดูประวัติ</b>
+                        <span>กดปุ่ม <b>"ประวัติ"</b> เพื่อดูว่าถูกหักคะแนนเรื่องอะไร เมื่อไหร่</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ===== วิธีขอเพิ่มคะแนน ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-plus-circle"></i>
+                วิธีขอเพิ่มคะแนน (ทำความดี)
+            </div>
+
+            <div class="desc">
+                ถ้านักเรียนทำความดี เช่น ช่วยทำความสะอาดโรงเรียน ช่วยงานครู<br>
+                สามารถส่งหลักฐานเพื่อขอเพิ่มคะแนนกลับคืนได้
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "กฎระเบียบ"</b>
+                        <span>อยู่ในหน้าหลัก จะมีไอคอนรูปหนังสือ กดเข้าไป</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลื่อนลงมาข้างล่าง</b>
+                        <span>จะมีปุ่ม <b>"ส่งขอเพิ่มคะแนน"</b> กดปุ่มนั้น</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลือกประเภท</b>
+                        <span>เลือกว่าทำความดี <b>"ในโรงเรียน"</b> หรือ <b>"นอกโรงเรียน"</b></span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เขียนรายละเอียด</b>
+                        <span>อธิบายว่าทำอะไร เช่น "กวาดลานหน้าอาคาร 3" หรือ "ช่วยจัดห้องสมุด"</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>แนบรูปถ่าย</b>
+                        <span>ถ่ายรูป<b>ก่อนทำ</b> 1 รูป และ<b>หลังทำ</b> 1 รูป แล้วแนบเข้าไป</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "บันทึกผลงาน"</b>
+                        <span>ข้อมูลจะถูกส่งไปให้ผู้ดูแลตรวจสอบ เมื่ออนุมัติแล้วคะแนนจะเพิ่มขึ้นอัตโนมัติ</span>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="tip">
+                <i class="fas fa-lightbulb"></i>
+                <div>
+                    <b>เคล็ดลับ:</b> หลังส่งคำขอ สามารถกดปุ่ม <b>"การแจ้งเตือน"</b> เพื่อดูว่าผู้ดูแลอนุมัติหรือยัง
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== วิธีแสดง QR Code ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-qrcode"></i>
+                วิธีแสดง QR Code
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "QR Code"</b>
+                        <span>อยู่ในหน้าหลัก จะมีไอคอนรูป QR</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>แสดงให้ครูดู</b>
+                        <span>ยื่นหน้าจอให้ครูสแกน ครูจะค้นหาข้อมูลของนักเรียนได้ทันที</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

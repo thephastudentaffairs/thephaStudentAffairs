@@ -189,12 +189,12 @@
       position: absolute;
       top: 4px;
       left: 4px;
-      width: calc(33.33% - 5.3px);
+      width: calc(25% - 5px);
       height: calc(100% - 8px);
       background: var(--primary);
       border-radius: 8px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
+      box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
     }
 
     .tab-btn {
@@ -340,9 +340,21 @@
       box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
     }
 
-    body[data-role="student"] .tab-btn.active,
-    body[data-role="teacher"] .tab-btn.active,
     body[data-role="admin"] .tab-btn.active {
+      color: white;
+    }
+
+    body[data-role="cd"] {
+      --primary: #10b981;
+      --primary-rgb: 16, 185, 129;
+      --primary-hover: #059669;
+    }
+
+    body[data-role="cd"] .tab-indicator {
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    body[data-role="cd"] .tab-btn.active {
       color: white;
     }
 
@@ -471,6 +483,7 @@
         <div class="tab-btn active" onclick="updateUI('student', 0)">นักเรียน</div>
         <div class="tab-btn" onclick="updateUI('teacher', 1)">อาจารย์</div>
         <div class="tab-btn" onclick="updateUI('admin', 2)">ผู้ดูแล</div>
+        <div class="tab-btn" onclick="updateUI('cd', 3)">กรรมการ</div>
       </div>
 
       <form onsubmit="handleLogin(event)">
@@ -510,6 +523,36 @@
   <script>
     let currentRole = 'student';
 
+    // Auto-login check
+    (async function checkAutoLogin() {
+      const token = localStorage.getItem('tpac_token');
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/check-cookie', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+
+        if (data.status === 'success' && data.userData) {
+          sessionStorage.setItem('currentUser', JSON.stringify(data.userData));
+          const role = data.userData.role;
+          if (role === 'student') window.location.href = 'home.html';
+          else if (role === 'teacher') window.location.href = 'th.html';
+          else if (role === 'admin') window.location.href = 'teacher-dashboard.html';
+          else if (role === 'cd') window.location.href = 'cd.html';
+        }
+      } catch (e) {
+        console.error('Auto-login check failed:', e);
+      }
+    })();
+
+    function generateToken() {
+      return 'tpac_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
+    }
+
     function updateUI(role, index) {
       currentRole = role;
       document.body.setAttribute('data-role', role);
@@ -520,7 +563,7 @@
       const userInput = document.getElementById('userInput');
 
       // Move Indicator
-      indicator.style.left = `calc(${index * 33.33}% + 4px)`;
+      indicator.style.left = `calc(${index * 25}% + 4px)`;
 
       // Update Tab Styles
       tabs.forEach(t => t.classList.remove('active'));
@@ -534,11 +577,14 @@
         userLabel.textContent = 'รหัสนักเรียน';
         userInput.placeholder = 'กรอกรหัสนักเรียน';
       } else if (role === 'teacher') {
-        userLabel.textContent = 'ชื่อผู้ใช้อาจารย์';
+        userLabel.textContent = 'ชื่อผู้ใชอาตารย์';
         userInput.placeholder = 'กรอกชื่อผู้ใช้งาน';
-      } else {
+      } else if (role === 'admin') {
         userLabel.textContent = 'ชื่อผู้ดูแล';
         userInput.placeholder = 'กรอกชื่อผู้ดูแล';
+      } else {
+        userLabel.textContent = 'รหัสคณะกรรมการ';
+        userInput.placeholder = 'กรอกรหัสคณะกรรมการ';
       }
     }
 
@@ -588,6 +634,9 @@
         } else if (currentRole === 'admin') {
           dataFile = 'TPAC.json';
           response = await fetch(dataFile);
+        } else if (currentRole === 'cd') {
+          dataFile = 'cd.json';
+          response = await fetch(dataFile);
         }
 
         if (!response || !response.ok) throw new Error('Load failed');
@@ -603,12 +652,26 @@
           const userData = { ...user, role: currentRole };
           sessionStorage.setItem('currentUser', JSON.stringify(userData));
 
+          // Save cookie for persistent login
+          const token = generateToken();
+          localStorage.setItem('tpac_token', token);
+          try {
+            await fetch('/api/save-cookie', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token, userData })
+            });
+          } catch (e) {
+            console.error('Cookie save failed:', e);
+          }
+
           showToast('success', 'เข้าสู่ระบบสำเร็จ');
 
           setTimeout(() => {
             if (currentRole === 'student') window.location.href = 'home.html';
             else if (currentRole === 'teacher') window.location.href = 'th.html';
             else if (currentRole === 'admin') window.location.href = 'teacher-dashboard.html';
+            else if (currentRole === 'cd') window.location.href = 'cd.html';
           }, 1000);
         } else {
           showToast('error', 'ข้อมูลไม่ถูกต้อง');

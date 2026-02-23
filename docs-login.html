@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิธีเข้าสู่ระบบ — TPAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: #f5f3ff;
+            min-height: 100vh;
+            font-size: 18px;
+            color: #1e293b;
+            line-height: 1.8;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #581c87, #a855f7);
+            color: white;
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'Prompt', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .top-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 24px;
+            padding: 35px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #581c87;
+        }
+
+        .section-title i {
+            width: 50px;
+            height: 50px;
+            background: #f3e8ff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #7c3aed;
+        }
+
+        .desc {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 20px;
+            padding: 18px 22px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border-left: 5px solid #a855f7;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .step-list li {
+            counter-increment: step;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .step-list li:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .step-num::before {
+            content: counter(step);
+        }
+
+        .step-text b {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 4px;
+            color: #581c87;
+        }
+
+        .step-text span {
+            font-size: 1.05rem;
+            color: #475569;
+        }
+
+        /* Role Table */
+        .role-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .role-table thead {
+            background: linear-gradient(135deg, #581c87, #7c3aed);
+        }
+
+        .role-table th {
+            padding: 18px 20px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .role-table td {
+            padding: 18px 20px;
+            font-size: 1.05rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .role-table tbody tr:hover {
+            background: #faf5ff;
+        }
+
+        .role-table .emoji {
+            font-size: 1.5rem;
+        }
+
+        .tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 22px;
+            background: #dcfce7;
+            border: 2px solid #86efac;
+            border-radius: 16px;
+            margin-top: 20px;
+            font-size: 1.05rem;
+            color: #166534;
+        }
+
+        .tip i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 22px;
+            background: #fef3c7;
+            border: 2px solid #fcd34d;
+            border-radius: 16px;
+            margin-top: 20px;
+            font-size: 1.05rem;
+            color: #92400e;
+        }
+
+        .warning-box i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 25px 18px;
+            }
+
+            .top-title {
+                font-size: 1rem;
+            }
+
+            body {
+                font-size: 16px;
+            }
+
+            .step-num {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+
+            .role-table th,
+            .role-table td {
+                padding: 12px 14px;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <a href="docs.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> กลับ
+        </a>
+        <span class="top-title">🔑 วิธีเข้าสู่ระบบ</span>
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- ===== บทบาท ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-users"></i>
+                ใครเข้าสู่ระบบได้บ้าง?
+            </div>
+
+            <div class="desc">
+                ระบบมี 4 ประเภทผู้ใช้ แต่ละประเภทจะเข้าใช้งานหน้าที่ต่างกัน
+            </div>
+
+            <table class="role-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ประเภท</th>
+                        <th>ต้องกรอกอะไร</th>
+                        <th>เข้าหน้าไหน</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="emoji">🎓</td>
+                        <td><b>นักเรียน</b></td>
+                        <td>รหัสนักเรียน + รหัสผ่าน</td>
+                        <td>หน้านักเรียน</td>
+                    </tr>
+                    <tr>
+                        <td class="emoji">👨‍🏫</td>
+                        <td><b>อาจารย์</b></td>
+                        <td>ชื่อผู้ใช้ + รหัสผ่าน</td>
+                        <td>หน้าครูที่ปรึกษา</td>
+                    </tr>
+                    <tr>
+                        <td class="emoji">🛡️</td>
+                        <td><b>ผู้ดูแล</b></td>
+                        <td>ชื่อผู้ดูแล + รหัสผ่าน</td>
+                        <td>หน้าผู้ดูแลระบบ</td>
+                    </tr>
+                    <tr>
+                        <td class="emoji">📋</td>
+                        <td><b>กรรมการ</b></td>
+                        <td>รหัสกรรมการ + รหัสผ่าน</td>
+                        <td>หน้ากรรมการ</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== วิธี Login ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-sign-in-alt"></i>
+                วิธีเข้าสู่ระบบ (Login)
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เปิดเว็บไซต์</b>
+                        <span>เปิดเบราว์เซอร์ (Chrome, Safari, Firefox) แล้วไปที่หน้าเว็บระบบ</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลือกประเภทผู้ใช้</b>
+                        <span>ที่ด้านบนจะมีแท็บให้เลือก: <b>นักเรียน</b>, <b>อาจารย์</b>, <b>ผู้ดูแล</b>, หรือ
+                            <b>กรรมการ</b><br>
+                            กดเลือกแท็บที่ตรงกับตัวท่าน</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กรอกรหัสผู้ใช้</b>
+                        <span>พิมพ์ <b>รหัสนักเรียน</b> หรือ <b>ชื่อผู้ใช้</b> ลงในช่องแรก</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กรอกรหัสผ่าน</b>
+                        <span>พิมพ์ <b>รหัสผ่าน</b> ลงในช่องที่สอง</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "เข้าสู่ระบบ"</b>
+                        <span>ระบบจะพาท่านไปยังหน้าที่ตรงกับบทบาทของท่านโดยอัตโนมัติ</span>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="tip">
+                <i class="fas fa-cookie-bite"></i>
+                <div>
+                    <b>ระบบจดจำการเข้าสู่ระบบ:</b> หลังจาก Login สำเร็จ ครั้งต่อไปที่เปิดเว็บ
+                    ระบบจะเข้าสู่ระบบให้ท่านอัตโนมัติ <b>โดยไม่ต้องกรอกรหัสใหม่</b>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== วิธี Logout ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-sign-out-alt"></i>
+                วิธีออกจากระบบ (Logout)
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่มออกจากระบบ</b>
+                        <span>มักจะอยู่ด้านขวาบนของหน้าจอ เป็นไอคอนรูปประตู หรือเขียนว่า <b>"ออกจากระบบ"</b></span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดยืนยัน</b>
+                        <span>จะมีหน้าต่างถามว่า <b>"ต้องการออกจากระบบหรือไม่?"</b> ให้กดปุ่ม <b>"ใช่
+                                ออกจากระบบ"</b></span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กลับไปหน้าล็อกอิน</b>
+                        <span>ระบบจะพาท่านกลับไปหน้าเข้าสู่ระบบ ครั้งต่อไปต้อง<b>กรอกรหัสใหม่</b></span>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <b>สำคัญ:</b> ถ้าใช้<b>คอมพิวเตอร์สาธารณะ</b> (เช่น คอมที่โรงเรียน)
+                    ควร<b>ออกจากระบบทุกครั้ง</b>ที่ใช้เสร็จ เพื่อไม่ให้คนอื่นเข้าใช้บัญชีของท่านได้
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ปัญหาที่พบบ่อย ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-question-circle"></i>
+                ปัญหาที่พบบ่อย
+            </div>
+
+            <ul style="list-style: none;">
+                <li style="padding: 20px 0; border-bottom: 1px solid #f1f5f9;">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #581c87; margin-bottom: 6px;">
+                        ❓ กรอกรหัสแล้วเข้าไม่ได้
+                    </div>
+                    <div style="font-size: 1.05rem; color: #475569;">
+                        ✅ ตรวจสอบว่า<b>เลือกแท็บถูกต้อง</b>หรือไม่ (ท่านเป็นนักเรียน ครู หรือผู้ดูแล?)<br>
+                        ✅ ตรวจสอบว่าพิมพ์<b>รหัสผ่านถูกต้อง</b>หรือไม่ (ตัวเล็กตัวใหญ่ต้องตรงกัน)
+                    </div>
+                </li>
+                <li style="padding: 20px 0; border-bottom: 1px solid #f1f5f9;">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #581c87; margin-bottom: 6px;">
+                        ❓ เปิดเว็บแล้วไม่เข้าอัตโนมัติ
+                    </div>
+                    <div style="font-size: 1.05rem; color: #475569;">
+                        ✅ อาจเป็นเพราะท่าน<b>เคยกดออกจากระบบ</b>ไปแล้ว ต้องกรอกรหัสใหม่อีกครั้ง
+                    </div>
+                </li>
+                <li style="padding: 20px 0;">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: #581c87; margin-bottom: 6px;">
+                        ❓ ลืมรหัสผ่าน
+                    </div>
+                    <div style="font-size: 1.05rem; color: #475569;">
+                        ✅ ติดต่อ<b>ผู้ดูแลระบบ</b>ของโรงเรียนเพื่อขอรีเซ็ตรหัสผ่าน
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

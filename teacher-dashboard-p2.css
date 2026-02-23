@@ -177,7 +177,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(8px);
-    z-index: 1000;
+    z-index: 30000;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -923,7 +923,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 10002;
+    z-index: 30002;
     padding: 20px;
 }
 
@@ -933,7 +933,7 @@
 }
 
 .all-history-modal-overlay {
-    z-index: 10003;
+    z-index: 30003;
 }
 
 .history-modal,

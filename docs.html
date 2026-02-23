@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือการใช้งาน TPAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .top-bar {
+            background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .top-bar h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .top-bar p {
+            font-size: 1.15rem;
+            opacity: 0.85;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* Welcome Text */
+        .welcome {
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 1.2rem;
+            color: #475569;
+            line-height: 2;
+        }
+
+        .welcome b {
+            color: #1e3a5f;
+        }
+
+        /* Cards */
+        .role-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .role-card {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .role-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .role-card:active {
+            transform: scale(0.98);
+        }
+
+        .role-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .role-info {
+            flex: 1;
+        }
+
+        .role-info h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .role-info p {
+            font-size: 1.05rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .role-arrow {
+            font-size: 1.8rem;
+            color: #cbd5e1;
+            flex-shrink: 0;
+        }
+
+        .role-card:hover .role-arrow {
+            color: #3b82f6;
+            transform: translateX(5px);
+            transition: all 0.3s;
+        }
+
+        /* Colors */
+        .bg-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .bg-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .bg-orange {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .bg-purple {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .card-blue:hover {
+            border-color: #3b82f6;
+        }
+
+        .card-green:hover {
+            border-color: #22c55e;
+        }
+
+        .card-orange:hover {
+            border-color: #f59e0b;
+        }
+
+        .card-purple:hover {
+            border-color: #a855f7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .role-card {
+                padding: 20px;
+                gap: 18px;
+            }
+
+            .role-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+
+            .role-info h2 {
+                font-size: 1.2rem;
+            }
+
+            .role-info p {
+                font-size: 0.95rem;
+            }
+
+            .top-bar h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <h1>📘 คู่มือการใช้งาน</h1>
+        <p>ระบบคะแนนพฤติกรรม TPAC — โรงเรียนเทพา</p>
+    </div>
+
+    <div class="container">
+
+        <div class="welcome">
+            กรุณา<b>เลือกบทบาทของท่าน</b>เพื่ออ่านคู่มือ<br>
+            แต่ละหน้าจะอธิบายทีละขั้นตอน อ่านง่าย เข้าใจง่าย
+        </div>
+
+        <div class="role-cards">
+
+            <a href="docs-student.html" class="role-card card-green">
+                <div class="role-icon bg-green"><i class="fas fa-user-graduate"></i></div>
+                <div class="role-info">
+                    <h2>🎓 คู่มือนักเรียน</h2>
+                    <p>ดูคะแนนพฤติกรรม ดูประวัติ แสดง QR Code และขอเพิ่มคะแนน</p>
+                </div>
+                <div class="role-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a href="docs-teacher.html" class="role-card card-blue">
+                <div class="role-icon bg-blue"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="role-info">
+                    <h2>👨‍🏫 คู่มือครูที่ปรึกษา</h2>
+                    <p>หักคะแนน เพิ่มคะแนน สแกน QR ตรวจแต่งกาย และดูรายงาน</p>
+                </div>
+                <div class="role-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a href="docs-admin.html" class="role-card card-orange">
+                <div class="role-icon bg-orange"><i class="fas fa-user-shield"></i></div>
+                <div class="role-info">
+                    <h2>🛡️ คู่มือผู้ดูแลระบบ</h2>
+                    <p>อนุมัติคำขอ ดูสถิติภาพรวม และส่งออกรายงาน PDF</p>
+                </div>
+                <div class="role-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a href="docs-login.html" class="role-card card-purple">
+                <div class="role-icon bg-purple"><i class="fas fa-sign-in-alt"></i></div>
+                <div class="role-info">
+                    <h2>🔑 วิธีเข้าสู่ระบบ</h2>
+                    <p>วิธีล็อกอิน ออกจากระบบ และระบบจดจำรหัส</p>
+                </div>
+                <div class="role-arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+
+        </div>
+
+        <div class="footer">
+            © 2026 TPAC Digital Score — โรงเรียนเทพา จังหวัดสงขลา
+        </div>
+    </div>
+
+</body>
+
+</html>

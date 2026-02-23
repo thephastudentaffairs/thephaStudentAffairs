@@ -20,16 +20,22 @@ const mimeTypes = {
 // Helper function to parse JSON body
 function parseBody(req) {
     return new Promise((resolve, reject) => {
-        let body = '';
-        req.on('data', chunk => body += chunk);
+        let chunks = [];
+        req.on('data', chunk => chunks.push(chunk));
         req.on('end', () => {
             try {
-                resolve(body ? JSON.parse(body) : {});
+                const buffer = Buffer.concat(chunks);
+                const bodyStr = buffer.toString('utf8');
+                resolve(bodyStr ? JSON.parse(bodyStr) : {});
             } catch (e) {
+                console.error('[Helper] parseBody error:', e.message);
                 reject(e);
             }
         });
-        req.on('error', reject);
+        req.on('error', (err) => {
+            console.error('[Helper] parseBody stream error:', err.message);
+            reject(err);
+        });
     });
 }
 
@@ -102,10 +108,14 @@ function calculateStatusPoint(student, logs) {
 
 const server = http.createServer(async (req, res) => {
     const urlParts = req.url.split('?');
-    const pathname = urlParts[0];
+    const pathname = urlParts[0].replace(/\/+$/, '') || '/'; // Strip trailing slashes
+    const method = req.method.toUpperCase();
+
+    // Global Request Logging
+    console.log(`[${new Date().toISOString().split('T')[1].split('.')[0]}] ${method} ${pathname}`);
 
     // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
+    if (method === 'OPTIONS') {
         res.writeHead(204, {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -117,8 +127,68 @@ const server = http.createServer(async (req, res) => {
 
     // ================= API ENDPOINTS =================
 
+    // API: Health Check (to verify code version)
+    if (pathname === '/api/health' && method === 'GET') {
+        sendJSON(res, { status: 'ok', version: '1.0.2', timestamp: new Date().toISOString() });
+        return;
+    }
+
+    // API: Report Urgent Incident (for students reporting misbehavior)
+    if (pathname === '/api/report-incident' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { image_data, student_id, student_name, location, involved_names, room } = body;
+
+            let incidentPath = null;
+            const incidentDir = './incidents';
+            if (!fs.existsSync(incidentDir)) {
+                fs.mkdirSync(incidentDir, { recursive: true });
+            }
+
+            if (image_data && image_data.startsWith('data:image')) {
+                const base64Data = image_data.replace(/^data:image\/\w+;base64,/, '');
+                const fileName = `incident_${student_id}_${Date.now()}.jpg`;
+                const filePath = path.join(incidentDir, fileName);
+                fs.writeFileSync(filePath, base64Data, 'base64');
+                incidentPath = '/incidents/' + fileName;
+            }
+
+            let toAdminData = [];
+            try {
+                if (!fs.existsSync('./toadmin.json')) {
+                    fs.writeFileSync('./toadmin.json', '[]', 'utf8');
+                }
+                const data = fs.readFileSync('./toadmin.json', 'utf8');
+                toAdminData = JSON.parse(data);
+            } catch (e) {
+                toAdminData = [];
+            }
+
+            toAdminData.push({
+                type: 'incident',
+                reporter_id: student_id,
+                reporter_name: student_name,
+                location: location || 'ไม่ระบุ',
+                involved_names: involved_names || 'ไม่ระบุ',
+                room: room || 'ไม่ระบุ',
+                image: incidentPath,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            });
+
+            fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
+
+            console.log(`[API] Incident reported by ${student_id}: ${location}`);
+            sendJSON(res, { status: 'success', message: 'รายงานเหตุด่วนเรียบร้อยแล้ว' });
+        } catch (e) {
+            console.error('[API] report-incident error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
     // API: Save Status (for updating student status)
-    if (pathname === '/api/save-status' && req.method === 'POST') {
+    if (pathname === '/api/save-status' && method === 'POST') {
         try {
             const body = await parseBody(req);
             const { id, status } = body;
@@ -152,7 +222,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: Save Score (for individual score updates)
-    if (pathname === '/api/save-score' && req.method === 'POST') {
+    if (pathname === '/api/save-score' && method === 'POST') {
         try {
             const body = await parseBody(req);
             const { id, score, reason } = body;
@@ -204,7 +274,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: Save All (for bulk updates)
-    if (pathname === '/api/save-all' && req.method === 'POST') {
+    if (pathname === '/api/save-all' && method === 'POST') {
         try {
             const body = await parseBody(req);
 
@@ -227,7 +297,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: Save to Admin (for deduction/addition records from QR scanner)
-    if (pathname === '/api/save-toadmin' && req.method === 'POST') {
+    if (pathname === '/api/save-toadmin' && method === 'POST') {
         try {
             const body = await parseBody(req);
             const { student_id, student_name, reason, deduction, new_score, teacher, status } = body;
@@ -278,7 +348,9 @@ const server = http.createServer(async (req, res) => {
                 teacher: teacher || 'Unknown',
                 timestamp: new Date().toISOString(),
                 status: status || 'pending',
-                type: 'deduction'
+                type: 'deduction',
+                location_type: body.location_type || 'in-school',
+                location: body.location || (body.location_type === 'outside-school' ? 'นอกโรงเรียน' : 'ในโรงเรียน')
             });
 
             fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
@@ -293,7 +365,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: Save Work (for work submission records)
-    if (pathname === '/api/save-work' && req.method === 'POST') {
+    if (pathname === '/api/save-work' && method === 'POST') {
         try {
             const body = await parseBody(req);
 
@@ -365,7 +437,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: Upload Student Profile
-    if (pathname === '/api/upload-student-profile' && req.method === 'POST') {
+    if (pathname === '/api/upload-student-profile' && method === 'POST') {
         try {
             const body = await parseBody(req);
             const { student_id, image_data } = body;
@@ -384,27 +456,26 @@ const server = http.createServer(async (req, res) => {
             // Save image (base64 to file)
             const base64Data = image_data.replace(/^data:image\/\w+;base64,/, '');
             const imagePath = path.join(dirPath, `${student_id}.jpg`);
+
+            console.log(`[API] Profile Upload Request: student_id=${student_id}, data_length=${image_data.length}, base64_length=${base64Data.length}`);
+            console.log(`[API] Saving to: ${imagePath}`);
+
             fs.writeFileSync(imagePath, base64Data, 'base64');
 
-            console.log(`[API] Profile uploaded: ${student_id}`);
+            console.log(`[API] Profile uploaded successfully: ${student_id}`);
             sendJSON(res, { status: 'success', message: 'Profile image saved' });
         } catch (e) {
             console.error('[API] upload-student-profile error:', e);
-            sendJSON(res, { status: 'error', message: e.message }, 500);
+            sendJSON(res, { status: 'error', message: e.message || 'Server error during upload' }, 500);
         }
         return;
     }
 
-    // API: Update ToAdmin Status (mark as completed)
-    if (pathname === '/api/update-toadmin-status' && req.method === 'POST') {
+    // API: Update ToAdmin Status (mark as completed or rejected)
+    if (pathname === '/api/update-toadmin-status' && method === 'POST') {
         try {
             const body = await parseBody(req);
-            const { index, admin_name, reason } = body;
-
-            if (index === undefined) {
-                sendJSON(res, { status: 'error', message: 'Missing index' }, 400);
-                return;
-            }
+            const { index, timestamp, reporter_id, admin_name, reason, status } = body;
 
             let toAdminData = [];
             try {
@@ -418,20 +489,27 @@ const server = http.createServer(async (req, res) => {
                 return;
             }
 
-            if (index >= 0 && index < toAdminData.length) {
-                // Allow custom status (e.g., 'rejected'), default to 'completed'
-                const newStatus = body.status || 'completed';
-                toAdminData[index].status = newStatus;
+            let targetIndex = -1;
+            if (index !== undefined) {
+                targetIndex = index;
+            } else if (timestamp && reporter_id) {
+                targetIndex = toAdminData.findIndex(item => item.timestamp === timestamp && item.reporter_id === reporter_id);
+            } else if (timestamp && body.student_id) { // Fallback for some types
+                targetIndex = toAdminData.findIndex(item => item.timestamp === timestamp && item.student_id === body.student_id);
+            }
 
-                if (admin_name) toAdminData[index].admin_name = admin_name;
-                if (reason) toAdminData[index].admin_reason = reason; // Store admin reason separately or override
-                // toAdminData[index].score_updated = true; // Optional flag
+            if (targetIndex >= 0 && targetIndex < toAdminData.length) {
+                const newStatus = status || 'completed';
+                toAdminData[targetIndex].status = newStatus;
+
+                if (admin_name) toAdminData[targetIndex].admin_name = admin_name;
+                if (reason) toAdminData[targetIndex].admin_reason = reason;
 
                 fs.writeFileSync('./toadmin.json', JSON.stringify(toAdminData, null, 2), 'utf8');
-                console.log(`[API] ToAdmin status updated for index ${index} -> ${newStatus}`);
+                console.log(`[API] ToAdmin status updated for record ${targetIndex} -> ${newStatus}`);
                 sendJSON(res, { status: 'success', message: 'Status updated' });
             } else {
-                sendJSON(res, { status: 'error', message: 'Invalid index' }, 404);
+                sendJSON(res, { status: 'error', message: 'Record not found' }, 404);
             }
         } catch (e) {
             console.error('[API] update-toadmin-status error:', e);
@@ -441,7 +519,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: Get Student Logs (for notifications)
-    if (pathname === '/api/student-logs' && req.method === 'POST') {
+    if (pathname === '/api/student-logs' && method === 'POST') {
         try {
             const body = await parseBody(req);
             const { student_id } = body;
@@ -467,7 +545,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // API: List Student Photos from edstudent folder
-    if (pathname === '/api/list-student-photos' && req.method === 'GET') {
+    if (pathname === '/api/list-student-photos' && method === 'GET') {
         try {
             const dirPath = './edstudent';
             let photos = [];
@@ -498,8 +576,123 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // API: Save to CD Cart (Temporary storage)
+    if (pathname === '/api/save-cdcat' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const cdcatPath = './cdcat.json';
+
+            let cartData = [];
+            if (fs.existsSync(cdcatPath)) {
+                cartData = JSON.parse(fs.readFileSync(cdcatPath, 'utf8'));
+            }
+
+            cartData.push({
+                ...body,
+                timestamp: body.timestamp || new Date().toISOString()
+            });
+
+            fs.writeFileSync(cdcatPath, JSON.stringify(cartData, null, 2), 'utf8');
+            console.log(`[API] Added to CD Cart: ${body.student_id}`);
+            sendJSON(res, { status: 'success', message: 'Added to cart' });
+        } catch (e) {
+            console.error('[API] save-cdcat error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Get CD Cart
+    if (pathname === '/api/get-cdcat' && method === 'GET') {
+        try {
+            const cdcatPath = './cdcat.json';
+            let cartData = [];
+            if (fs.existsSync(cdcatPath)) {
+                cartData = JSON.parse(fs.readFileSync(cdcatPath, 'utf8'));
+            }
+            sendJSON(res, { status: 'success', cart: cartData });
+        } catch (e) {
+            console.error('[API] get-cdcat error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Delete from CD Cart
+    if (pathname === '/api/delete-cdcat-item' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { timestamp, student_id } = body;
+            const cdcatPath = './cdcat.json';
+
+            if (fs.existsSync(cdcatPath)) {
+                let cartData = JSON.parse(fs.readFileSync(cdcatPath, 'utf8'));
+                cartData = cartData.filter(item => !(item.timestamp === timestamp && item.student_id === student_id));
+                fs.writeFileSync(cdcatPath, JSON.stringify(cartData, null, 2), 'utf8');
+                sendJSON(res, { status: 'success', message: 'Item removed' });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Cart is empty' }, 404);
+            }
+        } catch (e) {
+            console.error('[API] delete-cdcat-item error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Submit CD Batch to Admin
+    if (pathname === '/api/submit-batch-cd' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const teacherName = body.teacher; // Only submit items by this teacher
+            const cdcatPath = './cdcat.json';
+            const toadminPath = './toadmin.json';
+
+            if (!fs.existsSync(cdcatPath)) {
+                sendJSON(res, { status: 'error', message: 'Nothing to submit' }, 400);
+                return;
+            }
+
+            const cartData = JSON.parse(fs.readFileSync(cdcatPath, 'utf8'));
+
+            // Filter items belonging to this teacher
+            const myItems = teacherName ? cartData.filter(item => item.teacher === teacherName) : cartData;
+            const remainingItems = teacherName ? cartData.filter(item => item.teacher !== teacherName) : [];
+
+            if (myItems.length === 0) {
+                sendJSON(res, { status: 'error', message: 'Cart is empty' }, 400);
+                return;
+            }
+
+            let toAdminData = [];
+            if (fs.existsSync(toadminPath)) {
+                toAdminData = JSON.parse(fs.readFileSync(toadminPath, 'utf8'));
+            }
+
+            // Append only this teacher's items to toadmin
+            const results = myItems.map(item => ({
+                ...item,
+                type: 'deduction',
+                status: 'pending'
+            }));
+
+            toAdminData.push(...results);
+            fs.writeFileSync(toadminPath, JSON.stringify(toAdminData, null, 2), 'utf8');
+
+            // Keep remaining items from other teachers in the cart
+            fs.writeFileSync(cdcatPath, JSON.stringify(remainingItems, null, 2), 'utf8');
+
+            console.log(`[API] Batch submitted by ${teacherName}: ${results.length} items`);
+            sendJSON(res, { status: 'success', message: `Submitted ${results.length} items successfully` });
+        } catch (e) {
+            console.error('[API] submit-batch-cd error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
     // API: Delete Student Photo
-    if (pathname === '/api/delete-student-photo' && req.method === 'POST') {
+    if (pathname === '/api/delete-student-photo' && method === 'POST') {
         try {
             const body = await parseBody(req);
             const { student_id } = body;
@@ -521,6 +714,105 @@ const server = http.createServer(async (req, res) => {
             console.error('[API] delete-student-photo error:', e);
             sendJSON(res, { status: 'error', message: e.message }, 500);
         }
+        return;
+    }
+
+    // API: Save Cookie (persistent login)
+    if (pathname === '/api/save-cookie' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { token, userData } = body;
+
+            if (!token || !userData) {
+                sendJSON(res, { status: 'error', message: 'Missing token or userData' }, 400);
+                return;
+            }
+
+            const cookiePath = './cookie.json';
+            let cookies = {};
+            if (fs.existsSync(cookiePath)) {
+                try {
+                    const parsed = JSON.parse(fs.readFileSync(cookiePath, 'utf8'));
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                        cookies = parsed;
+                    }
+                } catch (e) { cookies = {}; }
+            }
+
+            cookies[token] = {
+                userData,
+                createdAt: new Date().toISOString()
+            };
+
+            fs.writeFileSync(cookiePath, JSON.stringify(cookies, null, 2), 'utf8');
+            console.log(`[API] Cookie saved for: ${userData.name || userData.id}`);
+            sendJSON(res, { status: 'success', message: 'Cookie saved' });
+        } catch (e) {
+            console.error('[API] save-cookie error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Check Cookie (auto-login)
+    if (pathname === '/api/check-cookie' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { token } = body;
+
+            if (!token) {
+                sendJSON(res, { status: 'error', message: 'No token provided' }, 400);
+                return;
+            }
+
+            const cookiePath = './cookie.json';
+            if (!fs.existsSync(cookiePath)) {
+                sendJSON(res, { status: 'error', message: 'No cookies found' }, 404);
+                return;
+            }
+
+            const cookies = JSON.parse(fs.readFileSync(cookiePath, 'utf8'));
+
+            if (cookies[token]) {
+                console.log(`[API] Cookie valid for: ${cookies[token].userData.name || cookies[token].userData.id}`);
+                sendJSON(res, { status: 'success', userData: cookies[token].userData });
+            } else {
+                sendJSON(res, { status: 'error', message: 'Invalid token' }, 404);
+            }
+        } catch (e) {
+            console.error('[API] check-cookie error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // API: Delete Cookie (logout)
+    if (pathname === '/api/delete-cookie' && method === 'POST') {
+        try {
+            const body = await parseBody(req);
+            const { token } = body;
+
+            const cookiePath = './cookie.json';
+            if (fs.existsSync(cookiePath)) {
+                let cookies = JSON.parse(fs.readFileSync(cookiePath, 'utf8'));
+                if (cookies[token]) {
+                    delete cookies[token];
+                    fs.writeFileSync(cookiePath, JSON.stringify(cookies, null, 2), 'utf8');
+                    console.log(`[API] Cookie deleted`);
+                }
+            }
+            sendJSON(res, { status: 'success', message: 'Cookie deleted' });
+        } catch (e) {
+            console.error('[API] delete-cookie error:', e);
+            sendJSON(res, { status: 'error', message: e.message }, 500);
+        }
+        return;
+    }
+
+    // Catch-all for API routes
+    if (pathname.startsWith('/api/')) {
+        console.log(`[API] 404 Not Found: ${method} ${pathname}`);
+        sendJSON(res, { status: 'error', message: `API endpoint not found: ${pathname}` }, 404);
         return;
     }
 

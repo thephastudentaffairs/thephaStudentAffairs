@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคณะกรรมการ - ตรวจเครื่องแบบ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #d1fae5;
+            --bg-dark: #070b14;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .nav-brand i {
+            font-size: 1.5rem;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .logout-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Action Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 41, 59, 0.6);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            transition: 0.3s;
+        }
+
+        .action-card:hover .action-icon {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .action-info h3 {
+            font-size: 1.25rem;
+            margin-bottom: 4px;
+        }
+
+        .action-info p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            position: relative;
+            animation: modalSlide 0.3s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            outline: none;
+            text-align: center;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Deduction List */
+        .deduction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .deduction-item {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .deduction-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--primary);
+        }
+
+        .deduction-item.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .deduction-item i {
+            font-size: 1.1rem;
+        }
+
+        /* Search Results */
+        #searchResults {
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-item {
+            padding: 16px 20px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.4);
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-main);
+            backdrop-filter: blur(5px);
+        }
+
+        .search-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .search-info {
+            flex: 1;
+        }
+
+        .search-name {
+            font-weight: 700;
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .search-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input-fancy {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            background: rgba(15, 23, 42, 0.6);
+            color: white;
+        }
+
+        .search-input-fancy:focus {
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .class-select {
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.6);
+            font-size: 1rem;
+            outline: none;
+            min-width: 110px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .modal-footer-count {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Batch Section */
+        .batch-section {
+            margin-top: 40px;
+        }
+
+        .batch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .batch-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .batch-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .batch-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .batch-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .batch-item-info h4 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .batch-item-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .batch-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-delete-item {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-delete-item:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .submit-batch-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        /* Reason Group Accordion */
+        .reason-group {
+            margin-bottom: 10px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+        }
+
+        .reason-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .reason-group-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .reason-group-header .reason-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reason-group-header .reason-count {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .reason-group-header .reason-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reason-group-header .chevron {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .reason-group.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .reason-group-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+
+        .reason-group.open .reason-group-body {
+            max-height: 2000px;
+        }
+
+        .reason-group-body .batch-item {
+            border-radius: 0;
+            border: none;
+            border-top: 1px solid var(--border);
+            animation: none;
+        }
+
+        .btn-submit-batch {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-submit-batch:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .empty-batch {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px dashed var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 15px;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            .action-info h3 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-user-shield"></i>
+            <span>คณะกรรมการนักเรียนโรงเรียนเทพา</span>
+        </div>
+        <div class="nav-user">
+            <div class="user-info">
+                <span class="user-name" id="navUserName">กำลังโหลด...</span>
+                <span class="user-role">Committee Member</span>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>ระบบส่งเสริมพฤติกรรมนักเรียน</h1>
+            <p style="color: var(--text-muted)">จัดการคะแนนพฤติกรรม Digital Score</p>
+        </div>
+
+        <div class="action-grid">
+            <div class="action-card" onclick="openModal('idModal')">
+                <div class="action-icon">
+                    <i class="fas fa-keyboard"></i>
+                </div>
+                <div class="action-info">
+                    <h3>กรอกรหัส</h3>
+                    <p>ระบุรหัสนักเรียนด้วยตนเอง</p>
+                </div>
+            </div>
+
+            <div class="action-card" onclick="openModal('qrModal')">
+                <div class="action-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <div class="action-info">
+                    <h3>สแกน QR Code</h3>
+                    <p>ใช้กล้องเพื่อแสกนบัตรนักเรียน</p>
+                </div>
+            </div>
+
+            <div class="action-card" onclick="openModal('searchModal')">
+                <div class="action-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="action-info">
+                    <h3>ค้นหานักเรียน</h3>
+                    <p>ค้นหาตามชื่อหรือรหัสนักเรียน</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Deduction Section -->
+        <div class="batch-section">
+            <div class="batch-header">
+                <div class="batch-title">
+                    <i class="fas fa-list-check" style="color: var(--primary);"></i>
+                    <span>รายการรอส่งหักคะแนน</span>
+                    <span class="batch-badge" id="batchCount">0</span>
+                </div>
+            </div>
+
+            <div id="batchList" class="batch-list">
+                <div class="empty-batch">
+                    <i class="fas fa-clipboard-list"
+                        style="font-size: 2.5rem; opacity: 0.2; display: block; margin-bottom: 10px;"></i>
+                    ยังไม่มีรายชื่อรอหักคะแนน
+                </div>
+            </div>
+
+            <div class="submit-batch-container" id="submitBatchContainer">
+                <button class="btn-submit-batch" onclick="submitBatch()">
+                    <i class="fas fa-paper-plane"></i>
+                    ส่งข้อมูลทั้งหมดเข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ID Modal -->
+    <div class="modal" id="idModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-keyboard"></i> กรอกรหัส</h2>
+                <button class="modal-close" onclick="closeModal('idModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">รหัสนักเรียน</label>
+                <input type="text" class="form-input" id="studentIdInput" placeholder="กอกรหัส 5 หลัก">
+            </div>
+            <button class="btn-submit" onclick="verifyStudentId()">ตรวจสอบ</button>
+        </div>
+    </div>
+
+    <!-- Deduction Modal -->
+    <div class="modal" id="deductionModal">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-user-graduate"></i> บันทึกคะแนน</h2>
+                <button class="modal-close" onclick="closeModal('deductionModal')">&times;</button>
+            </div>
+
+            <div id="targetStudentInfo"
+                style="margin-bottom: 20px; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 15px; text-align: center;">
+                <!-- Student info will be injected here -->
+            </div>
+
+            <label class="form-label">เลือกสาเหตุที่ทำผิด</label>
+            <div class="deduction-list" id="deductionList">
+                <div class="deduction-item" data-value="ผมยาวเกินเกณฑ์" data-pts="10" onclick="toggleReason(this)">
+                    <i class="fas fa-cut"></i> <span>ผมยาวเกินเกณฑ์</span>
+                </div>
+                <div class="deduction-item" data-value="เล็บยาว / ทาสีเล็บ" data-pts="10" onclick="toggleReason(this)">
+                    <i class="fas fa-hand-holding"></i> <span>เล็บยาว / ทาสีเล็บ</span>
+                </div>
+                <div class="deduction-item" data-value="เครื่องแบบไม่เรียบร้อย" data-pts="10"
+                    onclick="toggleReason(this)">
+                    <i class="fas fa-tshirt"></i> <span>เครื่องแบบไม่เรียบร้อย</span>
+                </div>
+                <div class="deduction-item" data-value="ใส่รองเท้าผิดระเบียบ" data-pts="10"
+                    onclick="toggleReason(this)">
+                    <i class="fas fa-shoe-prints"></i> <span>ใส่รองเท้าผิดระเบียบ</span>
+                </div>
+                <div class="deduction-item" data-value="ไม่สวมถุงเท้า" data-pts="10" onclick="toggleReason(this)">
+                    <i class="fas fa-socks"></i> <span>ไม่สวมถุงเท้า</span>
+                </div>
+                <div class="deduction-item" data-value="เจาะหู / ใส่ต่างหู" data-pts="10" onclick="toggleReason(this)">
+                    <i class="fas fa-ear-listen"></i> <span>เจาะหู / ใส่ต่างหู</span>
+                </div>
+                <div class="deduction-item" data-value="มาสาย" data-pts="10" onclick="toggleReason(this)">
+                    <i class="fas fa-clock"></i> <span>มาสาย</span>
+                </div>
+                <div class="deduction-item" data-value="ไม่สวมหมวกกันน็อค" data-pts="10" onclick="toggleReason(this)">
+                    <i class="fas fa-hard-hat"></i> <span>ไม่สวมหมวกกันน็อค</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">สาเหตุอื่น (ถ้ามี)</label>
+                <input type="text" class="form-input" id="otherReason" placeholder="กรอกสาเหตุอื่น..."
+                    style="text-align: left;">
+            </div>
+
+            <button class="btn-submit" id="submitScoreBtn" onclick="submitDeduction()">ยืนยันการหักคะแนน</button>
+        </div>
+    </div>
+
+    <div class="modal" id="searchModal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-users"></i> ค้นหานักเรียนทั้งหมด</h2>
+                <button class="modal-close" onclick="closeModal('searchModal')">&times;</button>
+            </div>
+
+            <div class="filter-bar">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input-fancy" id="searchInput"
+                        placeholder="ค้นหาชื่อ หรือ รหัสนักเรียน..." oninput="handleSearch()">
+                </div>
+                <select id="classFilter" class="class-select" onchange="handleSearch()">
+                    <option value="">ทุกห้อง</option>
+                </select>
+            </div>
+
+            <div id="searchResults" style="margin-top: 0; padding-bottom: 10px;">
+                <!-- Results will be injected here -->
+            </div>
+
+            <div class="modal-footer-count" id="searchFooter">
+                <!-- Count will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div class="modal" id="qrModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-camera"></i> สแกน QR Code</h2>
+                <button class="modal-close" onclick="closeQRModal()">&times;</button>
+            </div>
+            <div id="qr-reader" style="width: 100%; border-radius: 12px; overflow: hidden;"></div>
+            <div id="qr-result" style="margin-top: 15px; text-align: center; color: var(--text-muted);">
+                ส่องกล้องไปที่ QR Code ของนักเรียน
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <span class="loader"></span>
+        <p id="loadingText">กำลังทำรายการ...</p>
+    </div>
+
+    <script>
+        let students = [];
+        let html5QrScanner = null;
+        let selectedStudent = null;
+        let selectedReasons = new Set();
+        let currentUser = null;
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check session
+            const userStr = sessionStorage.getItem('currentUser');
+            if (!userStr) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = JSON.parse(userStr);
+            if (currentUser.role !== 'cd') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('navUserName').textContent = currentUser.name;
+            loadCart();
+
+            // Load Students Data
+            try {
+                const response = await fetch('user2.1.json');
+                students = await response.json();
+                populateClassFilter();
+            } catch (error) {
+                console.error('Failed to load students:', error);
+                Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลนักเรียนได้', 'error');
+            }
+        });
+
+        async function handleLogout() {
+            const result = await Swal.fire({
+                title: 'ยืนยันการออกจากระบบ?',
+                text: "คุณต้องการออกจากระบบใช่หรือไม่",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary)',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'ใช่, ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก',
+                background: '#1e293b',
+                color: '#fff'
+            });
+
+            if (result.isConfirmed) {
+                showLoading(true, "กำลังออกจากระบบ...");
+                // Delete cookie from server
+                const token = localStorage.getItem('tpac_token');
+                if (token) {
+                    try {
+                        await fetch('/api/delete-cookie', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ token })
+                        });
+                    } catch (e) { console.error('Cookie delete failed:', e); }
+                }
+                localStorage.removeItem('tpac_token');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+            if (id === 'qrModal') {
+                startQRScanner();
+            }
+            if (id === 'searchModal') {
+                handleSearch();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+            if (id === 'idModal') document.getElementById('studentIdInput').value = '';
+            if (id === 'searchModal') {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('classFilter').value = '';
+                document.getElementById('searchResults').innerHTML = '';
+            }
+        }
+
+        // QR Scanner Functions
+        function startQRScanner() {
+            html5QrScanner = new Html5Qrcode("qr-reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            html5QrScanner.start({ facingMode: "environment" }, config, (decodedText) => {
+                closeQRModal();
+                processStudent(decodedText);
+            }).catch(err => {
+                console.error(err);
+                document.getElementById('qr-result').textContent = "ไม่สามารถเข้าถึงกล้องได้";
+            });
+        }
+
+        function closeQRModal() {
+            if (html5QrScanner) {
+                html5QrScanner.stop().then(() => {
+                    closeModal('qrModal');
+                }).catch(err => {
+                    console.error(err);
+                    closeModal('qrModal');
+                });
+            } else {
+                closeModal('qrModal');
+            }
+        }
+
+        // Student Processing
+        function verifyStudentId() {
+            const id = document.getElementById('studentIdInput').value.trim();
+            if (!id) return;
+            closeModal('idModal');
+            processStudent(id);
+        }
+
+        function populateClassFilter() {
+            const classSelect = document.getElementById('classFilter');
+            const classes = [...new Set(students.map(s => s.class))].sort((a, b) => a - b);
+
+            classes.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c;
+                option.textContent = formatClassName(c);
+                classSelect.appendChild(option);
+            });
+        }
+
+        function formatClassName(c) {
+            const s = String(c);
+            if (s.length === 3) return `ม.${s[0]}/${s.substring(1)}`;
+            return c;
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const classFilter = document.getElementById('classFilter').value;
+            const results = document.getElementById('searchResults');
+            const footer = document.getElementById('searchFooter');
+
+            let filtered = students;
+
+            if (classFilter) {
+                filtered = filtered.filter(s => String(s.class) === classFilter);
+            }
+
+            if (query) {
+                filtered = filtered.filter(s =>
+                    s.name.toLowerCase().includes(query) ||
+                    s.id.includes(query)
+                );
+            }
+
+            const total = filtered.length;
+            const display = filtered.slice(0, 50);
+
+            if (display.length === 0) {
+                results.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-search" style="font-size: 3rem; opacity: 0.1; margin-bottom: 15px; display: block;"></i>ไม่พบข้อมูล</div>';
+                footer.textContent = '';
+                return;
+            }
+
+            results.innerHTML = display.map(s => `
+                <div class="search-item" onclick="processStudent('${s.id}')">
+                    <div class="search-info">
+                        <span class="search-name">${s.name}</span>
+                        <span class="search-meta">รหัส: ${s.id} | ห้อง: ${formatClassName(s.class)} | คะแนน: ${s.score || 100}</span>
+                    </div>
+                    <button class="search-btn" onclick="event.stopPropagation(); processStudent('${s.id}')">
+                        <i class="fas fa-paper-plane"></i> เลือก
+                    </button>
+                </div>
+            `).join('');
+
+            footer.textContent = `แสดง ${display.length} รายการแรก จากทั้งหมด ${total} คน`;
+        }
+
+        function processStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) {
+                Swal.fire('ไม่พบข้อมูล', 'ไม่พบรหัสนักเรียนที่คุณกอก', 'warning');
+                return;
+            }
+
+            closeModal('searchModal');
+            selectedStudent = student;
+            selectedReasons.clear();
+            document.getElementById('otherReason').value = '';
+
+            const listItems = document.querySelectorAll('.deduction-item');
+            listItems.forEach(item => item.classList.remove('active'));
+
+            document.getElementById('targetStudentInfo').innerHTML = `
+                <div style="font-weight: 700; font-size: 1.2rem;">${student.name}</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">รหัส: ${student.id} | ชั้น ม.${Math.floor(student.class / 100)}/${student.class % 100}</div>
+            `;
+
+            openModal('deductionModal');
+        }
+
+        function toggleReason(element) {
+            const val = element.getAttribute('data-value');
+            const pts = parseInt(element.getAttribute('data-pts')) || 0;
+
+            if (selectedReasons.has(val)) {
+                selectedReasons.delete(val);
+                element.classList.remove('active');
+            } else {
+                selectedReasons.add(val);
+                element.classList.add('active');
+            }
+
+            // Re-calculate total points
+            let total = 0;
+            const activeItems = document.querySelectorAll('.deduction-item.active');
+            activeItems.forEach(item => {
+                total += parseInt(item.getAttribute('data-pts')) || 0;
+            });
+            window.currentDeductionPts = total;
+        }
+
+        async function submitDeduction() {
+            const other = document.getElementById('otherReason').value.trim();
+            const allReasons = Array.from(selectedReasons);
+            if (other) allReasons.push(other);
+
+            if (allReasons.length === 0) {
+                Swal.fire('แจ้งเตือน', 'กรุณาเลือกสาเหตุการหักคะแนน', 'warning');
+                return;
+            }
+
+            const reasonStr = allReasons.join(', ');
+
+            showLoading(true, "กำลังเพิ่มในรายการ...");
+
+            const data = {
+                student_id: selectedStudent.id,
+                student_name: selectedStudent.name,
+                reason: reasonStr + (window.currentDeductionPts > 0 ? ` (หัก ${window.currentDeductionPts} คะแนน)` : ''),
+                deduction: window.currentDeductionPts || 0,
+                teacher: currentUser.name,
+                timestamp: new Date().toISOString(),
+                status: 'pending',
+                location_type: 'in-school',
+                location: 'ในโรงเรียน'
+            };
+
+            try {
+                const response = await fetch('/api/save-cdcat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showLoading(false);
+                    closeModal('deductionModal');
+                    loadCart();
+                    Swal.fire({
+                        title: 'เพิ่มลงรายการแล้ว',
+                        text: `เพิ่ม ${selectedStudent.name} ในรายการรอส่ง`,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    showLoading(false);
+                    Swal.fire('ผิดพลาด', result.message || 'บันทึกข้อมูลไม่สำเร็จ', 'error');
+                }
+            } catch (error) {
+                showLoading(false);
+                console.error('Submit Error:', error);
+                Swal.fire('เชื่อมต่อล้มเหลว', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+            }
+        }
+
+        async function loadCart() {
+            try {
+                const response = await fetch('/api/get-cdcat');
+                const result = await response.json();
+
+                const list = document.getElementById('batchList');
+                const countBadge = document.getElementById('batchCount');
+                const submitContainer = document.getElementById('submitBatchContainer');
+
+                if (result.status === 'success') {
+                    // Filter: show only items scanned by the current user
+                    const cart = result.cart.filter(item => item.teacher === currentUser.name);
+                    countBadge.textContent = cart.length;
+
+                    if (cart.length === 0) {
+                        list.innerHTML = `
+                            <div class="empty-batch">
+                                <i class="fas fa-clipboard-list" style="font-size: 2.5rem; opacity: 0.2; display: block; margin-bottom: 10px;"></i>
+                                ยังไม่มีรายชื่อรอหักคะแนน
+                            </div>
+                        `;
+                        submitContainer.style.display = 'none';
+                        return;
+                    }
+
+                    // Group items by individual reason keywords
+                    const groups = {};
+                    cart.forEach(item => {
+                        // Parse reasons from the reason string (split by comma, strip points suffix)
+                        let reasonStr = item.reason || 'ไม่ระบุสาเหตุ';
+                        // Remove trailing point info like " (หัก 20 คะแนน)"
+                        reasonStr = reasonStr.replace(/\s*\(หัก\s*\d+\s*คะแนน\)\s*$/, '');
+                        const reasons = reasonStr.split(',').map(r => r.trim()).filter(r => r);
+
+                        reasons.forEach(reason => {
+                            if (!groups[reason]) groups[reason] = [];
+                            groups[reason].push(item);
+                        });
+                    });
+
+                    // Render grouped accordion
+                    const sortedReasons = Object.keys(groups).sort();
+                    list.innerHTML = sortedReasons.map((reason, idx) => {
+                        const items = groups[reason];
+                        return `
+                            <div class="reason-group open" id="reasonGroup${idx}">
+                                <div class="reason-group-header" onclick="toggleReasonGroup(${idx})">
+                                    <span class="reason-label">
+                                        <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 0.85rem;"></i>
+                                        ${reason}
+                                    </span>
+                                    <span class="reason-right">
+                                        <span class="reason-count">${items.length} คน</span>
+                                        <i class="fas fa-chevron-down chevron"></i>
+                                    </span>
+                                </div>
+                                <div class="reason-group-body">
+                                    ${items.map(item => `
+                                        <div class="batch-item">
+                                            <div class="batch-item-info">
+                                                <h4>${item.student_name}</h4>
+                                                <p style="font-size:0.8rem; color:var(--text-muted);">รหัส: ${item.student_id}</p>
+                                            </div>
+                                            <div class="batch-item-actions">
+                                                <button class="btn-delete-item" onclick="deleteCartItem('${item.timestamp}', '${item.student_id}')" title="ลบออก">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    submitContainer.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Load Cart Error:', error);
+            }
+        }
+
+        function toggleReasonGroup(idx) {
+            const group = document.getElementById('reasonGroup' + idx);
+            if (group) group.classList.toggle('open');
+        }
+
+        async function deleteCartItem(timestamp, student_id) {
+            try {
+                const response = await fetch('/api/delete-cdcat-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timestamp, student_id })
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    loadCart();
+                }
+            } catch (error) {
+                console.error('Delete Item Error:', error);
+            }
+        }
+
+        async function submitBatch() {
+            const result = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล?',
+                text: "ต้องการส่งข้อมูลหักคะแนนทั้งหมดเข้าสู่ระบบใช่หรือไม่",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--primary)',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'ยืนยันการส่ง',
+                cancelButtonText: 'ตรวจสอบอีกครั้ง',
+                background: '#1e293b',
+                color: '#fff'
+            });
+
+            if (result.isConfirmed) {
+                showLoading(true, "กำลังส่งข้อมูลทั้งหมด...");
+                try {
+                    const response = await fetch('/api/submit-batch-cd', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ teacher: currentUser.name })
+                    });
+                    const result = await response.json();
+
+                    showLoading(false);
+                    if (result.status === 'success') {
+                        await Swal.fire({
+                            title: 'ส่งข้อมูลสำเร็จ',
+                            text: result.message,
+                            icon: 'success',
+                            confirmButtonColor: 'var(--primary)'
+                        });
+                        loadCart();
+                    } else {
+                        Swal.fire('ผิดพลาด', result.message, 'error');
+                    }
+                } catch (error) {
+                    showLoading(false);
+                    console.error('Submit Batch Error:', error);
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+                }
+            }
+        }
+
+        function showLoading(show, text = "กำลังทำรายการ...") {
+            const overlay = document.getElementById('loadingOverlay');
+            const textEl = document.getElementById('loadingText');
+            if (textEl) textEl.textContent = text;
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือครูที่ปรึกษา — TPAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: #eff6ff;
+            min-height: 100vh;
+            font-size: 18px;
+            color: #1e293b;
+            line-height: 1.8;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 25px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'Prompt', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .top-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 24px;
+            padding: 35px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #1e3a8a;
+        }
+
+        .section-title i {
+            width: 50px;
+            height: 50px;
+            background: #dbeafe;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #2563eb;
+        }
+
+        .desc {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 20px;
+            padding: 18px 22px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            padding: 20px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list .icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .feature-list .text b {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 3px;
+        }
+
+        .feature-list .text span {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .step-list li {
+            counter-increment: step;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .step-list li:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        .step-num::before {
+            content: counter(step);
+        }
+
+        .step-text b {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 4px;
+            color: #1e3a8a;
+        }
+
+        .step-text span {
+            font-size: 1.05rem;
+            color: #475569;
+        }
+
+        .tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 22px;
+            background: #fef3c7;
+            border: 2px solid #fcd34d;
+            border-radius: 16px;
+            margin-top: 20px;
+            font-size: 1.05rem;
+            color: #92400e;
+        }
+
+        .tip i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 22px;
+            background: #fee2e2;
+            border: 2px solid #fca5a5;
+            border-radius: 16px;
+            margin-top: 20px;
+            font-size: 1.05rem;
+            color: #991b1b;
+        }
+
+        .warning-box i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .bg-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .bg-green {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .bg-purple {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .bg-orange {
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        .bg-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .bg-cyan {
+            background: #cffafe;
+            color: #0891b2;
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 25px 18px;
+            }
+
+            .top-title {
+                font-size: 1rem;
+            }
+
+            body {
+                font-size: 16px;
+            }
+
+            .feature-list .icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+
+            .step-num {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <a href="docs.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> กลับ
+        </a>
+        <span class="top-title">👨‍🏫 คู่มือครูที่ปรึกษา</span>
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- ===== ภาพรวม ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-th-large"></i>
+                ปุ่มต่างๆ ในหน้าครู
+            </div>
+
+            <div class="desc">
+                เมื่อครูเข้าสู่ระบบ จะเห็นรายชื่อนักเรียนทั้งหมด<br>
+                ด้านบนจะมี<b>ปุ่มเครื่องมือ</b>สำหรับจัดการคะแนน ดังนี้
+            </div>
+
+            <ul class="feature-list">
+                <li>
+                    <div class="icon bg-blue"><i class="fas fa-keyboard"></i></div>
+                    <div class="text">
+                        <b>กรอกรหัส</b>
+                        <span>พิมพ์เลขรหัสนักเรียนเพื่อค้นหาโดยตรง</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-purple"><i class="fas fa-camera"></i></div>
+                    <div class="text">
+                        <b>ถ่ายรูป QR</b>
+                        <span>ถ่ายรูป QR Code ของนักเรียนจากกล้องมือถือ</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-orange"><i class="fas fa-qrcode"></i></div>
+                    <div class="text">
+                        <b>สแกน QR</b>
+                        <span>เปิดกล้องมือถือเพื่อสแกน QR Code แบบเรียลไทม์ (ส่องตรงๆ)</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-green"><i class="fas fa-users"></i></div>
+                    <div class="text">
+                        <b>ค้นหานักเรียน</b>
+                        <span>ค้นหาจากรายชื่อทั้งหมด กรองตามชั้นเรียนได้</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-orange"><i class="fas fa-file-alt"></i></div>
+                    <div class="text">
+                        <b>รายงานสรุป</b>
+                        <span>ดูสรุปการหักคะแนน/ทำความดี เลือกเดือน ปี ห้อง แล้วดาวน์โหลด PDF หรือ CSV ได้</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="icon bg-cyan"><i class="fas fa-user-check"></i></div>
+                    <div class="text">
+                        <b>ตรวจแต่งกาย</b>
+                        <span>เลือกห้อง แล้วเช็คเล็บ ผม เสื้อผ้าของนักเรียนทีละคน ส่งผลทีเดียว</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ===== วิธีหักคะแนน ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-minus-circle"></i>
+                วิธีหักคะแนน / เพิ่มคะแนน
+            </div>
+
+            <div class="desc">
+                เมื่อต้องการหักคะแนนหรือเพิ่มคะแนนให้นักเรียน<br>
+                ทำตามขั้นตอนดังนี้
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>ค้นหานักเรียน</b>
+                        <span>เลือกวิธีที่สะดวกที่สุด:
+                            กดปุ่ม <b>"กรอกรหัส"</b> แล้วพิมพ์เลขรหัส,
+                            หรือกดปุ่ม <b>"สแกน QR"</b> แล้วเอากล้องส่องที่ QR ของนักเรียน,
+                            หรือกดปุ่ม <b>"ค้นหา นร."</b> แล้วพิมพ์ชื่อนักเรียน</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>นักเรียนจะปรากฏในรายการ</b>
+                        <span>เมื่อเลือกนักเรียนแล้ว จะมีแถบแสดงชื่อนักเรียนที่เลือกไว้</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม + หรือ -</b>
+                        <span>กดปุ่ม <b>+</b> เพื่อเพิ่มคะแนน หรือกดปุ่ม <b>-</b> เพื่อหักคะแนน
+                            ตัวเลขจะเปลี่ยนตาม</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลือกเหตุผล</b>
+                        <span>เลือกหมวดหมู่ว่าหักคะแนนเรื่องอะไร เช่น <b>มาสาย</b>, <b>ทะเลาะวิวาท</b>,
+                            <b>แต่งกายไม่ถูกระเบียบ</b> ฯลฯ</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "บันทึกข้อมูล"</b>
+                        <span>คะแนนจะถูกอัปเดตทันที นักเรียนจะเห็นคะแนนเปลี่ยนเมื่อเปิดหน้าจอของตัวเอง</span>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <b>ข้อควรระวัง:</b> เมื่อกดบันทึกแล้วจะแก้ไขไม่ได้ กรุณาตรวจสอบให้แน่ใจก่อนกดบันทึก
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== วิธีดูรายงาน ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-chart-bar"></i>
+                วิธีดูรายงานสรุป
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "รายงานสรุป"</b>
+                        <span>ปุ่มสีส้ม/เหลือง อยู่ด้านบนของหน้า</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลือกตัวกรอง</b>
+                        <span>เลือก <b>เดือน</b> ที่ต้องการ, เลือก <b>ปีการศึกษา</b>, และเลือกประเภท <b>"หักคะแนน"</b>
+                            หรือ <b>"ทำความดี"</b></span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "ค้นหา"</b>
+                        <span>ระบบจะแสดงรายชื่อนักเรียนที่ถูกหักคะแนนหรือทำความดีตามที่เลือก</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>ดาวน์โหลดรายงาน</b>
+                        <span>กดปุ่ม <b>CSV</b> เพื่อเปิดใน Excel หรือกดปุ่ม <b>PDF</b> เพื่อดาวน์โหลดเป็นเอกสาร
+                            PDF</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ===== วิธีตรวจแต่งกาย ===== -->
+        <div class="section">
+            <div class="section-title">
+                <i class="fas fa-user-check"></i>
+                วิธีตรวจแต่งกาย
+            </div>
+
+            <div class="desc">
+                ใช้สำหรับตรวจเล็บ ผม เสื้อผ้าของนักเรียนทั้งห้อง<br>
+                สามารถส่งผลตรวจทั้งห้องพร้อมกันในคราวเดียว
+            </div>
+
+            <ol class="step-list">
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "ตรวจแต่งกาย"</b>
+                        <span>ปุ่มสีฟ้า มีไอคอนรูปคนเช็คถูก</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลือกห้องเรียน</b>
+                        <span>เช่น ม.1/1, ม.2/3 เป็นต้น</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>เลือกเดือน, ปี, และรอบที่ตรวจ</b>
+                        <span>เลือกว่าตรวจเดือนไหน ปีไหน และเป็นรอบที่ 1 หรือ รอบที่ 2</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "โหลดรายชื่อ"</b>
+                        <span>จะแสดงรายชื่อนักเรียนทั้งห้องขึ้นมา</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>ติ๊กเครื่องหมายช่องที่ไม่ผ่าน</b>
+                        <span>ดูทีละคน ถ้านักเรียนคนไหน <b>เล็บยาว</b> → ติ๊กช่องเล็บ, <b>ผมยาว</b> → ติ๊กช่องผม,
+                            <b>ชุดไม่ถูกระเบียบ</b> → ติ๊กช่องเสื้อผ้า</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num"></div>
+                    <div class="step-text">
+                        <b>กดปุ่ม "ส่งผลตรวจ"</b>
+                        <span>คะแนนจะถูกหักจากนักเรียนที่ไม่ผ่านอัตโนมัติ</span>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="tip">
+                <i class="fas fa-lightbulb"></i>
+                <div>
+                    <b>เคล็ดลับ:</b> ถ้านักเรียนทุกคนในห้องผ่านหมด ไม่ต้องติ๊กอะไร กดส่งได้เลย ไม่มีใครถูกหักคะแนน
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

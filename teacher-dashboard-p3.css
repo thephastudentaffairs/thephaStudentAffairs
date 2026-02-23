@@ -12,7 +12,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
+    z-index: 30001;
 }
 
 .student-search-overlay.show {
@@ -632,10 +632,19 @@
 }
 
 .adjust-modal-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 15px;
     margin-top: 30px;
+}
+
+.adjust-modal-actions .adjust-btn {
+    flex: 1;
+    min-width: 140px;
+}
+
+.adjust-modal-actions .adjust-btn-confirm {
+    flex-basis: 100%;
 }
 
 .adjust-btn {

@@ -2029,9 +2029,9 @@
     "name": "จักรพงศ์  บุญสุย",
     "password": "13738",
     "status": "normal",
-    "score": 30,
+    "score": 100,
     "class": 201,
-    "statuspoint": "urgent"
+    "statuspoint": "excellent"
   },
   {
     "id": "13739",
@@ -5971,9 +5971,9 @@
     "name": "กฤษฎากรณ์ สามารถ",
     "password": "13119",
     "status": "normal",
-    "score": 10,
+    "score": 100,
     "class": 401,
-    "statuspoint": "urgent"
+    "statuspoint": "excellent"
   },
   {
     "id": "13086",

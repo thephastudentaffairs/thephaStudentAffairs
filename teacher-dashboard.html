@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>จัดการข้อมูลนักเรียน</title>
+  <title>จัดการข้อมูลนักเรียน (V2.1)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap"
@@ -43,6 +43,17 @@
   <link rel="stylesheet" href="teacher-dashboard-p3.css">
   <style>
     /* Minimal inline overrides - kept for compatibility */
+    .badge-blue {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .badge-purple {
+      background: #f3e8ff;
+      color: #7e22ce;
+      border: 1px solid #e9d5ff;
+    }
   </style>
 </head>
 
@@ -150,12 +161,18 @@
 
       <!-- การแจ้งเตือน -->
       <div class="notification-card" id="notificationCard" style="display: none;">
-        <div class="notification-header">
-          <h3>
-            <i class="fas fa-bell"></i>
-            การแจ้งเตือนจากครู
-          </h3>
-          <span class="notification-badge" id="notificationCount">0</span>
+        <div class="notification-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h3 style="margin: 0;">
+              <i class="fas fa-bell"></i>
+              การแจ้งเตือนจากครู
+            </h3>
+            <span class="notification-badge" id="notificationCount">0</span>
+          </div>
+          <button id="btnApproveAll" onclick="approveAllNotifications()"
+            style="display: none; padding: 8px 18px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 12px rgba(16,185,129,0.25);">
+            <i class="fas fa-check-double" style="margin-right: 6px;"></i> อนุมัติทั้งหมด
+          </button>
         </div>
         <div class="notification-list" id="notificationList">
           <!-- Notifications will be rendered here -->
@@ -235,6 +252,19 @@
               </button>
               <button class="btn btn-warning btn-sm" onclick="openLateReportModal()" style="background: #d97706;">
                 <i class="fas fa-clock"></i> สรุปรายงานแยกประเภท
+              </button>
+              <button class="btn btn-success btn-sm" onclick="showGoodBehaviorSummaryPopup()"
+                style="background: #10b981;">
+                <i class="fas fa-hand-holding-heart"></i> สรุปทำความดี (แยกสถานที่)
+              </button>
+              <button class="btn btn-info btn-sm" onclick="showGoodBehaviorDetailsPopup()" style="background: #3b82f6;">
+                <i class="fas fa-list-ul"></i> รายชื่อทำความดี (ละเอียด)
+              </button>
+              <button class="btn btn-danger btn-sm" id="btnUrgentIncidents" onclick="showUrgentIncidentsPopup()"
+                style="background: #ef4444; position: relative;">
+                <i class="fas fa-bullhorn"></i> รายการเหตุด่วน
+                <span id="urgentBadge"
+                  style="display: none; position: absolute; top: -8px; right: -8px; background: white; color: #ef4444; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);">0</span>
               </button>
         </div>
 
@@ -475,59 +505,83 @@
           <label class="deduction-reasons-label">เลือกสาเหตุการหักคะแนน <span style="color: #ef4444;">*</span></label>
           <div class="deduction-reasons-grid">
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason1" value="มาสาย">
+              <input type="checkbox" id="reason1" value="มาสาย" data-pts="10">
               <label for="reason1">1. มาสาย</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason2" value="ไม่สวมหมวกกันน็อค">
+              <input type="checkbox" id="reason2" value="ไม่สวมหมวกกันน็อค" data-pts="10">
               <label for="reason2">2. ไม่สวมหมวกกันน็อค</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason3" value="หนีเรียน">
+              <input type="checkbox" id="reason3" value="หนีเรียน" data-pts="10">
               <label for="reason3">3. หนีเรียน</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason4" value="สูบบุหรี่">
+              <input type="checkbox" id="reason4" value="สูบบุหรี่" data-pts="30">
               <label for="reason4">4. สูบบุหรี่</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason5" value="บุหรี่ไฟฟ้า">
+              <input type="checkbox" id="reason5" value="บุหรี่ไฟฟ้า" data-pts="60">
               <label for="reason5">5. บุหรี่ไฟฟ้า</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason6" value="บุคลิกภาพ/การแต่งกายผิดระเบียบ">
+              <input type="checkbox" id="reason6" value="บุคลิกภาพ/การแต่งกายผิดระเบียบ" data-pts="10">
               <label for="reason6">6. บุคลิกภาพ/การแต่งกายผิดระเบียบ</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason7" value="ทะเลาะวิวาท">
+              <input type="checkbox" id="reason7" value="ทะเลาะวิวาท" data-pts="30">
               <label for="reason7">7. ทะเลาะวิวาท</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason8" value="ใช้สื่อโซเชียลไม่เหมาะสม">
+              <input type="checkbox" id="reason8" value="ใช้สื่อโซเชียลไม่เหมาะสม" data-pts="60">
               <label for="reason8">8. ใช้สื่อโซเชียลไม่เหมาะสม</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason9" value="เล่นการพนัน">
+              <input type="checkbox" id="reason9" value="เล่นการพนัน" data-pts="30">
               <label for="reason9">9. เล่นการพนัน</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason10" value="สิงห้องน้ำ">
+              <input type="checkbox" id="reason10" value="สิงห้องน้ำ" data-pts="30">
               <label for="reason10">10. สิงห้องน้ำ</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason11" value="บูลลี่">
+              <input type="checkbox" id="reason11" value="บูลลี่" data-pts="60">
               <label for="reason11">11. บูลลี่</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason12" value="ทำลายทรัพย์สินโรงเรียน">
+              <input type="checkbox" id="reason12" value="ทำลายทรัพย์สินโรงเรียน" data-pts="30">
               <label for="reason12">12. ทำลายทรัพย์สินโรงเรียน</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reason13" value="แอบถ่ายรูป">
+              <input type="checkbox" id="reason13" value="แอบถ่ายรูป" data-pts="20">
               <label for="reason13">13. แอบถ่ายรูป</label>
             </div>
             <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
-              <input type="checkbox" id="reasonOther" value="อื่นๆ" onchange="toggleOtherReasonInput()">
+              <input type="checkbox" id="reason14" value="ผมยาว" data-pts="10">
+              <label for="reason14">14. ผมยาว</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
+              <input type="checkbox" id="reason15" value="เล็บยาว / ทาสีเล็บ" data-pts="10">
+              <label for="reason15">15. เล็บยาว / ทาสีเล็บ</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
+              <input type="checkbox" id="reason16" value="เครื่องแบบไม่เรียบร้อย" data-pts="10">
+              <label for="reason16">16. เครื่องแบบไม่เรียบร้อย</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
+              <input type="checkbox" id="reason17" value="ใส่รองเท้าผิดระเบียบ" data-pts="10">
+              <label for="reason17">17. ใส่รองเท้าผิดระเบียบ</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
+              <input type="checkbox" id="reason18" value="ไม่สวมถุงเท้า" data-pts="10">
+              <label for="reason18">18. ไม่สวมถุงเท้า</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
+              <input type="checkbox" id="reason19" value="เจาะหู / ใส่ต่างหู" data-pts="10">
+              <label for="reason19">19. เจาะหู / ใส่ต่างหู</label>
+            </div>
+            <div class="deduction-checkbox-item" onclick="toggleDeductionCheckbox(this)">
+              <input type="checkbox" id="reasonOther" value="อื่นๆ" data-pts="0" onchange="toggleOtherReasonInput()">
               <label for="reasonOther">อื่นๆ (ระบุ)</label>
             </div>
           </div>
@@ -626,29 +680,69 @@
         if (pendingCount === 0) count.style.display = 'none';
         else count.style.display = 'inline-flex';
 
+        // Show/hide approve-all button
+        const btnApproveAll = document.getElementById('btnApproveAll');
+        if (btnApproveAll) {
+          btnApproveAll.style.display = pendingCount > 1 ? 'inline-flex' : 'none';
+        }
+
         list.innerHTML = notificationsData.map((item, index) => {
           const timestamp = formatDateTime(item.timestamp);
           const reason = item.reason || item.detail || 'ไม่ระบุรายละเอียด';
           const isCompleted = item.status === 'completed' || item.status === 'rejected';
+          const locationType = item.location_type || 'in-school';
+          const locationBadge = locationType === 'in-school' ?
+            '<span class="badge-blue" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; margin-left: 10px;"><i class="fas fa-school"></i> ในโรงเรียน</span>' :
+            '<span class="badge-purple" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; margin-left: 10px;"><i class="fas fa-home"></i> นอกโรงเรียน</span>';
+
+          // Correct student info mapping
+          const studentId = item.student_id || item.reporter_id || 'undefined';
+          const studentName = item.student_name || item.reporter_name || 'undefined';
 
           let imagesHtml = '';
-          if (item.image_before || item.image_after) {
+          if (item.image_before || item.image_after || item.image) {
             imagesHtml = '<div class="notification-images">';
+            if (item.image) {
+              const safeImg = item.image.replace(/\\/g, '/');
+              imagesHtml += `
+              <div class="notification-img-wrapper">
+                <span class="img-label">Incident</span>
+                <img src="${safeImg}" onclick="viewImage('${safeImg}')">
+              </div>`;
+            }
             if (item.image_before) {
+              const safeImgBefore = item.image_before.replace(/\\/g, '/');
               imagesHtml += `
               <div class="notification-img-wrapper">
                 <span class="img-label">Before</span>
-                <img src="${item.image_before}" onclick="viewImage('${item.image_before}')">
+                <img src="${safeImgBefore}" onclick="viewImage('${safeImgBefore}')">
               </div>`;
             }
             if (item.image_after) {
+              const safeImgAfter = item.image_after.replace(/\\/g, '/');
               imagesHtml += `
               <div class="notification-img-wrapper">
                 <span class="img-label">After</span>
-                <img src="${item.image_after}" onclick="viewImage('${item.image_after}')">
+                <img src="${safeImgAfter}" onclick="viewImage('${safeImgAfter}')">
               </div>`;
             }
             imagesHtml += '</div>';
+          }
+
+          // GPS Location Link
+          let gpsHtml = '';
+          if (item.google_maps_url) {
+            gpsHtml = `
+              <div style="margin: 8px 0; padding: 8px 12px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(16,185,129,0.08)); border-radius: 10px; border: 1px solid rgba(59,130,246,0.15); display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-map-marker-alt" style="color: #ef4444; font-size: 1.1rem;"></i>
+                <a href="${item.google_maps_url}" target="_blank" rel="noopener noreferrer" 
+                   style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 0.85rem; flex: 1;"
+                   onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                  <i class="fas fa-external-link-alt" style="font-size: 0.7rem; margin-right: 4px;"></i>
+                  ดูตำแหน่งบน Google Maps
+                </a>
+                ${item.gps_accuracy ? `<span style="font-size: 0.7rem; color: #94a3b8; white-space: nowrap;">±${item.gps_accuracy}m</span>` : ''}
+              </div>`;
           }
 
           // Logic for styling based on status
@@ -658,12 +752,13 @@
             <div class="notification-item" style="border-left: 5px solid #10b981; background: #f0fdf4;">
               <div class="notification-info">
                 <div class="notification-student">
-                  ${item.student_id} - ${item.student_name}
+                  ${studentId} - ${studentName} ${locationBadge}
                 </div>
                 <div class="notification-reason" style="color: #047857;">
                   <i class="fas fa-bell"></i> ${reason}
                 </div>
                 ${imagesHtml}
+                ${gpsHtml}
                 <div class="notification-meta">
                   <span><i class="fas fa-user-shield"></i> ${item.admin_name || item.teacher || 'Admin'}</span>
                   <span><i class="fas fa-clock"></i> ${timestamp}</span>
@@ -673,35 +768,215 @@
             `;
           } else {
             // Action Card Style (Existing) + Reject Button
+            const isIncident = item.type === 'incident';
+
             return `
             <div class="notification-item">
               <div class="notification-info">
                 <div class="notification-student">
-                  ${item.student_id} - ${item.student_name}
+                  ${studentId} - ${studentName} ${locationBadge}
                 </div>
                 <div class="notification-reason">
                   <i class="fas fa-comment-dots"></i> ${reason}
                 </div>
                 ${imagesHtml}
+                ${gpsHtml}
                 <div class="notification-meta">
-                  <span><i class="fas fa-user"></i> ${item.teacher}</span>
+                  <span><i class="fas fa-user"></i> ${item.teacher || item.reporter_name || 'System'}</span>
                   <span><i class="fas fa-clock"></i> ${timestamp}</span>
                 </div>
               </div>
               <div class="notification-actions">
                 <div style="display: flex; flex-direction: column; gap: 8px; width: 140px;">
-                  <button class="btn-complete" onclick="markAsCompleted(${index})" style="width: 100%; justify-content: center;">
-                    <i class="fas fa-check"></i> อนุมัติ
-                  </button>
-                  <button class="btn-complete" onclick="rejectNotification(${index})" style="width: 100%; background: linear-gradient(135deg, #ef4444, #dc2626); justify-content: center;">
-                    <i class="fas fa-times"></i> ปฏิเสธ
-                  </button>
+                  ${isIncident ? `
+                    <button class="btn-complete" onclick="markAsCompleted(${index})" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                      <i class="fas fa-check"></i> ตกลง
+                    </button>
+                  ` : `
+                    <button class="btn-complete" onclick="markAsCompleted(${index})" style="width: 100%; justify-content: center;">
+                      <i class="fas fa-check"></i> อนุมัติ
+                    </button>
+                    <button class="btn-complete" onclick="rejectNotification(${index})" style="width: 100%; background: linear-gradient(135deg, #ef4444, #dc2626); justify-content: center;">
+                      <i class="fas fa-times"></i> ปฏิเสธ
+                    </button>
+                  `}
                 </div>
               </div>
             </div>
           `;
           }
         }).join('');
+      }
+
+      // ==================== APPROVE ALL ====================
+      async function approveAllNotifications() {
+        // Deduction points map (same as in openAdjustScoreModal)
+        const deductionPointsMap = {
+          'มาสาย': -10,
+          'ไม่สวมหมวกกันน็อค': -10,
+          'หนีเรียน': -10,
+          'สูบบุหรี่': -30,
+          'บุหรี่ไฟฟ้า': -60,
+          'บุคลิกภาพ/การแต่งกายผิดระเบียบ': -10,
+          'ทะเลาะวิวาท': -30,
+          'ใช้สื่อโซเชียลไม่เหมาะสม': -60,
+          'เล่นการพนัน': -30,
+          'สิงห้องน้ำ': -30,
+          'บูลลี่': -60,
+          'ทำลายทรัพย์สินโรงเรียน': -30,
+          'แอบถ่ายรูป': -20,
+          'ผมยาว': -10,
+          'เล็บยาว / ทาสีเล็บ': -10,
+          'เครื่องแบบไม่เรียบร้อย': -10,
+          'ใส่รองเท้าผิดระเบียบ': -10,
+          'ไม่สวมถุงเท้า': -10,
+          'เจาะหู / ใส่ต่างหู': -10
+        };
+
+        function calcDeduction(reasonText) {
+          if (!reasonText) return 0;
+          let total = 0;
+          for (const [keyword, pts] of Object.entries(deductionPointsMap)) {
+            if (reasonText.includes(keyword)) total += pts;
+          }
+          return total;
+        }
+
+        const pendingItems = notificationsData.filter(i => i.status !== 'completed' && i.status !== 'rejected');
+        if (pendingItems.length === 0) return;
+
+        const confirmResult = await Swal.fire({
+          title: 'อนุมัติทั้งหมด?',
+          html: `<p>จะอนุมัติรายการที่รอดำเนินการทั้งหมด <b>${pendingItems.length}</b> รายการ</p><p style="color:#94a3b8;font-size:0.9rem;">ระบบจะคำนวณคะแนนหักตามสาเหตุโดยอัตโนมัติ</p>`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#10b981',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: '<i class="fas fa-check-double"></i> ยืนยันอนุมัติทั้งหมด',
+          cancelButtonText: 'ยกเลิก'
+        });
+
+        if (!confirmResult.isConfirmed) return;
+
+        try {
+          if (typeof showLoading === 'function') showLoading(true);
+
+          const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+          const adminName = currentUser.name || 'Admin';
+
+          // Fetch fresh toadmin data for correct indices
+          const allToAdminRes = await fetch('/toadmin.json');
+          const allData = await allToAdminRes.json();
+
+          let successCount = 0;
+          let failCount = 0;
+
+          for (const notification of pendingItems) {
+            try {
+              const studentId = notification.student_id || notification.reporter_id;
+              const reasonText = notification.reason || notification.detail || '';
+
+              // Calculate score change
+              let scoreChange = 0;
+              if (notification.deduction) {
+                scoreChange = -Math.abs(notification.deduction);
+              } else if (notification.score_change !== undefined) {
+                scoreChange = notification.score_change;
+              } else {
+                scoreChange = calcDeduction(reasonText);
+              }
+
+              if (scoreChange === 0) {
+                // Try a negative default of -10 if reason exists but no match
+                scoreChange = -10;
+              }
+
+              // Find student
+              const student = window.allStudents ? window.allStudents.find(s => String(s.id) === String(studentId)) : studentsData.find(s => String(s.id) === String(studentId));
+
+              if (!student) {
+                failCount++;
+                continue;
+              }
+
+              const newScore = Math.max(0, student.score + scoreChange);
+              const finalReason = `[${scoreChange > 0 ? '+' : ''}${scoreChange}] ${reasonText}`;
+
+              // 1. Update score
+              const scoreRes = await fetch('/api/save-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: student.id, score: newScore, reason: finalReason })
+              });
+
+              if (!scoreRes.ok) { failCount++; continue; }
+
+              // 2. Save work record
+              await fetch('/api/save-work', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  student_id: student.id,
+                  student_name: student.name,
+                  detail: finalReason,
+                  teacher: adminName,
+                  timestamp: new Date().toISOString(),
+                  status: 'completed',
+                  admin_name: adminName,
+                  admin_reason: finalReason
+                })
+              });
+
+              // 3. Update toadmin status
+              const actualIndex = allData.findIndex(item =>
+                (item.student_id === notification.student_id || item.reporter_id === notification.reporter_id) &&
+                item.timestamp === notification.timestamp
+              );
+
+              if (actualIndex !== -1) {
+                await fetch('/api/update-toadmin-status', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    index: actualIndex,
+                    admin_name: adminName,
+                    reason: finalReason
+                  })
+                });
+              }
+
+              // 4. Update local student data
+              student.score = newScore;
+              successCount++;
+
+            } catch (e) {
+              console.error('Error approving item:', e);
+              failCount++;
+            }
+          }
+
+          if (typeof showLoading === 'function') showLoading(false);
+
+          // Refresh notifications and table
+          await loadNotifications();
+          if (typeof filterData === 'function') filterData();
+          else if (typeof displayTable === 'function') displayTable();
+
+          let resultHtml = `<p>อนุมัติสำเร็จ <b style="color:#10b981;">${successCount}</b> รายการ</p>`;
+          if (failCount > 0) resultHtml += `<p>ไม่สำเร็จ <b style="color:#ef4444;">${failCount}</b> รายการ</p>`;
+
+          Swal.fire({
+            icon: failCount === 0 ? 'success' : 'warning',
+            title: 'ดำเนินการเรียบร้อย',
+            html: resultHtml,
+            confirmButtonColor: '#10b981'
+          });
+
+        } catch (error) {
+          console.error('Approve all error:', error);
+          if (typeof showLoading === 'function') showLoading(false);
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
+        }
       }
 
       async function rejectNotification(index) {
@@ -919,6 +1194,335 @@
         updatePagination();
         displayTable();
       }
+
+      async function showUrgentIncidentsPopup() {
+        Swal.fire({
+          title: 'กำลังโหลดข้อมูล...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        try {
+          const response = await fetch('/toadmin.json?v=' + Date.now());
+          const allData = await response.json();
+          // Show only pending incidents in this popup
+          const incidents = allData.filter(item => item.type === 'incident' && item.status !== 'completed').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          if (incidents.length === 0) {
+            Swal.fire({
+              icon: 'info',
+              title: 'ไม่มีรายการเหตุด่วนค้างอยู่',
+              text: 'ยังไม่มีนักเรียนแจ้งเหตุด่วนใหม่เข้ามา หรือตรวจสอบครบแล้ว',
+              showCancelButton: true,
+              confirmButtonText: 'ดูประวัติทั้งหมด',
+              cancelButtonText: 'ตกลง',
+              confirmButtonColor: '#3b82f6',
+              cancelButtonColor: '#475569'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                showUrgentIncidentHistory();
+              }
+            });
+            return;
+          }
+
+          let tableRows = incidents.map((inc, idx) => {
+            const date = new Date(inc.timestamp).toLocaleString('th-TH', {
+              day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit'
+            });
+            const safeImg = inc.image ? inc.image.replace(/\\/g, '/') : null;
+
+            return `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px; text-align: center;">${idx + 1}</td>
+                <td style="padding: 12px;">
+                  <div style="font-weight: 600; color: #fff;">${inc.location}</div>
+                  <div style="font-size: 0.8rem; color: #94a3b8;"><i class="far fa-clock"></i> ${date}</div>
+                </td>
+                <td style="padding: 12px;">
+                  <div style="font-size: 0.9rem; color: #cbd5e0;">${inc.involved_names}</div>
+                  <div style="font-size: 0.8rem; color: #94a3b8;">ห้อง: ${inc.room}</div>
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                  ${inc.image ? `
+                    <div class="hover-image-container" onclick="viewImage('${safeImg}')">
+                      <i class="fas fa-camera" style="color: #60a5fa; cursor: pointer; font-size: 1.2rem;"></i>
+                      <div class="hover-image-preview">
+                        <img src="${safeImg}" alt="Evidence">
+                      </div>
+                    </div>
+                  ` : '<i class="fas fa-times-circle" style="color: #475569; opacity: 0.5;"></i>'}
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                  <span class="status-pill-pending">รอตรวจสอบ</span>
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                    <button onclick="markIncidentReview('${inc.timestamp}', '${inc.reporter_id}')" class="btn btn-success btn-sm" style="padding: 5px 10px; font-size: 0.8rem; background: #10b981; border: none; border-radius: 8px;">
+                      <i class="fas fa-check"></i> รับทราบ
+                    </button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          Swal.fire({
+            width: '1000px',
+            padding: '0',
+            background: '#0f172a',
+            showConfirmButton: false,
+            showCloseButton: true,
+            customClass: {
+              popup: 'premium-report-popup',
+              closeButton: 'custom-swal-close'
+            },
+            html: `
+              <style>
+                .premium-report-popup { border-radius: 24px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+                .report-header-urgent {
+                  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                  padding: 30px; position: relative; text-align: left;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                  display: flex; justify-content: space-between; align-items: center;
+                }
+                .status-pill-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(245, 158, 11, 0.2); }
+                .status-pill-success { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.2); }
+                .incident-container { padding: 25px; max-height: 70vh; overflow-y: auto; background: #0f172a; }
+                .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; color: #e2e8f0; }
+                .modern-table th { background: rgba(15, 23, 42, 0.8); padding: 15px; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid rgba(255,255,255,0.05); }
+                
+                .hover-image-container { position: relative; display: inline-block; }
+                .hover-image-preview { 
+                  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); 
+                  width: 200px; padding: 10px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
+                  border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                  display: none; z-index: 100;
+                }
+                .hover-image-preview img { width: 100%; border-radius: 8px; }
+                .hover-image-container:hover .hover-image-preview { display: block; }
+              </style>
+              <div class="report-header-urgent">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                  <div style="width: 50px; height: 50px; background: rgba(239, 68, 68, 0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <i class="fas fa-bullhorn" style="font-size: 24px; color: #ef4444;"></i>
+                  </div>
+                  <div>
+                    <h2 style="margin: 0; color: #fff; font-size: 1.5rem;">รายการแจ้งเหตุด่วน</h2>
+                    <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.8rem;">พบเหตุด่วนใหม่ ${incidents.length} รายการ</p>
+                  </div>
+                </div>
+                <button onclick="showUrgentIncidentHistory()" class="btn btn-primary" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); padding: 8px 16px; border-radius: 10px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-history"></i> ประวัติเหตุด่วน
+                </button>
+              </div>
+              <div class="incident-container">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 60px;">ลำดับ</th>
+                      <th>สถานที่ / เวลา</th>
+                      <th>นักเรียนที่เกี่ยวข้อง</th>
+                      <th style="width: 100px;">หลักฐาน</th>
+                      <th style="width: 120px;">สถานะ</th>
+                      <th style="width: 100px;">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody>${tableRows}</tbody>
+                </table>
+              </div>
+            `
+          });
+        } catch (e) {
+          console.error(e);
+          Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลได้', 'error');
+        }
+      }
+
+      async function showUrgentIncidentHistory() {
+        Swal.fire({
+          title: 'กำลังโหลดประวัติ...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        try {
+          const response = await fetch('/toadmin.json?v=' + Date.now());
+          const allData = await response.json();
+          const history = allData.filter(item => item.type === 'incident').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          if (history.length === 0) {
+            Swal.fire('Info', 'ไม่พบประวัติการแจ้งเหตุด่วน', 'info');
+            return;
+          }
+
+          let tableRows = history.map((inc, idx) => {
+            const date = new Date(inc.timestamp).toLocaleString('th-TH', {
+              day: 'numeric', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit'
+            });
+            const safeImg = inc.image ? inc.image.replace(/\\/g, '/') : null;
+            const isCompleted = inc.status === 'completed';
+            const statusClass = isCompleted ? 'status-pill-success' : 'status-pill-pending';
+            const statusText = isCompleted ? 'ตรวจสอบแล้ว' : 'รอตรวจสอบ';
+
+            return `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: ${isCompleted ? 'transparent' : 'rgba(245, 158, 11, 0.02)'};">
+                <td style="padding: 15px; text-align: center; color: #64748b;">${idx + 1}</td>
+                <td style="padding: 15px;">
+                  <div style="font-weight: 600; color: #fff;">${inc.location}</div>
+                  <div style="font-size: 0.75rem; color: #64748b;">${date}</div>
+                </td>
+                <td style="padding: 15px;">
+                  <div style="font-size: 0.9rem; color: #cbd5e0;">${inc.involved_names}</div>
+                  <div style="font-size: 0.75rem; color: #64748b;">ห้อง: ${inc.room}</div>
+                </td>
+                <td style="padding: 15px; text-align: center;">
+                  <div style="font-size: 0.85rem; color: #94a3b8;">${inc.reporter_name}</div>
+                  <div style="font-size: 0.7rem; color: #64748b;">ID: ${inc.reporter_id}</div>
+                </td>
+                <td style="padding: 15px; text-align: center;">
+                  ${inc.image ? `
+                    <div class="hover-image-container" onclick="viewImage('${safeImg}')">
+                      <i class="fas fa-image" style="color: #10b981; cursor: pointer; font-size: 1.3rem;"></i>
+                      <div class="hover-image-preview">
+                        <img src="${safeImg}" alt="Evidence">
+                        <div style="margin-top: 8px; font-size: 0.75rem; color: #94a3b8;">หลักฐานประกอบ</div>
+                      </div>
+                    </div>
+                  ` : '<span style="color: #334155;">-</span>'}
+                </td>
+                <td style="padding: 15px; text-align: center;">
+                  <span class="${statusClass}">${statusText}</span>
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          Swal.fire({
+            width: '1100px',
+            padding: '0',
+            background: '#0f172a',
+            showConfirmButton: false,
+            showCloseButton: true,
+            customClass: {
+              popup: 'premium-report-popup',
+              closeButton: 'custom-swal-close'
+            },
+            html: `
+              <style>
+                .premium-report-popup { border-radius: 24px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+                .report-header-history {
+                  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                  padding: 35px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                  display: flex; justify-content: space-between; align-items: center;
+                }
+                .status-pill-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.2); }
+                .status-pill-success { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.2); }
+                .history-scroll-box { padding: 0; max-height: 65vh; overflow-y: auto; background: #0f172a; }
+                .modern-history-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+                .modern-history-table th { 
+                  position: sticky; top: 0; z-index: 10;
+                  background: #1e293b; padding: 18px 15px; color: #94a3b8; 
+                  font-size: 0.7rem; font-weight: 800; text-transform: uppercase; 
+                  letter-spacing: 0.1em; border-bottom: 2px solid #0f172a; 
+                }
+                
+                .hover-image-container { position: relative; display: inline-block; }
+                .hover-image-preview { 
+                  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); 
+                  width: 250px; padding: 12px; background: #1e293b; border: 1.5px solid rgba(255,255,255,0.1);
+                  border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+                  display: none; z-index: 100;
+                }
+                .hover-image-preview img { width: 100%; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
+                .hover-image-container:hover .hover-image-preview { display: block; }
+              </style>
+              <div class="report-header-history">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                  <div style="width: 54px; height: 54px; background: rgba(59, 130, 246, 0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(59, 130, 246, 0.3);">
+                    <i class="fas fa-history" style="font-size: 24px; color: #60a5fa;"></i>
+                  </div>
+                  <div style="text-align: left;">
+                    <h2 style="margin: 0; color: #fff; font-size: 1.6rem; letter-spacing: -0.02em;">ประวัติการแจ้งเหตุด่วน</h2>
+                    <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">รวบรวมข้อมูลการแจ้งเหตุทั้งหมดในระบบ</p>
+                  </div>
+                </div>
+                <button onclick="showUrgentIncidentsPopup()" class="btn btn-sm" style="background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 10px; font-weight: 600;">
+                   <i class="fas fa-arrow-left"></i> กลับไปจัดการ
+                </button>
+              </div>
+              <div class="history-scroll-box">
+                <table class="modern-history-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 70px;">ลำดับ</th>
+                      <th style="text-align: left;">สถานที่ / วันเวลา</th>
+                      <th style="text-align: left;">ผู้เกี่ยวข้อง</th>
+                      <th>ผู้แจ้งเหตุ</th>
+                      <th style="width: 110px;">หลักฐาน</th>
+                      <th style="width: 140px;">สถานะ</th>
+                    </tr>
+                  </thead>
+                  <tbody>${tableRows}</tbody>
+                </table>
+              </div>
+              <div style="padding: 15px 30px; background: #1e293b; border-top: 1px solid rgba(255,255,255,0.05); text-align: right;">
+                <span style="font-size: 0.75rem; color: #64748b;"><i class="fas fa-info-circle"></i> ข้อมูลล่าสุด ณ วันที่ ${new Date().toLocaleDateString('th-TH')}</span>
+              </div>
+            `
+          });
+        } catch (e) {
+          console.error(e);
+          Swal.fire('Error', 'ไม่สามารถโหลดประวัติได้', 'error');
+        }
+      }
+
+      async function markIncidentReview(timestamp, reporterId) {
+        try {
+          const response = await fetch('/api/update-toadmin-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              timestamp: timestamp,
+              reporter_id: reporterId,
+              status: 'completed',
+              type: 'incident',
+              admin_reason: `รับทราบเหตุการณ์ที่ ${new Date().toLocaleString('th-TH')}`
+            })
+          });
+
+          const result = await response.json();
+          if (result.status === 'success') {
+            // Update badge immediately
+            checkUrgentIncidents();
+            showUrgentIncidentsPopup(); // Refresh
+          }
+        } catch (e) {
+          console.error(e);
+          Swal.fire('Error', 'ไม่สามารถปรับปรุงสถานะได้', 'error');
+        }
+      }
+
+      async function checkUrgentIncidents() {
+        try {
+          const response = await fetch('/toadmin.json?v=' + Date.now());
+          const allData = await response.json();
+          const pendingCount = allData.filter(item => item.type === 'incident' && item.status === 'pending').length;
+
+          const badge = document.getElementById('urgentBadge');
+          if (pendingCount > 0) {
+            badge.textContent = pendingCount;
+            badge.style.display = 'flex';
+            badge.style.animation = 'pulseAlert 2s infinite';
+          } else {
+            badge.style.display = 'none';
+          }
+        } catch (e) {
+          console.error('Failed to check incidents:', e);
+        }
+      }
+
+      // Add to initialization
+      setTimeout(checkUrgentIncidents, 2000);
+      setInterval(checkUrgentIncidents, 10000);
 
       // Update pagination
       function updatePagination() {
@@ -1501,6 +2105,7 @@
 
         const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
         const reasons = [];
+        let totalPts = 0;
 
         checkboxes.forEach(cb => {
           if (cb.id === 'reasonOther') {
@@ -1511,9 +2116,21 @@
           } else {
             reasons.push(cb.value);
           }
+
+          // Add points from data-pts attribute
+          const pts = parseInt(cb.getAttribute('data-pts')) || 0;
+          totalPts += pts;
         });
 
-        document.getElementById('reasonInput').value = reasons.join(', ');
+        let reasonText = reasons.join(', ');
+        if (totalPts > 0) {
+          reasonText += ` (หัก ${totalPts} คะแนน)`;
+        }
+
+        document.getElementById('reasonInput').value = reasonText;
+
+        // Store total points for access
+        document.getElementById('reasonInput').setAttribute('data-total-pts', totalPts);
       }
 
       // Reset all deduction checkboxes
@@ -2924,7 +3541,7 @@
       // Set Avatar
       const avatarDiv = document.getElementById('manageStudentAvatar');
       const timestamp = new Date().getTime();
-      avatarDiv.innerHTML = `<img src="./edstudent/${id}.jpg?v=${timestamp}" onerror="this.onerror=null; this.innerHTML='<i class=\'fas fa-user-graduate\'></i>'">`;
+      avatarDiv.innerHTML = `<img src="./edstudent/${id}.jpg?v=${timestamp}" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user-graduate\'></i>'">`;
 
       document.getElementById('manageStudentModal').classList.add('show');
     }
@@ -2949,6 +3566,8 @@
 
     // ========== Profile Viewer Functions ==========
     function openProfileViewer(studentId, studentName) {
+      currentManageId = studentId;
+      currentManageName = studentName;
       const modal = document.getElementById('profileViewerModal');
       const container = document.getElementById('profileViewerImageContainer');
       const timestamp = new Date().getTime();
@@ -2970,6 +3589,69 @@
         container.innerHTML = `<div class="no-profile-image"><i class="fas fa-user-graduate"></i></div>`;
       };
       img.src = imagePath;
+    }
+
+    function editProfileImage() {
+      closeProfileViewer();
+      setTimeout(() => {
+        openUploadProfileModal();
+      }, 300);
+    }
+
+    async function deleteProfileImage() {
+      if (!currentManageId) {
+        showToast('error', 'ไม่พบรหัสนักเรียน');
+        return;
+      }
+
+      const confirm = await Swal.fire({
+        title: 'ยืนยันการลบรูปภาพ?',
+        text: `คุณต้องการลบรูปโพรไฟล์ของ ${currentManageName} ใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'ลบรูปภาพ',
+        cancelButtonText: 'ยกเลิก'
+      });
+
+      if (confirm.isConfirmed) {
+        if (typeof showLoading === 'function') showLoading(true);
+        try {
+          const response = await fetch('/api/delete-student-photo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ student_id: currentManageId })
+          });
+          const result = await response.json();
+          if (result.status === 'success') {
+            showToast('success', 'ลบรูปภาพเรียบร้อยแล้ว');
+            closeProfileViewer();
+
+            // Update avatars on page
+            const avatars = document.querySelectorAll(`img[src*="${currentManageId}.jpg"]`);
+            avatars.forEach(img => {
+              img.src = '';
+              if (img.parentElement && img.parentElement.classList.contains('manage-avatar')) {
+                img.parentElement.innerHTML = '<i class="fas fa-user-graduate"></i>';
+              } else {
+                img.style.display = 'none';
+              }
+            });
+
+            // Re-render table if possible
+            if (typeof renderTable === 'function') renderTable();
+            else if (typeof searchStudent === 'function') searchStudent();
+          } else {
+            showToast('error', 'ไม่สามารถลบรูปภาพได้: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Delete Error:', error);
+          showToast('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        } finally {
+          if (typeof showLoading === 'function') showLoading(false);
+        }
+      }
     }
 
     function closeProfileViewer(event) {
@@ -3011,7 +3693,9 @@
     }
 
     function previewProfileImage(input) {
+      console.log('[UPLOAD] previewProfileImage called.');
       if (input.files && input.files[0]) {
+        console.log('[UPLOAD] File selected:', input.files[0].name, input.files[0].size);
         const reader = new FileReader();
         reader.onload = function (e) {
           const img = new Image();
@@ -3049,16 +3733,22 @@
     }
 
     async function saveProfileImage() {
+      console.log('[UPLOAD] saveProfileImage called (Dashboard). currentManageId:', currentManageId);
       if (!croppedImageBase64) {
+        console.warn('[UPLOAD] No croppedImageBase64 found.');
         showToast('error', 'กรุณาเลือกรูปภาพ');
         return;
       }
-      sendProfileImage(croppedImageBase64);
+      console.log('[UPLOAD] Calling sendProfileImage...');
+      await sendProfileImage(croppedImageBase64);
     }
 
     async function sendProfileImage(base64Data) {
+      console.log('[UPLOAD] sendProfileImage starting (Dashboard). student_id:', currentManageId);
       if (typeof showLoading === 'function') showLoading(true);
+
       try {
+        console.log('[UPLOAD] Fetching /api/upload-student-profile...');
         const response = await fetch('/api/upload-student-profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3068,11 +3758,15 @@
           })
         });
 
+        console.log('[UPLOAD] Response status:', response.status);
         const result = await response.json();
+        console.log('[UPLOAD] Response body:', result);
+
         if (result.status === 'success') {
           showToast('success', 'อัปโหลดรูปโปรไฟล์เรียบร้อย');
           closeUploadProfileModal();
           // Update avatars on page
+          console.log('[UPLOAD] Updating avatars on page...');
           const avatars = document.querySelectorAll(`img[src*="${currentManageId}.jpg"]`);
           const timestamp = new Date().getTime();
           avatars.forEach(img => {
@@ -3085,7 +3779,7 @@
           showToast('error', 'อัปโหลดไม่สำเร็จ: ' + result.message);
         }
       } catch (e) {
-        console.error(e);
+        console.error('[UPLOAD] Fetch error:', e);
         showToast('error', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
       } finally {
         if (typeof showLoading === 'function') showLoading(false);
@@ -3098,16 +3792,19 @@
       const notification = notificationsData[notificationIndex];
       if (!notification) return;
 
+      const studentId = notification.student_id || notification.reporter_id;
+      const studentName = notification.student_name || notification.reporter_name;
+
       pendingAdjustment = {
         notificationIndex: notificationIndex,
-        studentId: notification.student_id,
-        studentName: notification.student_name,
+        studentId: studentId,
+        studentName: studentName,
         notification: notification
       };
 
       // Set UI
       document.getElementById('adjustModalTitle').textContent = 'ปรับคะแนนพฤติกรรม';
-      document.getElementById('adjustModalSubtitle').textContent = `ให้คะแนน / หักคะแนน ${notification.student_name}`;
+      document.getElementById('adjustModalSubtitle').textContent = `ให้คะแนน / หักคะแนน ${studentName || 'undefined'}`;
 
       const iconWrapper = document.getElementById('adjustModalIcon');
       const icon = iconWrapper.querySelector('i');
@@ -3116,17 +3813,66 @@
       iconWrapper.className = 'adjust-modal-icon-wrapper plus';
       icon.className = 'fas fa-pen';
 
+      // Default point values for each deduction reason
+      const deductionPointsMap = {
+        'มาสาย': -10,
+        'ไม่สวมหมวกกันน็อค': -10,
+        'หนีเรียน': -10,
+        'สูบบุหรี่': -30,
+        'บุหรี่ไฟฟ้า': -60,
+        'บุคลิกภาพ/การแต่งกายผิดระเบียบ': -10,
+        'ทะเลาะวิวาท': -30,
+        'ใช้สื่อโซเชียลไม่เหมาะสม': -60,
+        'เล่นการพนัน': -30,
+        'สิงห้องน้ำ': -30,
+        'บูลลี่': -60,
+        'ทำลายทรัพย์สินโรงเรียน': -30,
+        'แอบถ่ายรูป': -20,
+        'ผมยาว': -10,
+        'เล็บยาว / ทาสีเล็บ': -10,
+        'เครื่องแบบไม่เรียบร้อย': -10,
+        'ใส่รองเท้าผิดระเบียบ': -10,
+        'ไม่สวมถุงเท้า': -10,
+        'เจาะหู / ใส่ต่างหู': -10
+      };
+
+      // Calculate default score from reason text
+      function calcDefaultDeduction(reasonText) {
+        if (!reasonText) return 0;
+        let total = 0;
+        // Check each known reason keyword against the reason text
+        for (const [keyword, pts] of Object.entries(deductionPointsMap)) {
+          if (reasonText.includes(keyword)) {
+            total += pts;
+          }
+        }
+        return total;
+      }
+
       // Reset Inputs
       const scoreInput = document.getElementById('adjustScoreInput');
       if (scoreInput) {
-        scoreInput.value = '';
-        // Removed dynamic hiding to match new design requirement (all fields visible)
+        const reasonText = notification.reason || notification.detail || '';
+        let defaultScore = '';
+
+        if (notification.score_change !== undefined) {
+          defaultScore = notification.score_change;
+        } else if (notification.deduction) {
+          // deduction field is positive, convert to negative for score change
+          defaultScore = -Math.abs(notification.deduction);
+        } else {
+          // Auto-calculate from reason keywords
+          const calc = calcDefaultDeduction(reasonText);
+          if (calc !== 0) defaultScore = calc;
+        }
+
+        scoreInput.value = defaultScore;
         scoreInput.oninput = null;
       }
 
       const reasonInput = document.getElementById('adjustReason');
       if (reasonInput) {
-        reasonInput.value = notification.reason || '';
+        reasonInput.value = notification.reason || notification.detail || '';
       }
 
       const workDetailInput = document.getElementById('adjustWorkDetail');
@@ -3163,6 +3909,12 @@
       if (imageContainer) imageContainer.style.display = 'block';
 
       document.getElementById('adjustScoreModal').classList.add('show');
+
+      // Show "Don't adjust score" only for incidents
+      const ackOnlyBtn = document.getElementById('btnAcknowledgeOnly');
+      if (ackOnlyBtn) {
+        ackOnlyBtn.style.display = (notification.type === 'incident') ? 'inline-flex' : 'none';
+      }
     }
 
     function closeAdjustScoreModal() {
@@ -3180,6 +3932,40 @@
           document.getElementById(placeholderId).classList.add('hidden');
         }
         reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    async function acknowledgeWithoutScore() {
+      if (!pendingAdjustment) return;
+      const { notificationIndex, notification } = pendingAdjustment;
+
+      try {
+        if (typeof showLoading === 'function') showLoading(true);
+
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const adminName = currentUser.name || 'Admin';
+
+        // Find the actual index in toadmin.json
+        const allToAdminRes = await fetch('/toadmin.json');
+        const allData = await allToAdminRes.json();
+        const actualIndex = allData.findIndex(item =>
+          (item.student_id === notification.student_id || item.reporter_id === notification.reporter_id) &&
+          item.timestamp === notification.timestamp
+        );
+
+        if (actualIndex !== -1) {
+          // Finalize completion (updates status to 'completed' and re-renders)
+          await finalizeCompletion(notificationIndex, actualIndex, adminName);
+          closeAdjustScoreModal();
+          showStatus('success', 'รับทราบเรื่องแล้ว โดยไม่ปรับคะแนน');
+        } else {
+          throw new Error('ไม่พบข้อมูลการแจ้งเตือนในระบบ');
+        }
+      } catch (error) {
+        console.error(error);
+        showStatus('error', 'เกิดข้อผิดพลาด: ' + error.message);
+      } finally {
+        if (typeof showLoading === 'function') showLoading(false);
       }
     }
 
@@ -3274,9 +4060,11 @@
         // Find the actual index in toadmin.json
         const allToAdminRes = await fetch('/toadmin.json');
         const allData = await allToAdminRes.json();
+        const notificationToFind = pendingAdjustment.notification;
+
         const actualIndex = allData.findIndex(item =>
-          item.student_id === pendingAdjustment.notification.student_id &&
-          item.timestamp === pendingAdjustment.notification.timestamp
+          (item.student_id === notificationToFind.student_id || item.reporter_id === notificationToFind.reporter_id) &&
+          item.timestamp === notificationToFind.timestamp
         );
 
         if (actualIndex !== -1) {
@@ -3390,9 +4178,15 @@
   </div>
 
   <!-- Image Viewer Modal -->
-  <div id="imageViewerModal" class="modal" onclick="closeImageViewer()">
-    <span class="close-btn"
-      style="position: absolute; top: 20px; right: 30px; color: white; font-size: 3em;">&times;</span>
+  <div id="imageViewerModal" class="modal" onclick="closeImageViewer(event)">
+    <span class="close-btn" onclick="closeImageViewer()"
+      style="position: absolute; top: 20px; right: 30px; color: white; font-size: 3em; cursor: pointer;">&times;</span>
+    <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10;">
+      <a id="downloadBtn" href="#" download="student_report.jpg" class="btn btn-primary"
+        style="padding: 12px 24px; border-radius: 12px; display: flex; align-items: center; gap: 10px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.3); background: #3b82f6; color: white; text-decoration: none;">
+        <i class="fas fa-download"></i> ดาวน์โหลดรูปภาพ
+      </a>
+    </div>
     <img class="modal-content" id="fullImage"
       style="max-width: 90%; max-height: 90vh; object-fit: contain; background: transparent; padding: 0;">
   </div>
@@ -3421,15 +4215,28 @@
       })
     }
 
-    function viewImage(src) {
+    window.viewImage = function (src) {
       const modal = document.getElementById('imageViewerModal');
       const img = document.getElementById('fullImage');
+      const downloadBtn = document.getElementById('downloadBtn');
+
       img.src = src;
+      if (downloadBtn) {
+        downloadBtn.href = src;
+        // Try to generate a nice filename
+        const filename = src.split('/').pop() || 'report_image.jpg';
+        downloadBtn.download = filename;
+      }
+
       modal.classList.add('show');
     }
 
-    function closeImageViewer() {
-      document.getElementById('imageViewerModal').classList.remove('show');
+    function closeImageViewer(event) {
+      const modal = document.getElementById('imageViewerModal');
+      // If event is provided, only close if clicking the overlay itself (not the image or button)
+      if (event && event.target !== modal) return;
+
+      modal.classList.remove('show');
     }
 
     function closeManualScoreModal() {
@@ -4093,7 +4900,7 @@
   <!-- ==================== STUDENT MANAGEMENT MODALS ==================== -->
 
   <!-- Specialized Score Adjustment Modal (Design from screenshot) -->
-  <div id="adjustScoreModal" class="student-search-overlay" style="z-index: 10700;">
+  <div id="adjustScoreModal" class="student-search-overlay" style="z-index: 30100;">
     <div class="adjust-modal-content">
       <div class="adjust-modal-icon-wrapper" id="adjustModalIcon">
         <i class="fas fa-pen"></i>
@@ -4121,6 +4928,10 @@
       <div class="adjust-modal-actions">
         <button class="adjust-btn adjust-btn-cancel" onclick="closeAdjustScoreModal()">
           <i class="fas fa-times"></i> ยกเลิก
+        </button>
+        <button class="adjust-btn" id="btnAcknowledgeOnly" onclick="acknowledgeWithoutScore()"
+          style="background: linear-gradient(135deg, #6b7280, #4b5563); color: white; display: none;">
+          <i class="fas fa-check-double"></i> ไม่ปรับคะแนน
         </button>
         <button class="adjust-btn adjust-btn-confirm" onclick="submitAdjustScore()">
           <i class="fas fa-check"></i> ยืนยัน
@@ -4275,6 +5086,17 @@
           <p>ไม่มีรูปโปรไฟล์</p>
         </div>
       </div>
+      <div class="profile-viewer-actions"
+        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
+        <button class="report-btn" onclick="editProfileImage()"
+          style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fas fa-edit"></i> แก้ไขรูปภาพ
+        </button>
+        <button class="report-btn" onclick="deleteProfileImage()"
+          style="background: #fee2e2; color: #ef4444; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fas fa-trash-alt"></i> ลบรูปภาพ
+        </button>
+      </div>
       <div style="margin-top: 20px; text-align: center;">
         <p style="color: #64748b; font-size: 0.85rem;"><i class="fas fa-info-circle"></i> รูปภาพที่จัดเก็บในระบบ
           edstudent
@@ -4284,7 +5106,7 @@
   </div>
 
   <!--Upload Profile Modal-->
-  <div class="student-search-overlay" id="uploadProfileModal" style="z-index: 10100;">
+  <div class="student-search-overlay" id="uploadProfileModal" style="z-index: 30200;">
     <div class="report-modal" style="max-width: 450px;">
       <div class="report-header" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 20px 25px;">
         <h3><i class="fas fa-camera"></i> อัปโหลดรูปโปรไฟล์</h3>
@@ -5023,7 +5845,7 @@
   </div>
 
   <!-- Photo Preview Modal -->
-  <div class="student-search-overlay" id="photoPreviewModal" style="z-index: 10000;">
+  <div class="student-search-overlay" id="photoPreviewModal" style="z-index: 30300;">
     <div style="background: white; border-radius: 20px; padding: 20px; max-width: 500px; width: 95%;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h3 style="margin: 0;"><i class="fas fa-user"></i> <span id="previewStudentId">-</span></h3>
@@ -5145,6 +5967,10 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
+
+    .swal2-container {
+      z-index: 20000 !important;
+    }
   </style>
   <div class="student-search-overlay" id="lateReportModal">
     <div class="student-search-modal"
@@ -5229,6 +6055,26 @@
           background: white; padding: 16px 20px; border-radius: 16px;
           box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-bottom: 20px;
         ">
+          <!-- Entry Type Filter -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-list-ul" style="color: #818cf8;"></i>
+            <select id="reportEntryType" onchange="toggleReportLocationFilter(); loadLateReport();"
+              class="rpt-filter-select">
+              <option value="deduction">หักคะแนน (พฤติกรรมไม่พึงประสงค์)</option>
+              <option value="work">ทำความดี (เพิ่มคะแนน)</option>
+            </select>
+          </div>
+
+          <!-- Location Filter (Hidden by default, shown for 'work') -->
+          <div id="reportLocationFilterGroup" style="display: none; align-items: center; gap: 8px;">
+            <i class="fas fa-map-marker-alt" style="color: #818cf8;"></i>
+            <select id="reportLocationType" onchange="loadLateReport()" class="rpt-filter-select">
+              <option value="all">ทุกหมวด (ใน/นอกโรงเรียน)</option>
+              <option value="in-school">ในโรงเรียน</option>
+              <option value="outside-school">นอกโรงเรียน</option>
+            </select>
+          </div>
+
           <div style="display: flex; align-items: center; gap: 8px;">
             <i class="fas fa-calendar-alt" style="color: #818cf8;"></i>
             <select id="lateReportMonth" onchange="loadLateReport()" class="rpt-filter-select">
@@ -5271,6 +6117,10 @@
             <button onclick="exportLateReportSummary()" class="rpt-export-btn"
               style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
               <i class="fas fa-file-alt"></i> รายงานสรุป
+            </button>
+            <button onclick="showGoodBehaviorSummaryPopupInModal()" class="rpt-export-btn"
+              style="background: linear-gradient(135deg, #10b981, #059669);">
+              <i class="fas fa-hand-holding-heart"></i> สรุปทำความดี
             </button>
           </div>
         </div>
@@ -5609,18 +6459,32 @@
       const month = document.getElementById('lateReportMonth').value;
       const yearBE = parseInt(document.getElementById('lateReportYear').value);
       const yearCE = yearBE - 543;
-      const category = document.getElementById('lateReportCategory').value;
-      const keywords = getFilterKeywords(category);
+      const entryType = document.getElementById('reportEntryType').value;
+      const locationType = document.getElementById('reportLocationType').value;
 
       try {
-        const response = await fetch('log.json?v=' + Date.now());
-        const logs = await response.json();
+        let logs = [];
+        let lateEntries = [];
+        let category = document.getElementById('lateReportCategory').value;
 
-        // Filter by category keywords
-        let lateEntries = logs.filter(log => {
-          const reason = (log.reason || '');
-          return keywords.some(kw => reason.includes(kw));
-        });
+        if (entryType === 'work') {
+          const response = await fetch('toadmin.json?v=' + Date.now());
+          logs = await response.json();
+          category = "ทำความดี";
+          lateEntries = logs.filter(item => {
+            if (item.type !== 'work_submission' && item.type !== 'work') return false;
+            if (locationType !== 'all' && item.location_type !== locationType) return false;
+            return true;
+          });
+        } else {
+          const response = await fetch('log.json?v=' + Date.now());
+          logs = await response.json();
+          const keywords = getFilterKeywords(category);
+          lateEntries = logs.filter(log => {
+            const reason = (log.reason || '');
+            return keywords.some(kw => reason.includes(kw));
+          });
+        }
 
         // Filter by month and year
         if (month || yearBE) {
@@ -5633,7 +6497,7 @@
         }
 
         if (lateEntries.length === 0) {
-          Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูล', text: `ไม่พบข้อมูล "${category}" ในเดือนที่เลือก` });
+          Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูล', text: `ไม่พบข้อมูลแผนงานในเดือนที่เลือก` });
           return;
         }
 
@@ -5658,33 +6522,49 @@
         // Prepare Excel data
         const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
         const monthName = month ? monthNames[parseInt(month)] : 'ทั้งหมด';
-        const sheetName = "รายงานพฤติกรรม"; // Shortened to avoid 31 char limit
+        const sheetName = entryType === 'work' ? "สรุปทำความดี" : "รายงานพฤติกรรม";
 
-        const excelData = studentList.map((s, i) => ({
-          'ลำดับ': i + 1,
-          'รหัสนักเรียน': s.id,
-          'ชื่อ-นามสกุล': s.name,
-          'จำนวนครั้ง': s.count,
-          'วันที่ล่าสุด': new Date(s.lastDate).toLocaleDateString('th-TH')
-        }));
+        if (entryType === 'work') {
+          excelData = studentList.map((s, i) => ({
+            'รหัสนักเรียน': s.id,
+            'ชื่อ-นามสกุล': s.name,
+            'ห้อง': s.class,
+            'คะแนนล่าสุด': s.score
+          }));
+          columnWidths = [
+            { wch: 15 }, // รหัส
+            { wch: 30 }, // ชื่อ
+            { wch: 12 }, // ห้อง
+            { wch: 15 }  // คะแนน
+          ];
+        } else {
+          excelData = studentList.map((s, i) => ({
+            'ลำดับ': i + 1,
+            'รหัสนักเรียน': s.id,
+            'ชื่อ-นามสกุล': s.name,
+            'จำนวนครั้ง': s.count,
+            'วันที่ล่าสุด': new Date(s.lastDate).toLocaleDateString('th-TH')
+          }));
+          columnWidths = [
+            { wch: 8 },   // ลำดับ
+            { wch: 15 },  // รหัส
+            { wch: 30 },  // ชื่อ
+            { wch: 12 },  // จำนวน
+            { wch: 15 }   // วันที่
+          ];
+        }
 
         // Create workbook
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(excelData);
 
         // Set column widths
-        ws['!cols'] = [
-          { wch: 8 },   // ลำดับ
-          { wch: 15 },  // รหัส
-          { wch: 30 },  // ชื่อ
-          { wch: 12 },  // จำนวน
-          { wch: 15 }   // วันที่
-        ];
+        ws['!cols'] = columnWidths;
 
         XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
         // Generate filename
-        const filename = `รายงาน${category}_${monthName}_${yearBE}.xlsx`;
+        const filename = `${sheetName}_${monthName}_${yearBE}.xlsx`;
         XLSX.writeFile(wb, filename);
 
         Swal.fire({ icon: 'success', title: 'ส่งออกสำเร็จ', text: `บันทึกไฟล์ ${filename}` });
@@ -5697,7 +6577,19 @@
     async function exportLateReportToPDF() {
       const month = document.getElementById('lateReportMonth').value;
       const yearBE = parseInt(document.getElementById('lateReportYear').value);
-      const category = document.getElementById('lateReportCategory').value;
+      const entryType = document.getElementById('reportEntryType').value;
+      const locationType = document.getElementById('reportLocationType').value;
+
+      let category = document.getElementById('lateReportCategory').value;
+      let reportTitle = "รายงานพฤติกรรมนักเรียนรายประเภท";
+
+      if (entryType === 'work') {
+        category = "ทำความดี";
+        if (locationType === 'in-school') category += " (ในโรงเรียน)";
+        else if (locationType === 'outside-school') category += " (นอกโรงเรียน)";
+        reportTitle = "รายงานการทำความดีนักเรียนรายประเภท";
+      }
+
       const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       const monthName = month ? monthNames[parseInt(month)] : 'ทั้งหมด';
 
@@ -5721,18 +6613,27 @@
         // Get table data from the UI to ensure consistency
         const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
           const cells = tr.querySelectorAll('td');
-          return {
-            rank: cells[0].textContent.trim(),
-            id: cells[1].textContent.trim(),
-            name: cells[2].textContent.trim(),
-            class: cells[3].textContent.trim(),
-            score: cells[4].textContent.trim(),
-            count: cells[5].textContent.trim(),
-            date: cells[6].textContent.trim()
-          };
+          if (entryType === 'work') {
+            return {
+              id: cells[0].textContent.trim(),
+              name: cells[1].textContent.trim(),
+              class: cells[2].textContent.trim(),
+              score: cells[3].textContent.trim()
+            };
+          } else {
+            return {
+              rank: cells[0].textContent.trim(),
+              id: cells[1].textContent.trim(),
+              name: cells[2].textContent.trim(),
+              class: cells[3].textContent.trim(),
+              score: cells[4].textContent.trim(),
+              count: cells[5].textContent.trim(),
+              date: cells[6].textContent.trim()
+            };
+          }
         });
 
-        const totalEntries = rows.reduce((sum, r) => sum + parseInt(r.count || 0), 0);
+        const totalEntries = entryType === 'work' ? rows.length : rows.reduce((sum, r) => sum + parseInt(r.count || 0), 0);
         const totalPages = Math.ceil(rows.length / ITEMS_PER_PAGE);
 
         for (let i = 0; i < totalPages; i++) {
@@ -5749,17 +6650,30 @@
             z-index: 1000; box-sizing: border-box;
           `;
 
-          const tableRowsHtml = pageData.map(r => `
-            <tr style="border-bottom: 1px solid #e2e8f0;">
-              <td style="padding: 10px 8px; text-align: center; font-size: 14px;">${r.rank}</td>
-              <td style="padding: 10px 8px; text-align: center; font-family: monospace; font-size: 14px;">${r.id}</td>
-              <td style="padding: 10px 8px; font-weight: 600; font-size: 14px;">${r.name}</td>
-              <td style="padding: 10px 8px; text-align: center; font-size: 14px;">${r.class}</td>
-              <td style="padding: 10px 8px; text-align: center; font-weight: 700; font-size: 14px; color: ${parseInt(r.score) < 60 ? '#ef4444' : '#1e3a8a'}">${r.score}</td>
-              <td style="padding: 10px 8px; text-align: center; font-weight: 700; font-size: 14px;">${r.count}</td>
-              <td style="padding: 10px 8px; color: #475569; font-size: 14px;">${r.date}</td>
-            </tr>
-          `).join('');
+          const tableRowsHtml = pageData.map(r => {
+            if (entryType === 'work') {
+              return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 10px 8px; text-align: center; font-family: monospace; font-size: 14px;">${r.id}</td>
+                  <td style="padding: 10px 8px; font-weight: 600; font-size: 14px;">${r.name}</td>
+                  <td style="padding: 10px 8px; text-align: center; font-size: 14px;">${r.class}</td>
+                  <td style="padding: 10px 8px; text-align: center; font-weight: 700; font-size: 14px; color: ${parseInt(r.score) < 60 ? '#ef4444' : '#1e3a8a'}">${r.score}</td>
+                </tr>
+              `;
+            } else {
+              return `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 10px 8px; text-align: center; font-size: 14px;">${r.rank}</td>
+                  <td style="padding: 10px 8px; text-align: center; font-family: monospace; font-size: 14px;">${r.id}</td>
+                  <td style="padding: 10px 8px; font-weight: 600; font-size: 14px;">${r.name}</td>
+                  <td style="padding: 10px 8px; text-align: center; font-size: 14px;">${r.class}</td>
+                  <td style="padding: 10px 8px; text-align: center; font-weight: 700; font-size: 14px; color: ${parseInt(r.score) < 60 ? '#ef4444' : '#1e3a8a'}">${r.score}</td>
+                  <td style="padding: 10px 8px; text-align: center; font-weight: 700; font-size: 14px;">${r.count}</td>
+                  <td style="padding: 10px 8px; color: #475569; font-size: 14px;">${r.date}</td>
+                </tr>
+              `;
+            }
+          }).join('');
 
           let signaturesHtml = '';
           if (isLastPage) {
@@ -5780,8 +6694,8 @@
           }
 
           tempDiv.innerHTML = `
-            <div style="text-align: center; margin-bottom: 35px; border-bottom: 2px solid #ef4444; padding-bottom: 20px;">
-              <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: #1e3a8a;">รายงานพฤติกรรมนักเรียนรายประเภท</h1>
+            <div style="text-align: center; margin-bottom: 35px; border-bottom: 2px solid ${entryType === 'work' ? '#3b82f6' : '#ef4444'}; padding-bottom: 20px;">
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: #1e3a8a;">${reportTitle}</h1>
               <h2 style="margin: 8px 0 0 0; font-size: 22px; font-weight: 600; color: #1e40af;">โรงเรียนเทพา</h2>
               <div style="margin-top: 15px; display: flex; justify-content: center; gap: 20px; font-size: 16px;">
                 <span><strong>ประเภท:</strong> ${category}</span>
@@ -5795,20 +6709,27 @@
               <span>จำนวนนักเรียน: ${rows.length} คน | รวมทั้งสิ้น: ${totalEntries} ครั้ง</span>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-              <thead>
-                <tr style="background: #f8fafc; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #cbd5e0;">
-                  <th style="padding: 12px 8px; text-align: center; width: 40px; font-size: 14px;">#</th>
-                  <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">รหัส</th>
-                  <th style="padding: 12px 8px; text-align: left; font-size: 14px;">ชื่อ-นามสกุล</th>
-                  <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">ห้อง</th>
-                  <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">คะแนน</th>
-                  <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">ครั้ง</th>
-                  <th style="padding: 12px 8px; text-align: left; width: 120px; font-size: 14px;">วันที่ล่าสุด</th>
-                </tr>
-              </thead>
-              <tbody>${tableRowsHtml}</tbody>
-            </table>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                  <thead>
+                    <tr style="background: #f8fafc; border-top: 2px solid #cbd5e0; border-bottom: 2px solid #cbd5e0;">
+                      ${entryType === 'work' ? `
+                        <th style="padding: 12px 8px; text-align: center; width: 100px; font-size: 14px;">รหัส</th>
+                        <th style="padding: 12px 8px; text-align: left; font-size: 14px;">ชื่อ-นามสกุล</th>
+                        <th style="padding: 12px 8px; text-align: center; width: 100px; font-size: 14px;">ห้อง</th>
+                        <th style="padding: 12px 8px; text-align: center; width: 100px; font-size: 14px;">คะแนน</th>
+                      ` : `
+                        <th style="padding: 12px 8px; text-align: center; width: 40px; font-size: 14px;">#</th>
+                        <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">รหัส</th>
+                        <th style="padding: 12px 8px; text-align: left; font-size: 14px;">ชื่อ-นามสกุล</th>
+                        <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">ห้อง</th>
+                        <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">คะแนน</th>
+                        <th style="padding: 12px 8px; text-align: center; width: 80px; font-size: 14px;">ครั้ง</th>
+                        <th style="padding: 12px 8px; text-align: left; width: 120px; font-size: 14px;">วันที่ล่าสุด</th>
+                      `}
+                    </tr>
+                  </thead>
+                  <tbody>${tableRowsHtml}</tbody>
+                </table>
 
             ${signaturesHtml}
 
@@ -5851,39 +6772,68 @@
       const month = document.getElementById('lateReportMonth').value;
       const yearBE = parseInt(document.getElementById('lateReportYear').value);
       const yearCE = yearBE - 543;
+      const entryType = document.getElementById('reportEntryType').value;
+      const locationType = document.getElementById('reportLocationType').value;
+
       const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
       const monthName = month ? monthNames[parseInt(month)] : 'ทั้งหมด';
 
       showLoading(true, 'กำลังรวบรวมข้อมูลสรุป...');
 
       try {
-        const response = await fetch('log.json?v=' + Date.now());
-        const logs = await response.json();
+        let logs = [];
+        let summary = {};
+        let reportTitle = "สรุปรายงานพฤติกรรมนักเรียนแยกตามประเภท";
 
-        // All behavioral categories to summarize
-        const categories = {
-          'มาสาย': getFilterKeywords('มาสาย'),
-          'บุหรี่': getFilterKeywords('บุหรี่'),
-          'บุหรี่ไฟฟ้า': getFilterKeywords('บุหรี่ไฟฟ้า'),
-          'หนีเรียน': getFilterKeywords('หนีเรียน'),
-          'ไม่สวมหมวกกันน็อค': getFilterKeywords('ไม่สวมหมวกกันน็อค'),
-          'บุคลิกภาพ/แต่งกาย': getFilterKeywords('บุคลิกภาพ/การแต่งกายผิดระเบียบ')
-        };
+        if (entryType === 'work') {
+          const response = await fetch('toadmin.json?v=' + Date.now());
+          logs = await response.json();
+          reportTitle = "สรุปรายงานการทำความดีแยกตามประเภท";
 
-        const summary = {};
-        const filteredLogs = logs.filter(log => {
-          const logDate = new Date(log.timestamp);
-          if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
-          if (yearBE && logDate.getFullYear() !== yearCE) return false;
-          return true;
-        });
+          const filteredLogs = logs.filter(item => {
+            if (item.type !== 'work_submission' && item.type !== 'work') return false;
+            const logDate = new Date(item.timestamp);
+            if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
+            if (yearBE && logDate.getFullYear() !== yearCE) return false;
+            return true;
+          });
 
-        Object.entries(categories).forEach(([name, keywords]) => {
-          summary[name] = filteredLogs.filter(log => {
-            const reason = (log.reason || '');
-            return keywords.some(kw => reason.includes(kw));
-          }).length;
-        });
+          summary = {
+            'ในโรงเรียน': filteredLogs.filter(l => l.location_type === 'in-school').length,
+            'นอกโรงเรียน': filteredLogs.filter(l => l.location_type === 'outside-school').length
+          };
+
+          // If a specific location is selected, only show that one
+          if (locationType === 'in-school') delete summary['นอกโรงเรียน'];
+          if (locationType === 'outside-school') delete summary['ในโรงเรียน'];
+
+        } else {
+          const response = await fetch('log.json?v=' + Date.now());
+          logs = await response.json();
+
+          const categories = {
+            'มาสาย': getFilterKeywords('มาสาย'),
+            'บุหรี่': getFilterKeywords('บุหรี่'),
+            'บุหรี่ไฟฟ้า': getFilterKeywords('บุหรี่ไฟฟ้า'),
+            'หนีเรียน': getFilterKeywords('หนีเรียน'),
+            'ไม่สวมหมวกกันน็อค': getFilterKeywords('ไม่สวมหมวกกันน็อค'),
+            'บุคลิกภาพ/แต่งกาย': getFilterKeywords('บุคลิกภาพ/การแต่งกายผิดระเบียบ')
+          };
+
+          const filteredLogs = logs.filter(log => {
+            const logDate = new Date(log.timestamp);
+            if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
+            if (yearBE && logDate.getFullYear() !== yearCE) return false;
+            return true;
+          });
+
+          Object.entries(categories).forEach(([name, keywords]) => {
+            summary[name] = filteredLogs.filter(log => {
+              const reason = (log.reason || '');
+              return keywords.some(kw => reason.includes(kw));
+            }).length;
+          });
+        }
 
         const totalEntries = Object.values(summary).reduce((a, b) => a + b, 0);
 
@@ -5891,7 +6841,6 @@
         const pdf = new jsPDF('p', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
 
-        // Summary report is usually 1 page, but we'll use the same engine for consistency
         const tempDiv = document.createElement('div');
         tempDiv.style.cssText = `
           position: fixed; left: -10000px; top: 0; width: 800px;
@@ -5911,7 +6860,7 @@
 
         tempDiv.innerHTML = `
           <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #3b82f6; padding-bottom: 20px;">
-            <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: #1e3a8a;">สรุปรายงานพฤติกรรมนักเรียนแยกตามประเภท</h1>
+            <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: #1e3a8a;">${reportTitle}</h1>
             <h2 style="margin: 10px 0 0 0; font-size: 22px; font-weight: 600; color: #1e40af;">โรงเรียนเทพา</h2>
             <p style="margin: 15px 0 0 0; font-size: 16px; color: #475569;">
               ประจำเดือน: ${monthName} ปีการศึกษา: ${yearBE}
@@ -5975,6 +6924,651 @@
       }
     }
 
+    async function showGoodBehaviorSummaryPopup(overrideMonth = null, overrideYear = null) {
+      // Get values from dashboard and modal
+      const dashMonth = document.getElementById('reportMonth').value;
+      const dashYear = document.getElementById('academicYear').value;
+      const modalMonthEl = document.getElementById('lateReportMonth');
+      const modalYearEl = document.getElementById('lateReportYear');
+      const modalMonth = modalMonthEl ? modalMonthEl.value : '';
+      const modalYear = modalYearEl ? modalYearEl.value : '';
+      const modal = document.getElementById('lateReportModal');
+      const isModalVisible = modal && modal.style.display === 'flex';
+
+      // Resolve Month/Year to use
+      let month = overrideMonth !== null ? overrideMonth : (isModalVisible ? modalMonth : dashMonth);
+      let yearBE = parseInt(overrideYear !== null ? overrideYear : (isModalVisible ? modalYear : dashYear));
+      const yearCE = yearBE - 543;
+
+      const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+      const monthName = month ? monthNames[parseInt(month)] : 'ทั้งหมด';
+
+      showLoading(true, 'กำลังรวบรวมข้อมูลสรุป...');
+      try {
+        const response = await fetch('toadmin.json?v=' + Date.now());
+        const logs = await response.json();
+
+        const filteredLogs = logs.filter(item => {
+          if (item.type !== 'work_submission' && item.type !== 'work') return false;
+          const logDate = new Date(item.timestamp);
+          if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
+          if (yearBE && logDate.getFullYear() !== yearCE) return false;
+          return true;
+        });
+
+        const inSchool = filteredLogs.filter(l => l.location_type === 'in-school').length;
+        const outsideSchool = filteredLogs.filter(l => l.location_type === 'outside-school').length;
+        // Fallback for missing location_type: count as unspecified
+        const unspecified = filteredLogs.filter(l => !l.location_type || (l.location_type !== 'in-school' && l.location_type !== 'outside-school')).length;
+        const total = filteredLogs.length;
+
+        showLoading(false);
+
+        // Generate Year Options (Current + 2 years back)
+        const currentYearBE = new Date().getFullYear() + 543;
+        let yearOptionsHtml = '';
+        for (let y = currentYearBE; y >= currentYearBE - 2; y--) {
+          yearOptionsHtml += `<option value="${y}" ${yearBE === y ? 'selected' : ''}>พ.ศ. ${y}</option>`;
+        }
+
+        // Generate Month Options
+        let monthOptionsHtml = '<option value="" ' + (month === '' ? 'selected' : '') + '>ทุกเดือน</option>';
+        for (let m = 1; m <= 12; m++) {
+          monthOptionsHtml += `<option value="${m}" ${parseInt(month) === m ? 'selected' : ''}>${monthNames[m]}</option>`;
+        }
+
+        Swal.fire({
+          title: '<span style="color: #10b981;"><i class="fas fa-hand-holding-heart"></i> สรุปข้อมูลการทำความดี</span>',
+          html: `
+            <div style="margin-top: 15px; text-align: left;">
+              <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; background: #f1f5f9; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <div style="flex: 1;">
+                  <label style="display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; margin-bottom: 4px;">เลือกเดือน:</label>
+                  <select id="swalMonth" class="swal2-select" style="margin: 0; width: 100%; height: 38px; font-size: 0.9rem; border-radius: 8px;" 
+                    onchange="showGoodBehaviorSummaryPopup(this.value, document.getElementById('swalYear').value)">
+                    ${monthOptionsHtml}
+                  </select>
+                </div>
+                <div style="flex: 1;">
+                  <label style="display: block; font-size: 0.75rem; color: #64748b; font-weight: 700; margin-bottom: 4px;">เลือกปี:</label>
+                  <select id="swalYear" class="swal2-select" style="margin: 0; width: 100%; height: 38px; font-size: 0.9rem; border-radius: 8px;"
+                    onchange="showGoodBehaviorSummaryPopup(document.getElementById('swalMonth').value, this.value)">
+                    ${yearOptionsHtml}
+                  </select>
+                </div>
+              </div>
+              
+              <div style="background: #f8fafc; border-radius: 12px; padding: 15px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #cbd5e0;">
+                  <span style="font-weight: 600; color: #1e3a8a;"><i class="fas fa-school" style="width: 25px;"></i> ในโรงเรียน (in-school)</span>
+                  <span style="font-weight: 700; color: #1e40af; font-size: 1.2rem;">${inSchool} <small style="font-weight: 400; font-size: 0.8rem;">ครั้ง</small></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #cbd5e0;">
+                  <span style="font-weight: 600; color: #7c3aed;"><i class="fas fa-home" style="width: 25px;"></i> นอกโรงเรียน (outside-school)</span>
+                  <span style="font-weight: 700; color: #6d28d9; font-size: 1.2rem;">${outsideSchool} <small style="font-weight: 400; font-size: 0.8rem;">ครั้ง</small></span>
+                </div>
+                ${unspecified > 0 ? `
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #cbd5e0; background: rgba(234, 179, 8, 0.05);">
+                  <span style="font-weight: 600; color: #92400e;"><i class="fas fa-question-circle" style="width: 25px;"></i> ไม่ได้ระบุสถานที่</span>
+                  <span style="font-weight: 700; color: #b45309; font-size: 1.2rem;">${unspecified} <small style="font-weight: 400; font-size: 0.8rem;">ครั้ง</small></span>
+                </div>
+                ` : ''}
+                <div style="display: flex; justify-content: space-between; padding: 12px 0 5px; margin-top: 5px;">
+                  <span style="font-weight: 800; color: #475569; font-size: 1.1rem;">รวมทั้งสิ้น</span>
+                  <span style="font-weight: 800; color: #10b981; font-size: 1.5rem;">${total} <small style="font-weight: 400; font-size: 0.8rem;">ครั้ง</small></span>
+                </div>
+              </div>
+              
+              <p style="font-size: 0.8rem; color: #94a3b8; font-style: italic; text-align: center; line-height: 1.4;">
+                * ข้อมูลดึงจากฐานข้อมูล toadmin.json อัตโนมัติ<br>
+                ${total === 0 ? '<span style="color: #ef4444; font-weight: 600;">(ไม่พบข้อมูลในช่วงเวลาที่เลือก)</span>' : ''}
+              </p>
+            </div>
+          `,
+          showCancelButton: true,
+          confirmButtonText: '<i class="fas fa-file-pdf"></i> ดาวน์โหลด PDF',
+          cancelButtonText: 'ปิด',
+          confirmButtonColor: '#3b82f6',
+          cancelButtonColor: '#94a3b8',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Trigger the PDF export with correct filters
+            document.getElementById('lateReportMonth').value = month;
+            document.getElementById('lateReportYear').value = yearBE;
+            document.getElementById('reportEntryType').value = 'work';
+            document.getElementById('reportLocationType').value = 'all';
+            toggleReportLocationFilter();
+            exportLateReportSummary();
+          }
+        });
+
+      } catch (error) {
+        console.error('Summary popup error:', error);
+        showLoading(false);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
+      }
+    }
+
+    async function showGoodBehaviorDetailsPopup(overrideRoom = null, overrideMonth = null, overrideYear = null) {
+      // Get initial values from dashboard context
+      const dashMonth = document.getElementById('reportMonth').value;
+      const dashYear = document.getElementById('academicYear').value;
+      const dashRoom = document.getElementById('classFilter').value;
+
+      // Resolve values to use (override if provided, else fall back to dashboard)
+      let month = overrideMonth !== null ? overrideMonth : dashMonth;
+      let yearBE = parseInt(overrideYear !== null ? overrideYear : dashYear);
+      let room = overrideRoom !== null ? overrideRoom : dashRoom;
+      const yearCE = yearBE - 543;
+
+      const monthNames = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+
+      showLoading(true, 'กำลังดึงข้อมูลรายชื่อ...');
+      try {
+        const response = await fetch('toadmin.json?v=' + Date.now());
+        const logs = await response.json();
+
+        // 1. Filter Logs
+        const filteredLogs = logs.filter(item => {
+          // Only show 'work' types (point additions/good behavior)
+          if (item.type !== 'work_submission' && item.type !== 'work') return false;
+
+          const logDate = new Date(item.timestamp);
+          // Month Filter
+          if (month && (logDate.getMonth() + 1) !== parseInt(month)) return false;
+          // Year Filter
+          if (yearBE && logDate.getFullYear() !== yearCE) return false;
+
+          // Room (Class) Filter
+          if (room) {
+            const student = (window.allStudents || studentsData).find(s => String(s.id) === String(item.student_id));
+            if (!student || String(student.class) !== String(room)) return false;
+          }
+
+          return true;
+        });
+
+        showLoading(false);
+
+        // 2. Prepare Dropdowns options
+        const currentYearBE = new Date().getFullYear() + 543;
+        let yearOptions = '';
+        for (let y = currentYearBE + 1; y >= currentYearBE - 2; y--) {
+          yearOptions += `<option value="${y}" ${yearBE === y ? 'selected' : ''}>พ.ศ. ${y}</option>`;
+        }
+
+        let monthOptions = '<option value="" ' + (month === '' ? 'selected' : '') + '>เลือกทุกเดือน</option>';
+        for (let m = 1; m <= 12; m++) {
+          monthOptions += `<option value="${m}" ${parseInt(month) === m ? 'selected' : ''}>${monthNames[m]}</option>`;
+        }
+
+        const classes = [...new Set((window.allStudents || studentsData).map(s => s.class))].filter(Boolean).sort((a, b) => getClassSortValue(a) - getClassSortValue(b));
+        let classOptions = '<option value="" ' + (room === '' ? 'selected' : '') + '>เลือกทุกห้อง</option>';
+        classes.forEach(c => {
+          classOptions += `<option value="${c}" ${String(room) === String(c) ? 'selected' : ''}>${formatClassName(c)}</option>`;
+        });
+
+        // 3. Render Table Rows
+        let tableRows = '';
+        if (filteredLogs.length === 0) {
+          tableRows = `
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 3rem; color: #e2e8f0; margin-bottom: 10px;"><i class="fas fa-folder-open"></i></div>
+                <div style="color: #94a3b8; font-weight: 500;">ไม่พบข้อมูลในช่วงเวลาหรือห้องที่เลือก</div>
+                <div style="font-size: 0.8rem; color: #cbd5e0; margin-top: 5px;">โปรดตรวจสอบ "ปีการศึกษา" หรือ "ตัวกรอง" อีกครั้ง</div>
+              </td>
+            </tr>`;
+        } else {
+          // Sort by timestamp descending
+          const sorted = [...filteredLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          sorted.forEach((log, idx) => {
+            const student = (window.allStudents || studentsData).find(s => String(s.id) === String(log.student_id));
+            let locationLabel = '';
+            if (log.location_type === 'in-school') {
+              locationLabel = `<div class="badge-ultimate bg-indigo-p"><i class="fas fa-school" style="font-size: 0.8rem;"></i> ในโรงเรียน</div>`;
+            } else if (log.location_type === 'outside-school') {
+              locationLabel = `<div class="badge-ultimate bg-cyan-p"><i class="fas fa-home-alt" style="font-size: 0.8rem;"></i> นอกโรงเรียน</div>`;
+            } else {
+              locationLabel = `<div class="badge-ultimate bg-slate-p"><i class="fas fa-map-marker-alt" style="font-size: 0.8rem;"></i> ไม่ระบุสถานที่</div>`;
+            }
+
+            tableRows += `
+              <tr class="modern-row" style="cursor: default;">
+                <td style="padding: 24px 10px; text-align: center; color: #94a3b8; font-weight: 400; font-size: 0.9rem;">${idx + 1}</td>
+                <td style="padding: 24px 10px;">
+                  <div style="font-weight: 850; color: #1e1b4b; font-size: 1.15rem; margin-bottom: 3px; letter-spacing: -0.015em;">${log.student_name}</div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.8rem; color: #4338ca; font-weight: 700; background: rgba(99, 102, 241, 0.1); padding: 2px 10px; border-radius: 8px; border: 1.5px solid rgba(99, 102, 241, 0.15);">ID: ${log.student_id}</span>
+                  </div>
+                </td>
+                <td style="padding: 24px 10px; text-align: center;">
+                   <div style="background: white; padding: 6px 16px; border-radius: 14px; font-weight: 800; color: #334155; display: inline-block; min-width: 75px; border: 1.5px solid #e2e8ff; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
+                    ${student ? formatClassName(student.class) : '-'}
+                   </div>
+                </td>
+                <td style="padding: 24px 10px; text-align: center;">
+                   <div style="font-weight: 900; color: #2563eb; font-size: 1.45rem; letter-spacing: -0.03em;">+${log.score || 0}</div>
+                </td>
+                <td style="padding: 24px 10px; text-align: center;">
+                   <div style="font-weight: 1000; color: #059669; font-size: 1.55rem; letter-spacing: -0.04em; text-shadow: 0 1px 2px rgba(5,150,105,0.1);">${student ? student.score : '-'}</div>
+                </td>
+                <td style="padding: 24px 10px; text-align: center;">${locationLabel}</td>
+              </tr>
+             `;
+          });
+        }
+
+        // 4. Show SweetAlert
+        // 4. Show SweetAlert
+        Swal.fire({
+          width: '900px',
+          padding: '0',
+          background: '#f8fafc',
+          showConfirmButton: false,
+          showCloseButton: true,
+          closeButtonHtml: '&times;',
+          customClass: {
+            popup: 'premium-report-popup',
+            closeButton: 'premium-close-btn'
+          },
+          html: `
+            <style>
+              @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap');
+              
+              .premium-report-popup {
+                border-radius: 24px !important;
+                overflow: hidden !important;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+              }
+
+              .premium-close-btn {
+                color: rgba(255, 255, 255, 0.8) !important;
+                font-size: 32px !important;
+                top: 20px !important;
+                right: 20px !important;
+                transition: all 0.3s !important;
+                outline: none !important;
+                box-shadow: none !important;
+              }
+              .premium-close-btn:hover { color: white !important; transform: rotate(90deg); }
+
+              .report-header-ultimate {
+                background: linear-gradient(135deg, #1e293b, #0f172a);
+                padding: 40px 30px;
+                text-align: left;
+                position: relative;
+                overflow: hidden;
+              }
+              .report-header-ultimate::before {
+                content: ''; position: absolute; top: -50px; left: -50px; 
+                width: 200px; height: 200px; background: rgba(255,255,255,0.03); 
+                border-radius: 50%;
+              }
+              .report-header-ultimate::after {
+                content: ''; position: absolute; bottom: -80px; right: -40px; 
+                width: 250px; height: 250px; background: rgba(255,255,255,0.02); 
+                border-radius: 50%;
+              }
+
+              .header-content-inner { display: flex; align-items: center; gap: 20px; position: relative; z-index: 2; }
+              .header-icon-box {
+                width: 64px; height: 64px; 
+                background: rgba(255,255,255,0.1); 
+                backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2); 
+                border-radius: 18px; 
+                display: flex; align-items: center; justify-content: center; 
+                font-size: 1.8rem;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+              }
+              .header-text-box h2 { 
+                margin: 0; color: white; font-size: 1.8rem; font-weight: 800; 
+                font-family: 'Prompt', sans-serif;
+                letter-spacing: -0.02em; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+              }
+              .header-text-box p { 
+                margin: 5px 0 0; color: rgba(255,255,255,0.6); font-size: 0.9rem; 
+                font-weight: 500; font-family: 'Prompt', sans-serif;
+                letter-spacing: 1px; text-transform: uppercase;
+              }
+
+              .det-popup-container { padding: 30px; font-family: 'Prompt', sans-serif; background: #f8fafc; }
+              
+              .filter-bar-floating { 
+                 display: flex; gap: 15px; margin-bottom: 25px; padding: 20px 25px; 
+                 background: white; 
+                 border-radius: 20px; border: 1.5px solid #e2e8f0; 
+                 box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+                 transition: all 0.3s ease;
+              }
+              .filter-col { flex: 1; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+              .filter-label { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; padding-left: 4px; display: flex; align-items: center; gap: 6px; }
+              .filter-label i { color: #3b82f6; }
+              
+              .det-select { 
+                width: 100%; height: 50px; border-radius: 12px; border: 1.5px solid #e2e8f0; 
+                background: white; padding: 0 15px; font-size: 1rem; font-weight: 600; color: #1e293b;
+                transition: all 0.2s; cursor: pointer;
+              }
+              .det-select:hover { border-color: #3b82f6; }
+              .det-select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+
+              .stats-summary-lite {
+                display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
+                padding: 0 10px; font-size: 0.85rem; color: #64748b; font-weight: 600;
+              }
+              .stats-count { color: #3b82f6; font-weight: 800; }
+
+              .table-wrapper-ultimate { 
+                border-radius: 20px; overflow: hidden; border: 1.5px solid #e2e8f0; 
+                background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+              }
+              .modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+              .modern-thead { background: #f1f5f9; }
+              .modern-thead th { 
+                padding: 18px 12px; text-align: center; color: #475569; 
+                font-size: 0.8rem; font-weight: 800; text-transform: uppercase; 
+                border-bottom: 2px solid #e2e8f0; letter-spacing: 1px; 
+              }
+              .modern-row { transition: all 0.2s; border-bottom: 1px solid #f1f5f9; }
+              .modern-row:hover { background: #f8fafc; }
+              
+              .badge-ultimate { 
+                padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; 
+                display: inline-flex; align-items: center; gap: 6px; 
+              }
+              .bg-indigo-p { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; }
+              .bg-cyan-p { background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+              .bg-slate-p { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+              .export-det-btn {
+                background: white; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 8px 15px;
+                color: #475569; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+                display: flex; align-items: center; gap: 8px;
+              }
+              .export-det-btn:hover { border-color: #3b82f6; color: #3b82f6; transform: translateY(-1px); }
+            </style>
+
+            <div class="report-header-ultimate">
+              <div class="header-content-inner">
+                <div class="header-icon-box">🏆</div>
+                <div class="header-text-box">
+                  <h2>รายชื่อทำความดี</h2>
+                  <p>TP Gardian Intelligence - รายงานพฤติกรรมเชิงบวก</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="det-popup-container">
+              <div class="filter-bar-floating">
+                <div class="filter-col" style="flex: 1.2;">
+                  <span class="filter-label"><i class="fas fa-graduation-cap"></i> เลือกห้องเรียน</span>
+                  <select id="swalRoomDet" class="det-select" 
+                    onchange="showGoodBehaviorDetailsPopup(this.value, document.getElementById('swalMonthDet').value, document.getElementById('swalYearDet').value)">
+                    ${classOptions}
+                  </select>
+                </div>
+                <div class="filter-col">
+                  <span class="filter-label"><i class="fas fa-calendar-alt"></i> เลือกเดือน</span>
+                  <select id="swalMonthDet" class="det-select" 
+                    onchange="showGoodBehaviorDetailsPopup(document.getElementById('swalRoomDet').value, this.value, document.getElementById('swalYearDet').value)">
+                    ${monthOptions}
+                  </select>
+                </div>
+                <div class="filter-col" style="flex: 0.8;">
+                  <span class="filter-label"><i class="fas fa-bookmark"></i> ปีการศึกษา</span>
+                  <select id="swalYearDet" class="det-select"
+                    onchange="showGoodBehaviorDetailsPopup(document.getElementById('swalRoomDet').value, document.getElementById('swalMonthDet').value, this.value)">
+                    ${yearOptions}
+                  </select>
+                </div>
+              </div>
+
+              <div class="stats-summary-lite">
+                <div><i class="fas fa-info-circle"></i> ผลการค้นหา <span class="stats-count">${filteredLogs.length}</span> รายการ</div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="export-det-btn" onclick="exportDetailedGoodBehaviorList()">
+                    <i class="fas fa-file-excel" style="color: #16a34a;"></i> CSV
+                  </button>
+                  <button class="export-det-btn" onclick="exportDetailedGoodBehaviorListPDF()" style="color: #ef4444; border-color: #fee2e2;">
+                    <i class="fas fa-file-pdf"></i> PDF
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-wrapper-ultimate">
+                <div style="max-height: 380px; overflow-y: auto;">
+                  <table class="modern-table">
+                    <thead class="modern-thead" style="position: sticky; top: 0; z-index: 10;">
+                      <tr>
+                        <th style="width: 50px;">#</th>
+                        <th style="text-align: left;">รายชื่อนักเรียน</th>
+                        <th style="width: 90px;">ห้อง</th>
+                        <th style="width: 100px;">คะแนนเพิ่ม</th>
+                        <th style="width: 110px;">คะแนนรวม</th>
+                        <th style="width: 150px;">สถานที่</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${tableRows}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+
+      } catch (error) {
+        console.error('Details popup error:', error);
+        showLoading(false);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.message });
+      }
+    }
+
+    // Export function for the detailed list
+    window.exportDetailedGoodBehaviorList = function () {
+      const table = document.querySelector('.modern-table');
+      if (!table || table.rows.length <= 1 || table.rows[1].cells.length < 2) {
+        Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูลให้ส่งออก' });
+        return;
+      }
+      const monthName = document.getElementById('swalMonthDet').options[document.getElementById('swalMonthDet').selectedIndex].text;
+      const yearBE = document.getElementById('swalYearDet').value;
+      const className = document.getElementById('swalRoomDet').options[document.getElementById('swalRoomDet').selectedIndex].text;
+      let csv = "\uFEFF"; // BOM
+      csv += `รายชื่อนักเรียนทำความดี - ${className} - ${monthName} ${yearBE}\n`;
+      csv += "ลำดับ,รหัสนักเรียน,ชื่อ-นามสกุล,ห้อง,คะแนนที่ได้,คะแนนรวม,สถานที่\n";
+      const rows = table.querySelectorAll('tbody tr.modern-row');
+      rows.forEach((row, i) => {
+        const cells = row.cells;
+        const studentName = cells[1].querySelector('div:first-child').innerText;
+        const studentId = cells[1].querySelector('div:last-child').innerText.replace('ID: ', '');
+        const cls = cells[2].innerText.trim();
+        const scoreAdded = cells[3].innerText.trim();
+        const scoreTotal = cells[4].innerText.trim();
+        const loc = cells[5].innerText.trim();
+        csv += `${i + 1},${studentId},${studentName},${cls},${scoreAdded},${scoreTotal},"${loc}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.setAttribute("href", URL.createObjectURL(blob));
+      link.setAttribute("download", `Behavior_Details_${className}_${monthName}_${yearBE}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    // Export function for the detailed list (PDF)
+    window.exportDetailedGoodBehaviorListPDF = async function () {
+      const table = document.querySelector('.modern-table');
+      if (!table || table.rows.length <= 1 || table.rows[1].cells.length < 2) {
+        Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูลให้ส่งออก' });
+        return;
+      }
+
+      const monthName = document.getElementById('swalMonthDet').options[document.getElementById('swalMonthDet').selectedIndex].text;
+      const yearBE = document.getElementById('swalYearDet').value;
+      const className = document.getElementById('swalRoomDet').options[document.getElementById('swalRoomDet').selectedIndex].text;
+      const rowCount = table.querySelectorAll('tbody tr.modern-row').length;
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const ITEMS_PER_PAGE = 10;
+        const rows = Array.from(table.querySelectorAll('tbody tr.modern-row'));
+        const totalPages = Math.ceil(rows.length / ITEMS_PER_PAGE);
+
+        // Showing loading
+        Swal.fire({
+          title: 'กำลังสร้างไฟล์ PDF...',
+          html: 'กรุณารอสักครู่ <br> หน้า <b>1</b> จาก ' + totalPages,
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+
+        for (let i = 0; i < totalPages; i++) {
+          const start = i * ITEMS_PER_PAGE;
+          const end = start + ITEMS_PER_PAGE;
+          const pageData = rows.slice(start, end);
+
+          if (i > 0) pdf.addPage();
+
+          if (Swal.isVisible()) {
+            const b = Swal.getHtmlContainer().querySelector('b');
+            if (b) b.textContent = (i + 1);
+          }
+
+          const tempDiv = document.createElement('div');
+          tempDiv.style.cssText = `
+             position: fixed; left: -10000px; top: 0; width: 850px;
+             background: #fff; padding: 40px; font-family: 'Prompt', 'Sarabun', Arial, sans-serif;
+             color: #1e293b;
+           `;
+
+          const tableRowsHtml = pageData.map((row, pIdx) => {
+            const cells = row.cells;
+            const studentName = cells[1].querySelector('div:first-child').innerText;
+            const studentId = cells[1].querySelector('div:last-child').innerText;
+            const classNameCell = cells[2].innerText.trim();
+            const scoreAdded = cells[3].innerText.trim();
+            const scoreTotal = cells[4].innerText.trim();
+            const locationText = cells[5].innerText.trim();
+
+            let badgeStyle = "background: #f1f5f9; color: #64748b;";
+            if (locationText.includes('ในโรงเรียน')) badgeStyle = "background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe;";
+            if (locationText.includes('นอกโรงเรียน')) badgeStyle = "background: #f5f3ff; color: #6d28d9; border: 1px solid #ede9fe;";
+
+            return `
+               <tr style="border-bottom: 1px solid #f1f5f9; ${pIdx % 2 === 0 ? 'background: #fafafa;' : ''}">
+                 <td style="padding: 15px 10px; text-align: center; font-size: 13px; color: #94a3b8;">${cells[0].innerText}</td>
+                 <td style="padding: 15px 10px; text-align: left;">
+                   <div style="font-weight: 800; font-size: 15px; color: #1e293b; margin-bottom: 2px;">${studentName}</div>
+                   <div style="font-size: 11px; color: #3b82f6; font-weight: 600;">${studentId}</div>
+                 </td>
+                 <td style="padding: 15px 10px; text-align: center;">
+                    <div style="background: #fff; border: 1px solid #e2e8f0; padding: 3px 8px; border-radius: 6px; font-size: 13px; font-weight: 600; display: inline-block;">
+                      ${classNameCell}
+                    </div>
+                 </td>
+                 <td style="padding: 15px 10px; text-align: center;">
+                    <div style="font-size: 16px; font-weight: 800; color: #3b82f6;">${scoreAdded}</div>
+                 </td>
+                 <td style="padding: 15px 10px; text-align: center;">
+                    <div style="font-size: 18px; font-weight: 900; color: #10b981;">${scoreTotal}</div>
+                 </td>
+                 <td style="padding: 15px 10px; text-align: center;">
+                    <div style="padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; display: inline-block; ${badgeStyle}">
+                      ${locationText}
+                    </div>
+                 </td>
+               </tr>
+             `;
+          }).join('');
+
+          tempDiv.innerHTML = `
+             <!-- Decorative Top Bar -->
+             <div style="height: 8px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); border-radius: 4px; margin-bottom: 30px;"></div>
+
+             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 35px;">
+               <div style="text-align: left;">
+                 <h1 style="margin: 0; color: #1e3a8a; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">รายงานสรุปผลการทำความดี</h1>
+                 <h2 style="margin: 5px 0 0 0; color: #3b82f6; font-size: 20px; font-weight: 700;">โรงเรียนเทพา จังหวัดสงขลา</h2>
+                 <div style="margin-top: 15px; display: flex; gap: 20px;">
+                    <div style="background: #f8fafc; padding: 8px 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                      <span style="font-size: 11px; color: #64748b; font-weight: 800; display: block; text-transform: uppercase;">ห้องเรียน</span>
+                      <span style="font-size: 15px; color: #1e293b; font-weight: 700;">${className}</span>
+                    </div>
+                    <div style="background: #f8fafc; padding: 8px 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                      <span style="font-size: 11px; color: #64748b; font-weight: 800; display: block; text-transform: uppercase;">ประจำปี/เดือน</span>
+                      <span style="font-size: 15px; color: #1e293b; font-weight: 700;">${monthName} ${yearBE}</span>
+                    </div>
+                 </div>
+               </div>
+               <div style="text-align: right;">
+                 <div style="font-size: 32px; font-weight: 900; color: rgba(59, 130, 246, 0.1); line-height: 1;">SUMMARY<br>REPORT</div>
+                 <div style="margin-top: 10px; font-size: 12px; color: #94a3b8; font-weight: 600;">พบข้อมูลทั้งหมด ${rowCount} รายการ</div>
+               </div>
+             </div>
+             
+             <div style="border-radius: 15px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+               <table style="width: 100%; border-collapse: collapse; background: #fff;">
+                 <thead>
+                   <tr style="background: #1e3a8a;">
+                     <th style="padding: 15px; font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; width: 50px;">#</th>
+                     <th style="padding: 15px; font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; text-align: left;">ชื่อ-นามสกุล / รหัส</th>
+                     <th style="padding: 15px; font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; width: 80px;">ห้อง</th>
+                     <th style="padding: 15px; font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; width: 90px;">คะแนนที่ได้</th>
+                     <th style="padding: 15px; font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; width: 100px;">คะแนนรวม</th>
+                     <th style="padding: 15px; font-size: 12px; font-weight: 800; color: #fff; text-transform: uppercase; width: 130px;">รายละเอียด</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   ${tableRowsHtml}
+                 </tbody>
+               </table>
+             </div>
+
+             <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 11px; color: #64748b; font-weight: 600;">
+               <div style="background: #f1f5f9; padding: 5px 12px; border-radius: 8px;">หน้า ${i + 1} / ${totalPages}</div>
+               <div style="text-align: right;">
+                 <div>จัดพิมพ์โดย TP Gardian</div>
+                 <div style="color: #94a3b8; font-size: 10px; margin-top: 2px;">วันที่พิมพ์: ${new Date().toLocaleString('th-TH')}</div>
+               </div>
+             </div>
+           `;
+
+          document.body.appendChild(tempDiv);
+
+          // Small delay for rendering
+          await new Promise(r => setTimeout(r, 400));
+
+          const canvas = await html2canvas(tempDiv, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+          document.body.removeChild(tempDiv);
+
+          const imgData = canvas.toDataURL('image/jpeg', 0.9);
+          const imgWidth = pdf.internal.pageSize.getWidth();
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+        }
+
+        pdf.save(`Behavior_Details_${className}_${monthName}_${yearBE}.pdf`);
+        Swal.fire({ icon: 'success', title: 'สร้างไฟล์สำเร็จ', text: 'ดาวน์โหลดไฟล์เรียบร้อยแล้ว' });
+
+      } catch (err) {
+        console.error('PDF Export Error:', err);
+        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: err.message });
+      }
+    };
+
+    function showGoodBehaviorSummaryPopupInModal() {
+      showGoodBehaviorSummaryPopup();
+    }
+
     function getClassSortValue(c) {
       if (!c || c === '-') return 999999;
       const s = String(c).trim();
@@ -5982,6 +7576,28 @@
       if (match) return parseInt(match[1]) * 100 + parseInt(match[2]);
       const num = parseInt(s.replace(/\D/g, ''));
       return isNaN(num) ? 999999 : num;
+    }
+
+    function toggleReportLocationFilter() {
+      const entryType = document.getElementById('reportEntryType').value;
+      const locationGroup = document.getElementById('reportLocationFilterGroup');
+      const categoryCards = document.getElementById('reportCategoryCards');
+
+      if (entryType === 'work') {
+        locationGroup.style.display = 'flex';
+        categoryCards.style.visibility = 'hidden';
+        categoryCards.style.pointerEvents = 'none';
+        categoryCards.style.height = '0';
+        categoryCards.style.margin = '0';
+        categoryCards.style.overflow = 'hidden';
+      } else {
+        locationGroup.style.display = 'none';
+        categoryCards.style.visibility = 'visible';
+        categoryCards.style.pointerEvents = 'auto';
+        categoryCards.style.height = 'auto';
+        categoryCards.style.margin = '0 0 20px 0';
+        categoryCards.style.overflow = 'auto';
+      }
     }
 
     async function loadLateReport() {
@@ -5998,16 +7614,32 @@
       resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #f59e0b;"></i><p>กำลังโหลดข้อมูล...</p></div>';
 
       try {
-        const response = await fetch('log.json?v=' + Date.now());
-        const logs = await response.json();
+        const entryType = document.getElementById('reportEntryType').value;
+        const locationType = document.getElementById('reportLocationType').value;
 
-        const category = document.getElementById('lateReportCategory').value;
-        const keywords = getFilterKeywords(category);
+        let logs = [];
+        let lateEntries = [];
 
-        let lateEntries = logs.filter(log => {
-          const reason = (log.reason || '');
-          return keywords.some(kw => reason.includes(kw));
-        });
+        if (entryType === 'work') {
+          const response = await fetch('toadmin.json?v=' + Date.now());
+          logs = await response.json();
+          // Filter only work submissions and match location if not 'all'
+          lateEntries = logs.filter(item => {
+            if (item.type !== 'work_submission' && item.type !== 'work') return false;
+            if (locationType !== 'all' && item.location_type !== locationType) return false;
+            return true;
+          });
+        } else {
+          const response = await fetch('log.json?v=' + Date.now());
+          logs = await response.json();
+          const category = document.getElementById('lateReportCategory').value;
+          const keywords = getFilterKeywords(category);
+
+          lateEntries = logs.filter(log => {
+            const reason = (log.reason || '');
+            return keywords.some(kw => reason.includes(kw));
+          });
+        }
 
         if (month || yearBE) {
           lateEntries = lateEntries.filter(log => {
@@ -6022,10 +7654,11 @@
         countSpan.textContent = `รวม: ${lateEntries.length} ครั้ง`;
 
         if (lateEntries.length === 0) {
+          const entryTypeName = entryType === 'work' ? 'ทำความดี' : 'หักคะแนน';
           resultsDiv.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #94a3b8;">
               <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 10px; color: #10b981;"></i>
-              <p>ไม่พบข้อมูล "${category}" ในเดือนที่เลือก</p>
+              <p>ไม่พบข้อมูล "${entryTypeName}" ในเดือนที่เลือก</p>
             </div>
           `;
           return;
@@ -6077,13 +7710,20 @@
           <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
             <thead>
               <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">#</th>
-                <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">รหัส</th>
-                <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">ชื่อ-นามสกุล</th>
-                <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">ห้อง</th>
-                <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">คะแนนล่าสุด</th>
-                <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">จำนวนครั้ง</th>
-                <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">วันที่ล่าสุด</th>
+                ${entryType === 'work' ? `
+                  <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">รหัสนักเรียน</th>
+                  <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">ชื่อ-นามสกุล</th>
+                  <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">ห้อง</th>
+                  <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">คะแนนล่าสุด</th>
+                ` : `
+                  <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">#</th>
+                  <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">รหัส</th>
+                  <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">ชื่อ-นามสกุล</th>
+                  <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">ห้อง</th>
+                  <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">คะแนนล่าสุด</th>
+                  <th style="padding: 14px 16px; text-align: center; font-size: 0.85rem; font-weight: 600;">จำนวนครั้ง</th>
+                  <th style="padding: 14px 16px; text-align: left; font-size: 0.85rem; font-weight: 600;">วันที่ล่าสุด</th>
+                `}
               </tr>
             </thead>
             <tbody>
@@ -6098,27 +7738,42 @@
           const rankBg = index === 0 ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : (index === 1 ? 'linear-gradient(135deg, #94a3b8, #64748b)' : (index === 2 ? 'linear-gradient(135deg, #d97706, #b45309)' : 'none'));
           const rankColor = index < 3 ? 'white' : '#64748b';
 
-          tableHtml += `
-            <tr style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-              <td style="padding: 14px 16px; text-align: center;">
-                <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 10px; background: ${rankBg}; color: ${rankColor}; font-weight: 700; font-size: 0.85rem;">${index + 1}</span>
-              </td>
-              <td style="padding: 14px 16px; font-family: monospace; font-size: 0.9rem; color: #475569;">${student.id}</td>
-              <td style="padding: 14px 16px; font-weight: 600; color: #1e293b;">${student.name}</td>
-              <td style="padding: 14px 16px; text-align: center;">
-                <span style="background: #f1f5f9; color: #475569; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">${formattedClass}</span>
-              </td>
-              <td style="padding: 14px 16px; text-align: center;">
-                <span style="color: ${student.score < 60 ? '#ef4444' : '#10b981'}; font-weight: 700; font-size: 0.9rem;">${student.score}</span>
-              </td>
-              <td style="padding: 14px 16px; text-align: center;">
-                <span style="background: ${countColor}; color: white; padding: 5px 16px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">${student.count}</span>
-              </td>
-              <td style="padding: 14px 16px; color: #64748b; font-size: 0.9rem;">
-                <i class="fas fa-calendar-alt" style="margin-right: 6px; color: #a5b4fc;"></i> ${latestDate}
-              </td>
-            </tr>
-          `;
+          if (entryType === 'work') {
+            tableHtml += `
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                <td style="padding: 14px 16px; font-family: monospace; font-size: 0.9rem; color: #475569;">${student.id}</td>
+                <td style="padding: 14px 16px; font-weight: 600; color: #1e293b;">${student.name}</td>
+                <td style="padding: 14px 16px; text-align: center;">
+                  <span style="background: #f1f5f9; color: #475569; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">${formattedClass}</span>
+                </td>
+                <td style="padding: 14px 16px; text-align: center;">
+                  <span style="color: ${student.score < 60 ? '#ef4444' : '#10b981'}; font-weight: 700; font-size: 0.9rem;">${student.score}</span>
+                </td>
+              </tr>
+            `;
+          } else {
+            tableHtml += `
+              <tr style="border-bottom: 1px solid #f1f5f9; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                <td style="padding: 14px 16px; text-align: center;">
+                  <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 10px; background: ${rankBg}; color: ${rankColor}; font-weight: 700; font-size: 0.85rem;">${index + 1}</span>
+                </td>
+                <td style="padding: 14px 16px; font-family: monospace; font-size: 0.9rem; color: #475569;">${student.id}</td>
+                <td style="padding: 14px 16px; font-weight: 600; color: #1e293b;">${student.name}</td>
+                <td style="padding: 14px 16px; text-align: center;">
+                  <span style="background: #f1f5f9; color: #475569; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">${formattedClass}</span>
+                </td>
+                <td style="padding: 14px 16px; text-align: center;">
+                  <span style="color: ${student.score < 60 ? '#ef4444' : '#10b981'}; font-weight: 700; font-size: 0.9rem;">${student.score}</span>
+                </td>
+                <td style="padding: 14px 16px; text-align: center;">
+                  <span style="background: ${countColor}; color: white; padding: 5px 16px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">${student.count}</span>
+                </td>
+                <td style="padding: 14px 16px; color: #64748b; font-size: 0.9rem;">
+                  <i class="fas fa-calendar-alt" style="margin-right: 6px; color: #a5b4fc;"></i> ${latestDate}
+                </td>
+              </tr>
+            `;
+          }
         });
 
         tableHtml += `</tbody></table>`;
@@ -6152,8 +7807,19 @@
         cancelButtonText: 'ยกเลิก',
         background: '#111827',
         color: '#f1f5f9'
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
+          const token = localStorage.getItem('tpac_token');
+          if (token) {
+            try {
+              await fetch('/api/delete-cookie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+              });
+            } catch (e) { console.error('Cookie delete failed:', e); }
+          }
+          localStorage.removeItem('tpac_token');
           sessionStorage.removeItem('currentUser');
           window.location.href = 'index.html';
         }
