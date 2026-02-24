@@ -756,8 +756,20 @@
         await new Promise(r => setTimeout(r, 500));
 
         if (user) {
-          sessionStorage.setItem('currentUser', JSON.stringify({ ...user, role: currentRole }));
-          localStorage.setItem('tpac_token', 'tpac_' + Date.now());
+          const userData = { ...user, role: currentRole };
+          sessionStorage.setItem('currentUser', JSON.stringify(userData));
+
+          // Generate token and save cookie to server for persistent login
+          const token = 'tpac_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem('tpac_token', token);
+          try {
+            await fetch('/api/save-cookie', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token, userData: { id: user.id, name: user.name, password: user.password, role: currentRole } })
+            });
+          } catch (e) { console.warn('Cookie save failed:', e); }
+
           showToast('✨ เข้าสู่ระบบสำเร็จ!');
           setTimeout(() => {
             window.location.href = { student: 'home.html', teacher: 'th.html', admin: 'teacher-dashboard.html', cd: 'cd.html' }[currentRole];
@@ -776,7 +788,35 @@
       t.textContent = msg; t.style.display = 'block';
       setTimeout(() => t.style.display = 'none', 3000);
     }
+
+    // Auto-login check on page load
+    (async function checkAutoLogin() {
+      const token = localStorage.getItem('tpac_token');
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/check-cookie', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+
+        if (data.status === 'success' && data.userData) {
+          const role = data.userData.role;
+          sessionStorage.setItem('currentUser', JSON.stringify(data.userData));
+          const dest = { student: 'home.html', teacher: 'th.html', admin: 'teacher-dashboard.html', cd: 'cd.html' }[role];
+          if (dest) window.location.href = dest;
+        } else {
+          // Invalid token, clean up
+          localStorage.removeItem('tpac_token');
+        }
+      } catch (e) {
+        console.warn('Auto-login check failed:', e);
+      }
+    })();
   </script>
 </body>
+
 
 </html>
