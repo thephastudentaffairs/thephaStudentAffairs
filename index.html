@@ -4,460 +4,628 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบคะแนนพฤติกรรม - โรงเรียนเทพา</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>เข้าสู่ระบบ | TPAC Digital Score</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <style>
     :root {
-      --primary: #fbbf24;
-      --primary-rgb: 251, 191, 36;
-      --primary-hover: #f59e0b;
-      --bg-dark: #070b14;
-      --bg-card: rgba(30, 41, 59, 0.4);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border: rgba(255, 255, 255, 0.1);
-      --student-color: #3b82f6;
-      --student-rgb: 59, 130, 246;
-      --teacher-color: #ef4444;
-      --teacher-rgb: 239, 68, 68;
-      --admin-color: #a855f7;
-      --admin-rgb: 168, 85, 247;
+      --primary: #6366f1;
+      --primary-rgb: 99, 102, 241;
+      --accent: #a78bfa;
+      --accent2: #818cf8;
+      --bg: #050510;
+      --card-bg: rgba(15, 15, 35, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --text: #f1f5f9;
+      --text-dim: #94a3b8;
+      --text-muted: #64748b;
+      --student: #3b82f6;
+      --teacher: #ef4444;
+      --admin: #a855f7;
+      --cd: #22c55e;
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
-      font-family: 'Prompt', sans-serif;
       margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
+      padding: 0
+    }
+
+    html {
+      font-family: 'Prompt', sans-serif
     }
 
     body {
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: var(--bg-dark);
-      background-image:
-        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(251, 191, 36, 0.1) 0px, transparent 50%);
-      color: var(--text-main);
-      overflow-x: hidden;
-      padding: 20px;
+      overflow: hidden;
+      position: relative;
     }
 
-    /* Decoration Circles (Lightweight) */
-    .deco-circle {
+    /* ══════ Background Art ══════ */
+    .bg-art {
       position: fixed;
-      border-radius: 50%;
+      inset: 0;
       z-index: 0;
-      pointer-events: none;
+      overflow: hidden
     }
 
-    .deco-1 {
-      width: 400px;
-      height: 400px;
-      background: var(--student-color);
+    /* Gradient Mesh */
+    .mesh {
+      position: absolute;
+      border-radius: 50%;
       filter: blur(100px);
-      opacity: 0.15;
-      top: -150px;
-      right: -150px;
-      animation: float 20s infinite alternate;
+      opacity: .35
     }
 
-    .deco-2 {
-      width: 350px;
-      height: 350px;
-      background: var(--primary);
-      filter: blur(100px);
-      opacity: 0.1;
-      bottom: -100px;
-      left: -100px;
-      animation: float 25s infinite alternate-reverse;
+    .mesh-1 {
+      width: 60vmax;
+      height: 60vmax;
+      background: conic-gradient(from 0deg, #6366f1, #a78bfa, #f472b6, #6366f1);
+      top: -30%;
+      left: -20%;
+      animation: meshSpin 30s linear infinite
     }
 
-    @keyframes float {
-      0% {
-        transform: translate(0, 0) scale(1);
+    .mesh-2 {
+      width: 50vmax;
+      height: 50vmax;
+      background: conic-gradient(from 180deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
+      bottom: -25%;
+      right: -15%;
+      animation: meshSpin 25s linear infinite reverse
+    }
+
+    @keyframes meshSpin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* Stars */
+    .stars {
+      position: absolute;
+      inset: 0
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out infinite alternate;
+    }
+
+    @keyframes twinkle {
+      from {
+        opacity: .1;
+        transform: scale(.8)
+      }
+
+      to {
+        opacity: .8;
+        transform: scale(1.2)
+      }
+    }
+
+    /* Floating Lines */
+    .line-deco {
+      position: absolute;
+      width: 1px;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, rgba(var(--primary-rgb), .15), transparent);
+      animation: lineDrift 12s ease-in-out infinite;
+    }
+
+    @keyframes lineDrift {
+
+      0%,
+      100% {
+        transform: translateY(0) scaleY(1);
+        opacity: .3
       }
 
       50% {
-        transform: translate(30px, 50px) scale(1.1);
-      }
-
-      100% {
-        transform: translate(-20px, 20px) scale(1);
+        transform: translateY(-60px) scaleY(1.3);
+        opacity: .6
       }
     }
 
-    /* Container */
-    .main-container {
+    /* Noise overlay */
+    .bg-art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: .5;
+    }
+
+    /* ══════ Layout ══════ */
+    .container {
       width: 100%;
-      max-width: 440px;
-      position: relative;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      max-width: 460px;
+      z-index: 1;
+      padding: 20px;
+      animation: cardIn 1s cubic-bezier(.16, 1, .3, 1) both;
     }
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 10px;
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(.95)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
     }
 
-    .logo-box {
-      width: 100%;
-      height: 180px;
-      margin: 0 auto 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .tpac-logo {
-      height: 240px !important;
-      mix-blend-mode: screen;
-      filter: contrast(1.1) brightness(1.2) drop-shadow(0 0 30px rgba(59, 130, 246, 0.3));
-      transition: transform 0.3s ease;
-    }
-
-    .tpac-logo:hover {
-      transform: scale(1.05);
-    }
-
-    .header h1 {
-      font-size: 2.8rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 5px;
-      letter-spacing: -1px;
-      background: linear-gradient(to bottom, #fff, #94a3b8);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    /* Card */
-    .login-card {
-      background: rgba(30, 41, 59, 0.45);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 28px;
-      padding: 35px;
+    /* ══════ Card ══════ */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(60px) saturate(1.5);
+      -webkit-backdrop-filter: blur(60px) saturate(1.5);
+      border: 1px solid var(--glass-border);
+      border-radius: 32px;
+      padding: 48px 40px 40px;
       box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+        0 0 0 1px rgba(255, 255, 255, .03) inset,
+        0 40px 80px -20px rgba(0, 0, 0, .6),
+        0 0 120px -40px rgba(var(--primary-rgb), .2);
       position: relative;
       overflow: hidden;
     }
 
-    .login-card::before {
+    /* Top accent line */
+    .card::before {
       content: '';
       position: absolute;
       top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(var(--primary-rgb), .6), transparent);
+    }
+
+    /* Corner glow */
+    .card::after {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(var(--primary-rgb), .08), transparent 70%);
       pointer-events: none;
     }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 25px;
-      position: relative;
-      border: 1px solid var(--border);
-    }
-
-    .tab-indicator {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: calc(25% - 5px);
-      height: calc(100% - 8px);
-      background: var(--primary);
-      border-radius: 8px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.3);
-    }
-
-    .tab-btn {
-      flex: 1;
+    /* ── Logo ── */
+    .logo-area {
       text-align: center;
-      padding: 10px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      cursor: pointer;
+      margin-bottom: 36px
+    }
+
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      margin: 0 auto 18px;
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), .2), rgba(var(--primary-rgb), .05));
+      border: 1px solid rgba(var(--primary-rgb), .15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
-      z-index: 2;
-      transition: color 0.3s;
-      user-select: none;
     }
 
-    .tab-btn.active {
-      color: #000;
+    .logo-icon i {
+      font-size: 1.5rem;
+      color: var(--accent);
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.1)
+      }
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 24px;
+      border: 1px solid rgba(var(--primary-rgb), .08);
+    }
+
+    .logo-area h1 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, #fff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textShimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes textShimmer {
+      0% {
+        background-position: 0% center
+      }
+
+      100% {
+        background-position: 200% center
+      }
+    }
+
+    .logo-area .subtitle {
+      font-size: .82rem;
+      color: var(--text-dim);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
+    .logo-area .school-name {
+      font-size: .72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .logo-area .school-name::before,
+    .logo-area .school-name::after {
+      content: '';
+      width: 20px;
+      height: 1px;
+      background: rgba(255, 255, 255, .1);
+    }
+
+    /* ── Roles ── */
+    .roles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 28px;
+      padding: 5px;
+      background: rgba(0, 0, 0, .3);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, .03);
+    }
+
+    .role-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 4px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all .3s cubic-bezier(.4, 0, .2, 1);
+      color: var(--text-muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .role-btn i {
+      font-size: .95rem;
+      transition: .3s
+    }
+
+    .role-btn span {
+      font-size: .62rem;
       font-weight: 600;
+      letter-spacing: .3px;
+      text-transform: uppercase
     }
 
-    /* Form */
+    .role-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(var(--primary-rgb), .9), rgba(var(--primary-rgb), .5));
+      box-shadow: 0 8px 24px -4px rgba(var(--primary-rgb), .4);
+    }
+
+    .role-btn.active::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, .1), transparent);
+    }
+
+    .role-btn:not(.active):hover {
+      background: rgba(255, 255, 255, .04);
+      color: var(--text-dim)
+    }
+
+    /* ── Form ── */
     .form-group {
       margin-bottom: 20px;
+      position: relative
     }
 
-    .form-label {
+    .label {
       display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text-dim);
       margin-bottom: 8px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      font-weight: 500;
+      padding-left: 2px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
     }
 
-    .input-wrapper {
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, .35);
+      border: 1.5px solid rgba(255, 255, 255, .05);
+      border-radius: 16px;
+      padding: 0 18px;
+      transition: all .35s;
       position: relative;
     }
 
-    .input-wrapper i.icon {
+    .input-wrap::before {
+      content: '';
       position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
+      inset: -1px;
+      border-radius: 17px;
+      background: linear-gradient(135deg, transparent, rgba(var(--primary-rgb), .3), transparent);
+      opacity: 0;
+      transition: opacity .35s;
+      z-index: -1;
+    }
+
+    .input-wrap:focus-within {
+      border-color: rgba(var(--primary-rgb), .5);
+      box-shadow: 0 0 0 4px rgba(var(--primary-rgb), .06), 0 8px 24px -8px rgba(var(--primary-rgb), .15);
+      background: rgba(0, 0, 0, .45);
+    }
+
+    .input-wrap:focus-within::before {
+      opacity: 1
+    }
+
+    .input-wrap i {
       color: var(--text-muted);
-      font-size: 1.1rem;
-      transition: 0.3s;
+      font-size: .9rem;
+      flex-shrink: 0;
+      transition: .3s
     }
 
-    .form-input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: white;
-      padding: 14px 45px;
-      border-radius: 16px;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .input-wrap:focus-within>i:first-child {
+      color: var(--accent)
     }
 
-    .form-input:focus {
-      border-color: var(--primary);
-      background: rgba(15, 23, 42, 0.8);
-      box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.15);
-    }
-
-    .form-input:focus+i.icon {
-      color: var(--primary);
-    }
-
-    .toggle-pass {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 5px;
-    }
-
-    .toggle-pass:hover {
-      color: var(--text-main);
-    }
-
-    /* Button */
-    .btn-submit {
-      width: 100%;
-      padding: 16px;
+    .input-wrap input {
+      flex: 1;
+      background: transparent;
       border: none;
-      border-radius: 16px;
-      background: var(--primary);
-      color: #000;
-      font-size: 1rem;
+      color: #fff;
+      padding: 15px 0;
+      outline: none;
+      font-size: .95rem;
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .input-wrap input::placeholder {
+      color: rgba(255, 255, 255, .2)
+    }
+
+    .eye-toggle {
+      cursor: pointer;
+      padding: 8px;
+      margin: -8px;
+      color: var(--text-muted);
+      transition: .2s
+    }
+
+    .eye-toggle:hover {
+      color: var(--accent)
+    }
+
+    /* ── Button ── */
+    .submit-btn {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 8px 30px -4px rgba(var(--primary-rgb), .4);
+      transition: all .35s cubic-bezier(.4, 0, .2, 1);
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       margin-top: 10px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
-    .btn-submit:hover {
-      background: var(--primary-hover);
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .15), transparent);
+      transition: left .6s;
+      pointer-events: none;
+    }
+
+    .submit-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 14px 40px -4px rgba(var(--primary-rgb), .5);
+      filter: brightness(1.06)
     }
 
-    .btn-submit:active {
+    .submit-btn:hover::before {
+      left: 150%
+    }
+
+    .submit-btn:active {
       transform: translateY(0);
+      filter: brightness(.95)
     }
 
-    /* Role Specific Styles */
-    body[data-role="student"] {
-      --primary: #3b82f6;
-      --primary-rgb: 59, 130, 246;
-      --primary-hover: #2563eb;
-    }
-
-    body[data-role="student"] .tab-indicator {
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-    }
-
-    body[data-role="teacher"] {
-      --primary: #ef4444;
-      --primary-rgb: 239, 68, 68;
-      --primary-hover: #dc2626;
-    }
-
-    body[data-role="teacher"] .tab-indicator {
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-    }
-
-    body[data-role="admin"] {
-      --primary: #a855f7;
-      --primary-rgb: 168, 85, 247;
-      --primary-hover: #9333ea;
-    }
-
-    body[data-role="admin"] .tab-indicator {
-      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-    }
-
-    body[data-role="admin"] .tab-btn.active {
-      color: white;
-    }
-
-    body[data-role="cd"] {
-      --primary: #10b981;
-      --primary-rgb: 16, 185, 129;
-      --primary-hover: #059669;
-    }
-
-    body[data-role="cd"] .tab-indicator {
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    body[data-role="cd"] .tab-btn.active {
-      color: white;
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Spinner */
     .spinner {
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
+      border: 3px solid rgba(255, 255, 255, .3);
+      border-top-color: #fff;
       border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.8s linear infinite;
-      display: none;
+      animation: spin .7s linear infinite;
+      display: none
     }
 
-    .btn-submit.loading .spinner {
-      display: block;
+    .submit-btn.loading .spinner {
+      display: block
     }
 
-    .btn-submit.loading span,
-    .btn-submit.loading i {
-      display: none;
+    .submit-btn.loading span,
+    .submit-btn.loading i {
+      display: none
     }
 
     @keyframes spin {
       to {
-        transform: rotate(360deg);
+        transform: rotate(360deg)
       }
+    }
+
+    /* ── Footer ── */
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: .78rem;
+      font-weight: 500;
+      transition: .2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent)
+    }
+
+    .footer-links .divider {
+      width: 1px;
+      height: 14px;
+      background: rgba(255, 255, 255, .08)
     }
 
     /* Toast */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
     .toast {
-      background: #1e293b;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 12px;
-      border-left: 5px solid var(--primary);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      min-width: 300px;
-      animation: slideIn 0.3s ease;
-      max-width: 90vw;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, .5);
+      display: none;
+      z-index: 1000;
+      font-size: .9rem;
+      border: 1px solid rgba(255, 255, 255, .08);
+      animation: toastPop .4s cubic-bezier(.16, 1, .3, 1) both;
     }
 
-    .toast.success {
-      border-color: #10b981;
+    .toast::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      border-radius: 0 0 16px 16px
     }
 
-    .toast.error {
-      border-color: #ef4444;
-    }
-
-    @keyframes slideIn {
+    @keyframes toastPop {
       from {
-        transform: translateX(100%);
-        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0
       }
 
       to {
-        transform: translateX(0);
-        opacity: 1;
+        transform: translateX(-50%);
+        opacity: 1
       }
     }
 
-    .toast.hide {
-      animation: slideOut 0.3s forwards;
+    /* Role Theming */
+    body[data-role="student"] {
+      --primary: var(--student);
+      --primary-rgb: 59, 130, 246
     }
 
-    @keyframes slideOut {
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
+    body[data-role="teacher"] {
+      --primary: var(--teacher);
+      --primary-rgb: 239, 68, 68
     }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      .main-container {
-        max-width: 100%;
-        padding: 0 5px;
+    body[data-role="admin"] {
+      --primary: var(--admin);
+      --primary-rgb: 168, 85, 247
+    }
+
+    body[data-role="cd"] {
+      --primary: var(--cd);
+      --primary-rgb: 34, 197, 94
+    }
+
+    @media (max-width: 520px) {
+      .card {
+        padding: 36px 24px 32px;
+        border-radius: 24px
       }
 
-      .login-card {
-        padding: 25px 20px;
+      .logo-area h1 {
+        font-size: 1.5rem
+      }
+
+      .role-btn {
+        padding: 10px 4px
       }
     }
   </style>
@@ -465,246 +633,147 @@
 
 <body data-role="student">
 
-  <div class="deco-circle deco-1"></div>
-  <div class="deco-circle deco-2"></div>
+  <!-- Background -->
+  <div class="bg-art">
+    <div class="mesh mesh-1"></div>
+    <div class="mesh mesh-2"></div>
+    <div class="stars" id="starField"></div>
+    <div class="line-deco" style="left:12%;top:20%;height:100px;animation-delay:0s"></div>
+    <div class="line-deco" style="left:88%;top:35%;height:140px;animation-delay:-4s"></div>
+    <div class="line-deco" style="left:25%;top:70%;height:80px;animation-delay:-8s"></div>
+    <div class="line-deco" style="right:20%;top:10%;height:110px;animation-delay:-2s"></div>
+  </div>
 
-  <div class="main-container">
-    <div class="header">
-      <div class="logo-box">
-        <img src="LOGOprogram/logoV2.png" alt="TPAC System" class="tpac-logo">
+  <div class="container">
+    <div class="card">
+
+      <!-- Logo -->
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+        <h1>Digital Score</h1>
+        <p class="subtitle">ระบบจัดการคะแนนอัจฉริยะ</p>
+        <p class="school-name">โรงเรียนเทพพนม</p>
       </div>
-      <h1>โรงเรียนเทพา</h1>
-      <p>ระบบคะแนนพฤติกรรมนักเรียน Digital Score</p>
-    </div>
 
-    <div class="login-card">
-      <div class="tabs">
-        <div class="tab-indicator" id="tabIndicator"></div>
-        <div class="tab-btn active" onclick="updateUI('student', 0)">นักเรียน</div>
-        <div class="tab-btn" onclick="updateUI('teacher', 1)">อาจารย์</div>
-        <div class="tab-btn" onclick="updateUI('admin', 2)">ผู้ดูแล</div>
-        <div class="tab-btn" onclick="updateUI('cd', 3)">กรรมการ</div>
+      <!-- Roles -->
+      <div class="roles">
+        <div class="role-btn active" onclick="updateUI('student',0)"><i
+            class="fas fa-user-graduate"></i><span>นักเรียน</span></div>
+        <div class="role-btn" onclick="updateUI('teacher',1)"><i
+            class="fas fa-chalkboard-teacher"></i><span>คุณครู</span></div>
+        <div class="role-btn" onclick="updateUI('admin',2)"><i class="fas fa-user-shield"></i><span>ผู้ดูแล</span></div>
+        <div class="role-btn" onclick="updateUI('cd',3)"><i class="fas fa-users-cog"></i><span>กรรมการ</span></div>
       </div>
 
+      <!-- Form -->
       <form onsubmit="handleLogin(event)">
         <div class="form-group">
-          <label class="form-label" id="userLabel">รหัสนักเรียน</label>
-          <div class="input-wrapper">
-            <input type="text" class="form-input" id="userInput" placeholder="กรอกรหัสนักเรียน" required
-              autocomplete="off">
-            <i class="fas fa-user icon"></i>
+          <label class="label" id="userLabel">รหัสนักเรียน</label>
+          <div class="input-wrap">
+            <i class="fas fa-id-badge"></i>
+            <input type="text" id="userInput" placeholder="กรอกรหัสระบุตัวตน" required autocomplete="off">
           </div>
         </div>
-
         <div class="form-group">
-          <label class="form-label">รหัสผ่าน</label>
-          <div class="input-wrapper">
-            <input type="password" class="form-input" id="password" placeholder="กรอกรหัสผ่าน" required>
-            <i class="fas fa-lock icon"></i>
-            <i class="fas fa-eye toggle-pass" onclick="togglePass()"></i>
+          <label class="label">รหัสผ่าน</label>
+          <div class="input-wrap">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" placeholder="กรอกรหัสผ่าน" required>
+            <i class="fas fa-eye eye-toggle" onclick="togglePass()"></i>
           </div>
         </div>
-
-        <button type="submit" class="btn-submit" id="submitBtn">
-          <i class="fas fa-arrow-right"></i>
-          <span>เข้าสู่ระบบ</span>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span>เข้าสู่ระบบ</span><i class="fas fa-arrow-right"></i>
           <div class="spinner"></div>
         </button>
       </form>
-    </div>
 
-    <div class="footer">
-      © 2026 นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี
+      <div class="footer-links">
+        <a href="docs.html"><i class="fas fa-book-open"></i> คู่มือ</a>
+        <span class="divider"></span>
+        <a href="#"><i class="fas fa-shield-halved"></i> TPAC v2.0</a>
+      </div>
     </div>
   </div>
 
-  <div class="toast-container" id="toastContainer"></div>
+  <div id="toast" class="toast"></div>
 
   <script>
+    // Generate stars
+    const starField = document.getElementById('starField');
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;--dur:${1.5 + Math.random() * 3}s;animation-delay:${Math.random() * 3}s;width:${1 + Math.random() * 2}px;height:${1 + Math.random() * 2}px`;
+      starField.appendChild(s);
+    }
+
     let currentRole = 'student';
-
-    // Auto-login check
-    (async function checkAutoLogin() {
-      const token = localStorage.getItem('tpac_token');
-      if (!token) return;
-
-      try {
-        const res = await fetch('/api/check-cookie', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
-        });
-        const data = await res.json();
-
-        if (data.status === 'success' && data.userData) {
-          sessionStorage.setItem('currentUser', JSON.stringify(data.userData));
-          const role = data.userData.role;
-          if (role === 'student') window.location.href = 'home.html';
-          else if (role === 'teacher') window.location.href = 'th.html';
-          else if (role === 'admin') window.location.href = 'teacher-dashboard.html';
-          else if (role === 'cd') window.location.href = 'cd.html';
-        }
-      } catch (e) {
-        console.error('Auto-login check failed:', e);
-      }
-    })();
-
-    function generateToken() {
-      return 'tpac_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
-    }
-
-    function updateUI(role, index) {
-      currentRole = role;
-      document.body.setAttribute('data-role', role);
-
-      const indicator = document.getElementById('tabIndicator');
-      const tabs = document.querySelectorAll('.tab-btn');
-      const userLabel = document.getElementById('userLabel');
-      const userInput = document.getElementById('userInput');
-
-      // Move Indicator
-      indicator.style.left = `calc(${index * 25}% + 4px)`;
-
-      // Update Tab Styles
-      tabs.forEach(t => t.classList.remove('active'));
-      tabs[index].classList.add('active');
-
-      // Clear & Update Inputs
-      userInput.value = '';
-      document.getElementById('password').value = '';
-
-      if (role === 'student') {
-        userLabel.textContent = 'รหัสนักเรียน';
-        userInput.placeholder = 'กรอกรหัสนักเรียน';
-      } else if (role === 'teacher') {
-        userLabel.textContent = 'ชื่อผู้ใชอาตารย์';
-        userInput.placeholder = 'กรอกชื่อผู้ใช้งาน';
-      } else if (role === 'admin') {
-        userLabel.textContent = 'ชื่อผู้ดูแล';
-        userInput.placeholder = 'กรอกชื่อผู้ดูแล';
-      } else {
-        userLabel.textContent = 'รหัสคณะกรรมการ';
-        userInput.placeholder = 'กรอกรหัสคณะกรรมการ';
-      }
-    }
 
     function togglePass() {
       const p = document.getElementById('password');
-      const icon = document.querySelector('.toggle-pass');
-
+      const icon = document.querySelector('.eye-toggle');
       if (p.type === 'password') {
         p.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-        icon.style.color = 'var(--text-main)';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
       } else {
         p.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-        icon.style.color = '';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
       }
+    }
+
+    function updateUI(role, idx) {
+      currentRole = role;
+      document.body.setAttribute('data-role', role);
+      document.querySelectorAll('.role-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+      const labels = { student: 'รหัสนักเรียน', teacher: 'ชื่อผู้ใช้ (คุณครู)', admin: 'รหัสผู้ดูแลระบบ', cd: 'รหัสคณะกรรมการ' };
+      document.getElementById('userLabel').textContent = labels[role];
+      document.getElementById('userInput').value = '';
+      document.getElementById('password').value = '';
     }
 
     async function handleLogin(event) {
       event.preventDefault();
-
       const userId = document.getElementById('userInput').value.trim();
       const password = document.getElementById('password').value;
       const btn = document.getElementById('submitBtn');
-
-      btn.classList.add('loading');
-      btn.disabled = true;
+      btn.classList.add('loading'); btn.disabled = true;
 
       try {
-        let response, users;
-        let dataFile = '';
-
+        let response;
         if (currentRole === 'student') {
-          // Try multiple file variations for robustness
-          const files = ['user2.1.json', 'user2.1', 'user2_1.json'];
-          for (const f of files) {
-            try {
-              let r = await fetch(f);
-              if (r.ok) { response = r; dataFile = f; break; }
-            } catch (e) { }
+          for (const f of ['user2.1.json', 'user2.1', 'user2_1.json']) {
+            try { const r = await fetch(f); if (r.ok) { response = r; break; } } catch (e) { }
           }
-        } else if (currentRole === 'teacher') {
-          dataFile = 'th.json';
-          response = await fetch(dataFile);
-        } else if (currentRole === 'admin') {
-          dataFile = 'TPAC.json';
-          response = await fetch(dataFile);
-        } else if (currentRole === 'cd') {
-          dataFile = 'cd.json';
-          response = await fetch(dataFile);
-        }
+        } else if (currentRole === 'teacher') response = await fetch('th.json');
+        else if (currentRole === 'admin') response = await fetch('TPAC.json');
+        else if (currentRole === 'cd') response = await fetch('cd.json');
 
-        if (!response || !response.ok) throw new Error('Load failed');
-        users = await response.json();
-
-        if (!Array.isArray(users)) throw new Error('Invalid data');
-
+        if (!response || !response.ok) throw new Error('NET');
+        const users = await response.json();
         const user = users.find(u => u.id === userId && u.password === password);
-
-        await new Promise(r => setTimeout(r, 600)); // Small delay for UX
+        await new Promise(r => setTimeout(r, 500));
 
         if (user) {
-          const userData = { ...user, role: currentRole };
-          sessionStorage.setItem('currentUser', JSON.stringify(userData));
-
-          // Save cookie for persistent login
-          const token = generateToken();
-          localStorage.setItem('tpac_token', token);
-          try {
-            await fetch('/api/save-cookie', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token, userData })
-            });
-          } catch (e) {
-            console.error('Cookie save failed:', e);
-          }
-
-          showToast('success', 'เข้าสู่ระบบสำเร็จ');
-
+          sessionStorage.setItem('currentUser', JSON.stringify({ ...user, role: currentRole }));
+          localStorage.setItem('tpac_token', 'tpac_' + Date.now());
+          showToast('✨ เข้าสู่ระบบสำเร็จ!');
           setTimeout(() => {
-            if (currentRole === 'student') window.location.href = 'home.html';
-            else if (currentRole === 'teacher') window.location.href = 'th.html';
-            else if (currentRole === 'admin') window.location.href = 'teacher-dashboard.html';
-            else if (currentRole === 'cd') window.location.href = 'cd.html';
-          }, 1000);
+            window.location.href = { student: 'home.html', teacher: 'th.html', admin: 'teacher-dashboard.html', cd: 'cd.html' }[currentRole];
+          }, 800);
         } else {
-          showToast('error', 'ข้อมูลไม่ถูกต้อง');
+          showToast('❌ ข้อมูลไม่ถูกต้อง กรุณาลองใหม่');
           document.getElementById('password').value = '';
         }
-
-      } catch (error) {
-        console.error(error);
-        showToast('error', 'ระบบขัดข้อง ติดต่อผู้ดูแล');
-      } finally {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-      }
+      } catch (e) {
+        showToast('⚠️ เชื่อมต่อไม่ได้ กรุณาลองใหม่');
+      } finally { btn.classList.remove('loading'); btn.disabled = false; }
     }
 
-    function showToast(type, message) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-
-      const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
-
-      toast.innerHTML = `
-        ${icon}
-        <span>${message}</span>
-      `;
-
-      container.appendChild(toast);
-
-      setTimeout(() => {
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 3000);
     }
   </script>
 </body>

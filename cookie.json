@@ -7,16 +7,5 @@
       "role": "cd"
     },
     "createdAt": "2026-02-23T07:58:55.145Z"
-  },
-  "tpac_1771843076497_am58y7fo4p4": {
-    "userData": {
-      "id": "ครูสโรชา",
-      "name": "นางสาวสโรชา เมืองมุสิก",
-      "password": "483729",
-      "status": "TH",
-      "class": 101,
-      "role": "admin"
-    },
-    "createdAt": "2026-02-23T10:37:56.501Z"
   }
 }

@@ -599,3 +599,186 @@ tbody tr:nth-child(even) {
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
 }
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .header {
+    padding: 15px !important;
+    border-radius: 18px !important;
+    margin-bottom: 15px !important;
+    overflow: visible !important;
+  }
+
+  /* Stack header content vertically */
+  .header>div[style*="display: flex"][style*="space-between"] {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  /* Stack brand area */
+  .header .brand-header {
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+
+  .header .brand-header img {
+    height: 40px !important;
+  }
+
+  .header .brand-header img:nth-child(2) {
+    height: 60px !important;
+  }
+
+  /* Title area */
+  .header div[style*="border-left"] {
+    border-left: none !important;
+    padding-left: 0 !important;
+    text-align: center !important;
+  }
+
+  .header h1 {
+    font-size: 1.2rem !important;
+  }
+
+  .header p {
+    font-size: 0.8rem !important;
+  }
+
+  /* Action buttons always visible and wrap */
+  .header .action-buttons,
+  div[style*="display: flex"][style*="gap: 10px"][style*="flex-end"] {
+    justify-content: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .header .action-btn,
+  .header .btn-logout {
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* CRITICAL: Ensure logout is ALWAYS visible */
+  .btn-logout {
+    display: flex !important;
+    width: 40px !important;
+    height: 40px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Stats bar - stack on mobile */
+  div[style*="display: flex"][style*="gap: 15px"][style*="margin-bottom: 25px"] {
+    flex-direction: column !important;
+  }
+
+  .card[style*="flex: 1"][style*="display: flex"][style*="gap: 30px"] {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    padding: 12px 15px !important;
+  }
+
+  .card[style*="flex: 1"]>div[style*="border-right"] {
+    border-right: none !important;
+    padding-right: 0 !important;
+  }
+
+  /* Cards */
+  .card {
+    padding: 15px;
+    border-radius: 18px;
+    margin-bottom: 12px;
+  }
+
+  .card h2 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  /* Table */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  th,
+  td {
+    padding: 8px 6px;
+    font-size: 0.85em;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.9em;
+  }
+
+  .btn-sm {
+    padding: 6px 10px;
+    font-size: 0.8em;
+  }
+
+  .btn-group {
+    gap: 6px;
+  }
+
+  /* Search */
+  .search-box {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-input-container {
+    min-width: 100% !important;
+  }
+
+  .class-filter {
+    min-width: auto !important;
+    width: 100% !important;
+  }
+
+  /* Pagination */
+  .pagination-container {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  .items-per-page {
+    justify-content: center;
+  }
+
+  /* Tools row */
+  div[style*="display: flex"][style*="gap: 10px"][style*="margin-bottom: 20px"][style*="flex-wrap"] {
+    gap: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header .brand-header img:first-child {
+    height: 32px !important;
+  }
+
+  .header .brand-header img:nth-child(2) {
+    height: 45px !important;
+  }
+
+  .header h1 {
+    font-size: 1rem !important;
+  }
+
+  .role-btn span {
+    font-size: 0.6rem;
+  }
+}

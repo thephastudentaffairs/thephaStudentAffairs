@@ -614,6 +614,13 @@
       let filteredData = [];
       let currentEditIndex = -1;
 
+      // Logout function
+      function logout() {
+        sessionStorage.clear();
+        localStorage.removeItem('tpac_token');
+        window.location.href = 'index.html';
+      }
+
       // Reason modal variables
       let reasonCallback = null;
       let reasonCancelCallback = null;
