@@ -1,386 +1,1223 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>รายงานคู่มือการใช้งานระบบ TPAC Digital Score</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Prompt',sans-serif;color:#1e293b;line-height:1.8;font-size:14px;background:#fff}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายงานคู่มือการใช้งานระบบ TPAC Digital Score</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
 
-/* ===== PRINT STYLES ===== */
-@media print{
-  body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .page-break{page-break-before:always}
-  .no-break{page-break-inside:avoid}
-  @page{margin:15mm 12mm;size:A4 portrait}
-}
+    body {
+      font-family: 'Prompt', sans-serif;
+      color: #1e293b;
+      line-height: 1.8;
+      font-size: 14px;
+      background: #fff
+    }
 
-/* ===== COVER PAGE ===== */
-.cover-page{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 30%,#1e40af 60%,#3b82f6 100%);
-  color:white;text-align:center;position:relative;overflow:hidden;padding:40px 20px;
-}
-.cover-page::before{
-  content:'';position:absolute;width:600px;height:600px;border-radius:50%;
-  background:radial-gradient(circle,rgba(99,102,241,0.3),transparent 70%);top:-100px;right:-150px;
-}
-.cover-page::after{
-  content:'';position:absolute;width:400px;height:400px;border-radius:50%;
-  background:radial-gradient(circle,rgba(59,130,246,0.2),transparent 70%);bottom:-80px;left:-100px;
-}
-.cover-logo{width:140px;height:140px;border-radius:30px;border:4px solid rgba(255,255,255,0.3);
-  margin-bottom:30px;z-index:1;background:white;padding:8px;object-fit:contain}
-.cover-badge{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);
-  padding:8px 28px;border-radius:50px;font-size:0.9rem;font-weight:500;letter-spacing:2px;
-  margin-bottom:20px;z-index:1;text-transform:uppercase}
-.cover-title{font-size:3rem;font-weight:900;line-height:1.3;margin-bottom:10px;z-index:1;
-  text-shadow:0 4px 20px rgba(0,0,0,0.3)}
-.cover-subtitle{font-size:1.6rem;font-weight:600;opacity:0.9;margin-bottom:8px;z-index:1}
-.cover-desc{font-size:1.1rem;opacity:0.7;max-width:500px;margin-bottom:40px;z-index:1}
-.cover-line{width:120px;height:4px;background:linear-gradient(90deg,#60a5fa,#a78bfa);
-  border-radius:4px;margin:20px auto;z-index:1}
-.cover-info{z-index:1;margin-top:30px;padding:25px 40px;background:rgba(255,255,255,0.08);
-  border-radius:20px;border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(5px)}
-.cover-info p{font-size:0.95rem;opacity:0.8;margin:6px 0}
-.cover-info b{opacity:1;color:#93c5fd}
-.cover-year{font-size:1.8rem;font-weight:800;margin-top:15px;
-  background:linear-gradient(90deg,#60a5fa,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    /* ===== PRINT STYLES ===== */
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important
+      }
 
-/* ===== TOC ===== */
-.toc{padding:50px 40px}
-.toc h2{font-size:1.8rem;font-weight:800;color:#1e3a5f;margin-bottom:30px;
-  padding-bottom:15px;border-bottom:3px solid #3b82f6;display:inline-block}
-.toc-item{display:flex;align-items:center;gap:15px;padding:14px 20px;margin:8px 0;
-  border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;transition:all .2s}
-.toc-icon{width:45px;height:45px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:1.2rem;flex-shrink:0}
-.toc-text{flex:1;font-size:1.05rem;font-weight:600}
-.toc-page{font-size:0.95rem;color:#94a3b8;font-weight:500}
+      .page-break {
+        page-break-before: always
+      }
 
-/* ===== SECTION STYLES ===== */
-.section-page{padding:40px 40px}
-.section-header{display:flex;align-items:center;gap:16px;margin-bottom:25px;padding-bottom:15px;
-  border-bottom:3px solid}
-.section-header-icon{width:55px;height:55px;border-radius:16px;display:flex;align-items:center;
-  justify-content:center;font-size:1.5rem;flex-shrink:0}
-.section-header h2{font-size:1.6rem;font-weight:800}
-.section-header p{font-size:1rem;opacity:0.7;margin-top:4px}
+      .no-break {
+        page-break-inside: avoid
+      }
 
-.desc-box{padding:16px 20px;background:#f8fafc;border-radius:14px;border-left:5px solid;
-  margin-bottom:20px;font-size:0.95rem;color:#475569}
+      @page {
+        margin: 15mm 12mm;
+        size: A4 portrait
+      }
+    }
 
-.feature-card{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;margin:8px 0;
-  border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
-.f-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;
-  justify-content:center;font-size:1.1rem;flex-shrink:0}
-.f-title{font-weight:700;font-size:0.95rem;margin-bottom:2px}
-.f-desc{font-size:0.85rem;color:#64748b}
+    /* ===== COVER PAGE ===== */
+    .cover-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 30%, #1e40af 60%, #3b82f6 100%);
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 40px 20px;
+    }
 
-.step-item{display:flex;align-items:flex-start;gap:16px;padding:12px 0;
-  border-bottom:1px dashed #e2e8f0}
-.step-item:last-child{border-bottom:none}
-.step-num{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;color:white;font-size:1rem;font-weight:900;flex-shrink:0}
-.step-title{font-weight:700;font-size:0.95rem;margin-bottom:2px}
-.step-desc{font-size:0.85rem;color:#475569}
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
+      top: -100px;
+      right: -150px;
+    }
 
-.screenshot-container{text-align:center;margin:20px 0;padding:15px;background:#f1f5f9;
-  border-radius:16px;border:2px solid #e2e8f0}
-.screenshot-container img{max-width:85%;max-height:400px;border-radius:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.12);border:1px solid #d1d5db}
-.screenshot-caption{font-size:0.85rem;color:#64748b;margin-top:10px;font-weight:500}
+    .cover-page::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.2), transparent 70%);
+      bottom: -80px;
+      left: -100px;
+    }
 
-.tip-box{display:flex;gap:12px;padding:14px 18px;border-radius:14px;margin-top:15px;font-size:0.9rem}
-.tip-green{background:#dcfce7;border:2px solid #86efac;color:#166534}
-.tip-yellow{background:#fef3c7;border:2px solid #fcd34d;color:#92400e}
-.tip-red{background:#fee2e2;border:2px solid #fca5a5;color:#991b1b}
-.tip-blue{background:#eff6ff;border:2px solid #bfdbfe;color:#1e40af}
-.tip-box i{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+    .cover-logo {
+      width: 140px;
+      height: 140px;
+      border-radius: 30px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      margin-bottom: 30px;
+      z-index: 1;
+      background: white;
+      padding: 8px;
+      object-fit: contain
+    }
 
-/* Role Table */
-.rtable{width:100%;border-collapse:separate;border-spacing:0;border-radius:12px;
-  overflow:hidden;border:2px solid #e2e8f0;margin:15px 0}
-.rtable thead{background:linear-gradient(135deg,#1e3a5f,#3b82f6)}
-.rtable th{padding:12px 16px;color:white;font-size:0.9rem;text-align:left}
-.rtable td{padding:12px 16px;font-size:0.9rem;border-top:1px solid #f1f5f9}
-.rtable tbody tr:nth-child(even){background:#f8fafc}
+    .cover-badge {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 28px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      z-index: 1;
+      text-transform: uppercase
+    }
 
-/* Colors */
-.bg-blue{background:#dbeafe;color:#1d4ed8}
-.bg-green{background:#dcfce7;color:#16a34a}
-.bg-purple{background:#f3e8ff;color:#7c3aed}
-.bg-orange{background:#ffedd5;color:#ea580c}
-.bg-red{background:#fee2e2;color:#dc2626}
-.bg-cyan{background:#cffafe;color:#0891b2}
-.c-blue{color:#1e3a8a;border-color:#3b82f6}
-.c-green{color:#166534;border-color:#22c55e}
-.c-orange{color:#9a3412;border-color:#f59e0b}
-.c-purple{color:#581c87;border-color:#a855f7}
+    .cover-title {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1.3;
+      margin-bottom: 10px;
+      z-index: 1;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3)
+    }
 
-/* Footer */
-.page-footer{text-align:center;padding:20px;color:#94a3b8;font-size:0.8rem;
-  border-top:1px solid #e2e8f0;margin-top:30px}
+    .cover-subtitle {
+      font-size: 1.6rem;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      z-index: 1
+    }
 
-/* File table */
-.file-table{width:100%;border-collapse:collapse;margin:15px 0;font-size:0.9rem}
-.file-table th{background:#f1f5f9;padding:10px 14px;text-align:left;font-weight:700;
-  border-bottom:2px solid #e2e8f0}
-.file-table td{padding:10px 14px;border-bottom:1px solid #f1f5f9}
-.file-table code{background:#e2e8f0;padding:2px 8px;border-radius:6px;font-size:0.85rem}
-</style>
+    .cover-desc {
+      font-size: 1.1rem;
+      opacity: 0.7;
+      max-width: 500px;
+      margin-bottom: 40px;
+      z-index: 1
+    }
+
+    .cover-line {
+      width: 120px;
+      height: 4px;
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+      border-radius: 4px;
+      margin: 20px auto;
+      z-index: 1
+    }
+
+    .cover-info {
+      z-index: 1;
+      margin-top: 30px;
+      padding: 25px 40px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px)
+    }
+
+    .cover-info p {
+      font-size: 0.95rem;
+      opacity: 0.8;
+      margin: 6px 0
+    }
+
+    .cover-info b {
+      opacity: 1;
+      color: #93c5fd
+    }
+
+    .cover-year {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-top: 15px;
+      background: linear-gradient(90deg, #60a5fa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    /* ===== TOC ===== */
+    .toc {
+      padding: 50px 40px
+    }
+
+    .toc h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1e3a5f;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #3b82f6;
+      display: inline-block
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      transition: all .2s
+    }
+
+    .toc-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0
+    }
+
+    .toc-text {
+      flex: 1;
+      font-size: 1.05rem;
+      font-weight: 600
+    }
+
+    .toc-page {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      font-weight: 500
+    }
+
+    /* ===== SECTION STYLES ===== */
+    .section-page {
+      padding: 40px 40px
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid
+    }
+
+    .section-header-icon {
+      width: 55px;
+      height: 55px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0
+    }
+
+    .section-header h2 {
+      font-size: 1.6rem;
+      font-weight: 800
+    }
+
+    .section-header p {
+      font-size: 1rem;
+      opacity: 0.7;
+      margin-top: 4px
+    }
+
+    .desc-box {
+      padding: 16px 20px;
+      background: #f8fafc;
+      border-radius: 14px;
+      border-left: 5px solid;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      color: #475569
+    }
+
+    .feature-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      margin: 8px 0;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0
+    }
+
+    .f-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0
+    }
+
+    .f-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 2px
+    }
+
+    .f-desc {
+      font-size: 0.85rem;
+      color: #64748b
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px dashed #e2e8f0
+    }
+
+    .step-item:last-child {
+      border-bottom: none
+    }
+
+    .step-num {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      font-weight: 900;
+      flex-shrink: 0
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 2px
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: #475569
+    }
+
+    .screenshot-container {
+      text-align: center;
+      margin: 20px 0;
+      padding: 15px;
+      background: #f1f5f9;
+      border-radius: 16px;
+      border: 2px solid #e2e8f0
+    }
+
+    .screenshot-container img {
+      max-width: 85%;
+      max-height: 400px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      border: 1px solid #d1d5db
+    }
+
+    .screenshot-caption {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 10px;
+      font-weight: 500
+    }
+
+    .tip-box {
+      display: flex;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      margin-top: 15px;
+      font-size: 0.9rem
+    }
+
+    .tip-green {
+      background: #dcfce7;
+      border: 2px solid #86efac;
+      color: #166534
+    }
+
+    .tip-yellow {
+      background: #fef3c7;
+      border: 2px solid #fcd34d;
+      color: #92400e
+    }
+
+    .tip-red {
+      background: #fee2e2;
+      border: 2px solid #fca5a5;
+      color: #991b1b
+    }
+
+    .tip-blue {
+      background: #eff6ff;
+      border: 2px solid #bfdbfe;
+      color: #1e40af
+    }
+
+    .tip-box i {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 2px
+    }
+
+    /* Role Table */
+    .rtable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #e2e8f0;
+      margin: 15px 0
+    }
+
+    .rtable thead {
+      background: linear-gradient(135deg, #1e3a5f, #3b82f6)
+    }
+
+    .rtable th {
+      padding: 12px 16px;
+      color: white;
+      font-size: 0.9rem;
+      text-align: left
+    }
+
+    .rtable td {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border-top: 1px solid #f1f5f9
+    }
+
+    .rtable tbody tr:nth-child(even) {
+      background: #f8fafc
+    }
+
+    /* Colors */
+    .bg-blue {
+      background: #dbeafe;
+      color: #1d4ed8
+    }
+
+    .bg-green {
+      background: #dcfce7;
+      color: #16a34a
+    }
+
+    .bg-purple {
+      background: #f3e8ff;
+      color: #7c3aed
+    }
+
+    .bg-orange {
+      background: #ffedd5;
+      color: #ea580c
+    }
+
+    .bg-red {
+      background: #fee2e2;
+      color: #dc2626
+    }
+
+    .bg-cyan {
+      background: #cffafe;
+      color: #0891b2
+    }
+
+    .c-blue {
+      color: #1e3a8a;
+      border-color: #3b82f6
+    }
+
+    .c-green {
+      color: #166534;
+      border-color: #22c55e
+    }
+
+    .c-orange {
+      color: #9a3412;
+      border-color: #f59e0b
+    }
+
+    .c-purple {
+      color: #581c87;
+      border-color: #a855f7
+    }
+
+    /* Footer */
+    .page-footer {
+      text-align: center;
+      padding: 20px;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 30px
+    }
+
+    /* File table */
+    .file-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 0.9rem
+    }
+
+    .file-table th {
+      background: #f1f5f9;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 2px solid #e2e8f0
+    }
+
+    .file-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f5f9
+    }
+
+    .file-table code {
+      background: #e2e8f0;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ==================== COVER PAGE ==================== -->
-<div class="cover-page">
-  <img src="logo.png" class="cover-logo" alt="โลโก้โรงเรียนเทพา">
-  <div class="cover-badge">📘 รายงานคู่มือการใช้งาน</div>
-  <h1 class="cover-title">TPAC Digital Score</h1>
-  <div class="cover-subtitle">ระบบจัดการคะแนนพฤติกรรมนักเรียน</div>
-  <div class="cover-line"></div>
-  <div class="cover-desc">คู่มือการใช้งานระบบสำหรับนักเรียน ครูที่ปรึกษา และผู้ดูแลระบบ<br>โรงเรียนเทพา อำเภอเทพา จังหวัดสงขลา</div>
-  <div class="cover-info">
-    <p><b>จัดทำโดย:</b> นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี</p>
-    <p><b>สถานศึกษา:</b> โรงเรียนเทพา อำเภอเทพา จังหวัดสงขลา</p>
-    <p><b>เวอร์ชัน:</b> TPAC v2.0</p>
-    <div class="cover-year">ปีการศึกษา 2568</div>
-  </div>
-</div>
-
-<!-- ==================== TABLE OF CONTENTS ==================== -->
-<div class="toc page-break">
-  <h2>📑 สารบัญ</h2>
-  <div class="toc-item"><div class="toc-icon bg-purple"><i class="fas fa-sign-in-alt"></i></div><div class="toc-text">บทที่ 1 — ภาพรวมของระบบ</div><div class="toc-page">หน้า 3</div></div>
-  <div class="toc-item"><div class="toc-icon bg-blue"><i class="fas fa-key"></i></div><div class="toc-text">บทที่ 2 — วิธีเข้าสู่ระบบ / ออกจากระบบ</div><div class="toc-page">หน้า 4</div></div>
-  <div class="toc-item"><div class="toc-icon bg-green"><i class="fas fa-user-graduate"></i></div><div class="toc-text">บทที่ 3 — คู่มือสำหรับนักเรียน</div><div class="toc-page">หน้า 6</div></div>
-  <div class="toc-item"><div class="toc-icon bg-blue"><i class="fas fa-chalkboard-teacher"></i></div><div class="toc-text">บทที่ 4 — คู่มือสำหรับครูที่ปรึกษา</div><div class="toc-page">หน้า 8</div></div>
-  <div class="toc-item"><div class="toc-icon bg-orange"><i class="fas fa-user-shield"></i></div><div class="toc-text">บทที่ 5 — คู่มือสำหรับผู้ดูแลระบบ</div><div class="toc-page">หน้า 10</div></div>
-  <div class="toc-item"><div class="toc-icon bg-cyan"><i class="fas fa-server"></i></div><div class="toc-text">บทที่ 6 — ข้อมูลทางเทคนิค</div><div class="toc-page">หน้า 12</div></div>
-</div>
-
-<!-- ==================== CHAPTER 1: OVERVIEW ==================== -->
-<div class="section-page page-break">
-  <div class="section-header c-purple" style="border-color:#a855f7">
-    <div class="section-header-icon bg-purple"><i class="fas fa-info-circle"></i></div>
-    <div><h2>บทที่ 1 — ภาพรวมของระบบ</h2><p>TPAC Digital Score คืออะไร?</p></div>
+  <!-- ==================== COVER PAGE ==================== -->
+  <div class="cover-page">
+    <img src="logo.png" class="cover-logo" alt="โลโก้โรงเรียนเทพา">
+    <div class="cover-badge">📘 รายงานคู่มือการใช้งาน</div>
+    <h1 class="cover-title">TPAC Digital Score</h1>
+    <div class="cover-subtitle">ระบบจัดการคะแนนพฤติกรรมนักเรียน</div>
+    <div class="cover-line"></div>
+    <div class="cover-desc">คู่มือการใช้งานระบบสำหรับนักเรียน ครูที่ปรึกษา และผู้ดูแลระบบ<br>โรงเรียนเทพา อำเภอเทพา
+      จังหวัดสงขลา</div>
+    <div class="cover-info">
+      <p><b>จัดทำโดย:</b> นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี</p>
+      <p><b>สถานศึกษา:</b> โรงเรียนเทพา อำเภอเทพา จังหวัดสงขลา</p>
+      <p><b>เวอร์ชัน:</b> TPAC v2.0</p>
+      <div class="cover-year">ปีการศึกษา 2569</div>
+    </div>
   </div>
 
-  <div class="desc-box" style="border-color:#a855f7">
-    <b>TPAC Digital Score</b> คือระบบจัดการคะแนนพฤติกรรมนักเรียนแบบดิจิทัล สำหรับโรงเรียนเทพา
-    ใช้แทนระบบกระดาษแบบเดิม เพื่อให้การติดตามพฤติกรรมนักเรียนเป็นไปอย่างรวดเร็ว โปร่งใส และตรวจสอบได้
+  <!-- ==================== TABLE OF CONTENTS ==================== -->
+  <div class="toc page-break">
+    <h2>📑 สารบัญ</h2>
+    <div class="toc-item">
+      <div class="toc-icon bg-purple"><i class="fas fa-sign-in-alt"></i></div>
+      <div class="toc-text">บทที่ 1 — ภาพรวมของระบบ</div>
+      <div class="toc-page">หน้า 3</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-icon bg-blue"><i class="fas fa-key"></i></div>
+      <div class="toc-text">บทที่ 2 — วิธีเข้าสู่ระบบ / ออกจากระบบ</div>
+      <div class="toc-page">หน้า 4</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-icon bg-green"><i class="fas fa-user-graduate"></i></div>
+      <div class="toc-text">บทที่ 3 — คู่มือสำหรับนักเรียน</div>
+      <div class="toc-page">หน้า 6</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-icon bg-blue"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="toc-text">บทที่ 4 — คู่มือสำหรับครูที่ปรึกษา</div>
+      <div class="toc-page">หน้า 8</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-icon bg-orange"><i class="fas fa-user-shield"></i></div>
+      <div class="toc-text">บทที่ 5 — คู่มือสำหรับผู้ดูแลระบบ</div>
+      <div class="toc-page">หน้า 10</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-icon bg-cyan"><i class="fas fa-server"></i></div>
+      <div class="toc-text">บทที่ 6 — ข้อมูลทางเทคนิค</div>
+      <div class="toc-page">หน้า 12</div>
+    </div>
   </div>
 
-  <h3 style="margin:20px 0 10px;font-size:1.1rem;color:#581c87">🎯 ความสามารถหลักของระบบ</h3>
-  <div class="feature-card"><div class="f-icon bg-blue"><i class="fas fa-users"></i></div><div><div class="f-title">รองรับ 4 บทบาท</div><div class="f-desc">นักเรียน, ครูที่ปรึกษา, ผู้ดูแลระบบ, คณะกรรมการ</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-green"><i class="fas fa-sync-alt"></i></div><div><div class="f-title">อัปเดตคะแนนอัตโนมัติ</div><div class="f-desc">คะแนนอัปเดตทุก 3 วินาที แจ้งเตือนทันทีเมื่อมีการเปลี่ยนแปลง</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-purple"><i class="fas fa-qrcode"></i></div><div><div class="f-title">สแกน QR Code</div><div class="f-desc">ค้นหานักเรียนได้เร็วด้วยการสแกน QR Code</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-orange"><i class="fas fa-file-pdf"></i></div><div><div class="f-title">ส่งออกรายงาน</div><div class="f-desc">ส่งออกรายงานเป็น PDF หรือ CSV ได้ทันที</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-cyan"><i class="fas fa-user-check"></i></div><div><div class="f-title">ระบบตรวจแต่งกาย</div><div class="f-desc">ตรวจเล็บ ผม เสื้อผ้าของนักเรียนทั้งห้อง ส่งผลพร้อมกัน</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-red"><i class="fas fa-hand-paper"></i></div><div><div class="f-title">ระบบขอเพิ่มคะแนน</div><div class="f-desc">นักเรียนส่งหลักฐานทำความดีเพื่อขอคะแนนคืน</div></div></div>
+  <!-- ==================== CHAPTER 1: OVERVIEW ==================== -->
+  <div class="section-page page-break">
+    <div class="section-header c-purple" style="border-color:#a855f7">
+      <div class="section-header-icon bg-purple"><i class="fas fa-info-circle"></i></div>
+      <div>
+        <h2>บทที่ 1 — ภาพรวมของระบบ</h2>
+        <p>TPAC Digital Score คืออะไร?</p>
+      </div>
+    </div>
 
-  <div class="screenshot-container" style="margin-top:25px">
-    <img src="report-images/screenshot_login.png" alt="หน้าเข้าสู่ระบบ">
-    <p class="screenshot-caption">รูปที่ 1.1 — หน้าเข้าสู่ระบบ TPAC Digital Score</p>
-  </div>
-</div>
+    <div class="desc-box" style="border-color:#a855f7">
+      <b>TPAC Digital Score</b> คือระบบจัดการคะแนนพฤติกรรมนักเรียนแบบดิจิทัล สำหรับโรงเรียนเทพา
+      ใช้แทนระบบกระดาษแบบเดิม เพื่อให้การติดตามพฤติกรรมนักเรียนเป็นไปอย่างรวดเร็ว โปร่งใส และตรวจสอบได้
+    </div>
 
-<!-- ==================== CHAPTER 2: LOGIN ==================== -->
-<div class="section-page page-break">
-  <div class="section-header c-purple" style="border-color:#a855f7">
-    <div class="section-header-icon bg-purple"><i class="fas fa-key"></i></div>
-    <div><h2>บทที่ 2 — วิธีเข้าสู่ระบบ / ออกจากระบบ</h2><p>index.html — หน้าล็อกอิน</p></div>
-  </div>
+    <h3 style="margin:20px 0 10px;font-size:1.1rem;color:#581c87">🎯 ความสามารถหลักของระบบ</h3>
+    <div class="feature-card">
+      <div class="f-icon bg-blue"><i class="fas fa-users"></i></div>
+      <div>
+        <div class="f-title">รองรับ 4 บทบาท</div>
+        <div class="f-desc">นักเรียน, ครูที่ปรึกษา, ผู้ดูแลระบบ, คณะกรรมการ</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-green"><i class="fas fa-sync-alt"></i></div>
+      <div>
+        <div class="f-title">อัปเดตคะแนนอัตโนมัติ</div>
+        <div class="f-desc">คะแนนอัปเดตทุก 3 วินาที แจ้งเตือนทันทีเมื่อมีการเปลี่ยนแปลง</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-purple"><i class="fas fa-qrcode"></i></div>
+      <div>
+        <div class="f-title">สแกน QR Code</div>
+        <div class="f-desc">ค้นหานักเรียนได้เร็วด้วยการสแกน QR Code</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-orange"><i class="fas fa-file-pdf"></i></div>
+      <div>
+        <div class="f-title">ส่งออกรายงาน</div>
+        <div class="f-desc">ส่งออกรายงานเป็น PDF หรือ CSV ได้ทันที</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-cyan"><i class="fas fa-user-check"></i></div>
+      <div>
+        <div class="f-title">ระบบตรวจแต่งกาย</div>
+        <div class="f-desc">ตรวจเล็บ ผม เสื้อผ้าของนักเรียนทั้งห้อง ส่งผลพร้อมกัน</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-red"><i class="fas fa-hand-paper"></i></div>
+      <div>
+        <div class="f-title">ระบบขอเพิ่มคะแนน</div>
+        <div class="f-desc">นักเรียนส่งหลักฐานทำความดีเพื่อขอคะแนนคืน</div>
+      </div>
+    </div>
 
-  <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#581c87">👥 ประเภทผู้ใช้งาน</h3>
-  <table class="rtable">
-    <thead><tr><th></th><th>ประเภท</th><th>ข้อมูลที่ต้องกรอก</th><th>เข้าหน้าไหน</th></tr></thead>
-    <tbody>
-      <tr><td>🎓</td><td><b>นักเรียน</b></td><td>รหัสนักเรียน + รหัสผ่าน</td><td>หน้านักเรียน</td></tr>
-      <tr><td>👨‍🏫</td><td><b>อาจารย์</b></td><td>ชื่อผู้ใช้ + รหัสผ่าน</td><td>หน้าครูที่ปรึกษา</td></tr>
-      <tr><td>🛡️</td><td><b>ผู้ดูแล</b></td><td>ชื่อผู้ดูแล + รหัสผ่าน</td><td>หน้าผู้ดูแลระบบ</td></tr>
-      <tr><td>📋</td><td><b>กรรมการ</b></td><td>รหัสกรรมการ + รหัสผ่าน</td><td>หน้ากรรมการ</td></tr>
-    </tbody>
-  </table>
-
-  <h3 style="margin:20px 0 10px;font-size:1.1rem;color:#581c87">🔑 ขั้นตอนการเข้าสู่ระบบ (Login)</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">1</div><div><div class="step-title">เปิดเว็บไซต์</div><div class="step-desc">เปิดเบราว์เซอร์ (Chrome, Safari, Firefox) แล้วไปที่หน้าเว็บระบบ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">2</div><div><div class="step-title">เลือกประเภทผู้ใช้</div><div class="step-desc">กดแท็บที่ตรงกับบทบาทของท่าน: นักเรียน, คุณครู, ผู้ดูแล, หรือกรรมการ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">3</div><div><div class="step-title">กรอกรหัสผู้ใช้</div><div class="step-desc">พิมพ์รหัสนักเรียน หรือ ชื่อผู้ใช้ ลงในช่องแรก</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">4</div><div><div class="step-title">กรอกรหัสผ่าน</div><div class="step-desc">พิมพ์รหัสผ่านลงในช่องที่สอง</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">5</div><div><div class="step-title">กดปุ่ม "เข้าสู่ระบบ"</div><div class="step-desc">ระบบจะพาท่านไปยังหน้าที่ตรงกับบทบาทโดยอัตโนมัติ</div></div></div>
-
-  <div class="tip-box tip-green"><i class="fas fa-cookie-bite"></i><div><b>ระบบจดจำการเข้าสู่ระบบ:</b> หลังจาก Login สำเร็จ ครั้งต่อไปที่เปิดเว็บ ระบบจะเข้าสู่ระบบให้อัตโนมัติ โดยไม่ต้องกรอกรหัสใหม่</div></div>
-
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#581c87">🚪 ขั้นตอนการออกจากระบบ (Logout)</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">1</div><div><div class="step-title">กดปุ่มออกจากระบบ</div><div class="step-desc">อยู่ด้านขวาบนของหน้าจอ เป็นไอคอนรูปประตู</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">2</div><div><div class="step-title">กดยืนยัน</div><div class="step-desc">จะมีหน้าต่างถาม "ต้องการออกจากระบบหรือไม่?" กด "ใช่ ออกจากระบบ"</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">3</div><div><div class="step-title">กลับไปหน้าล็อกอิน</div><div class="step-desc">ระบบจะพาท่านกลับไปหน้าเข้าสู่ระบบ ครั้งต่อไปต้องกรอกรหัสใหม่</div></div></div>
-
-  <div class="tip-box tip-yellow"><i class="fas fa-exclamation-triangle"></i><div><b>สำคัญ:</b> ถ้าใช้คอมพิวเตอร์สาธารณะ ควรออกจากระบบทุกครั้งที่ใช้เสร็จ</div></div>
-
-  <div class="screenshot-container" style="margin-top:20px">
-    <img src="report-images/screenshot_docs_login.png" alt="หน้าคู่มือการเข้าสู่ระบบ">
-    <p class="screenshot-caption">รูปที่ 2.1 — หน้าคู่มือวิธีเข้าสู่ระบบ</p>
-  </div>
-</div>
-
-<!-- ==================== CHAPTER 3: STUDENT ==================== -->
-<div class="section-page page-break">
-  <div class="section-header c-green" style="border-color:#22c55e">
-    <div class="section-header-icon bg-green"><i class="fas fa-user-graduate"></i></div>
-    <div><h2>บทที่ 3 — คู่มือสำหรับนักเรียน</h2><p>home.html — แดชบอร์ดนักเรียน</p></div>
-  </div>
-
-  <div class="desc-box" style="border-color:#22c55e">เมื่อนักเรียนเข้าสู่ระบบ จะเห็น<b>คะแนนพฤติกรรม</b>ของตนเอง พร้อมเมนูต่างๆ</div>
-
-  <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#166534">📋 เมนูหลัก</h3>
-  <div class="feature-card"><div class="f-icon bg-blue"><i class="fas fa-chart-line"></i></div><div><div class="f-title">📊 คะแนนพฤติกรรม</div><div class="f-desc">แสดงคะแนนปัจจุบัน จากคะแนนเต็ม 100 อัปเดตทุก 3 วินาที</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-purple"><i class="fas fa-history"></i></div><div><div class="f-title">📖 ประวัติคะแนน</div><div class="f-desc">ดูว่าถูกหักคะแนนเมื่อไหร่ เพราะอะไร หรือได้เพิ่มคะแนนจากเรื่องอะไร</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-cyan"><i class="fas fa-qrcode"></i></div><div><div class="f-title">📷 QR Code ส่วนตัว</div><div class="f-desc">แสดง QR Code ของตัวเอง ให้ครูสแกนเพื่อค้นหาข้อมูล</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-orange"><i class="fas fa-bell"></i></div><div><div class="f-title">🔔 การแจ้งเตือน</div><div class="f-desc">ติดตามสถานะคำขอเพิ่มคะแนน อนุมัติหรือปฏิเสธแล้วหรือยัง</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-red"><i class="fas fa-bullhorn"></i></div><div><div class="f-title">📢 แจ้งเหตุด่วน</div><div class="f-desc">รายงานพฤติกรรมไม่เหมาะสมที่พบเห็นให้ครูทราบทันที</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-green"><i class="fas fa-plus-circle"></i></div><div><div class="f-title">✅ ขอเพิ่มคะแนน (ทำความดี)</div><div class="f-desc">ส่งหลักฐานการทำความดี พร้อมแนบรูปถ่าย</div></div></div>
-
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#166534">📝 วิธีขอเพิ่มคะแนน (ทำความดี)</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">1</div><div><div class="step-title">กดปุ่ม "กฎระเบียบ"</div><div class="step-desc">อยู่ในหน้าหลัก จะมีไอคอนรูปหนังสือ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">2</div><div><div class="step-title">เลื่อนลงมาข้างล่าง</div><div class="step-desc">จะมีปุ่ม "ส่งขอเพิ่มคะแนน" กดปุ่มนั้น</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">3</div><div><div class="step-title">เลือกประเภท</div><div class="step-desc">เลือกว่าทำความดี "ในโรงเรียน" หรือ "นอกโรงเรียน"</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">4</div><div><div class="step-title">เขียนรายละเอียด</div><div class="step-desc">อธิบายว่าทำอะไร เช่น "กวาดลานหน้าอาคาร 3"</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">5</div><div><div class="step-title">แนบรูปถ่าย</div><div class="step-desc">ถ่ายรูป ก่อนทำ 1 รูป และ หลังทำ 1 รูป แล้วแนบเข้าไป</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">6</div><div><div class="step-title">กดปุ่ม "บันทึกผลงาน"</div><div class="step-desc">ข้อมูลจะถูกส่งให้ผู้ดูแลตรวจสอบ เมื่ออนุมัติแล้วคะแนนจะเพิ่มขึ้น</div></div></div>
-
-  <div class="tip-box tip-blue"><i class="fas fa-lightbulb"></i><div><b>เคล็ดลับ:</b> หลังส่งคำขอ สามารถกดปุ่ม "การแจ้งเตือน" เพื่อดูว่าผู้ดูแลอนุมัติหรือยัง</div></div>
-
-  <div class="screenshot-container" style="margin-top:20px">
-    <img src="report-images/screenshot_docs_student.png" alt="หน้าคู่มือนักเรียน">
-    <p class="screenshot-caption">รูปที่ 3.1 — หน้าคู่มือการใช้งานสำหรับนักเรียน</p>
-  </div>
-</div>
-
-<!-- ==================== CHAPTER 4: TEACHER ==================== -->
-<div class="section-page page-break">
-  <div class="section-header c-blue" style="border-color:#3b82f6">
-    <div class="section-header-icon bg-blue"><i class="fas fa-chalkboard-teacher"></i></div>
-    <div><h2>บทที่ 4 — คู่มือสำหรับครูที่ปรึกษา</h2><p>th.html — หน้าจัดการคะแนน</p></div>
+    <div class="screenshot-container" style="margin-top:25px">
+      <img src="report-images/screenshot_login.png" alt="หน้าเข้าสู่ระบบ">
+      <p class="screenshot-caption">รูปที่ 1.1 — หน้าเข้าสู่ระบบ TPAC Digital Score</p>
+    </div>
   </div>
 
-  <div class="desc-box" style="border-color:#3b82f6">เมื่อครูเข้าสู่ระบบ จะเห็นรายชื่อนักเรียนทั้งหมด ด้านบนจะมี<b>ปุ่มเครื่องมือ</b>สำหรับจัดการคะแนน</div>
+  <!-- ==================== CHAPTER 2: LOGIN ==================== -->
+  <div class="section-page page-break">
+    <div class="section-header c-purple" style="border-color:#a855f7">
+      <div class="section-header-icon bg-purple"><i class="fas fa-key"></i></div>
+      <div>
+        <h2>บทที่ 2 — วิธีเข้าสู่ระบบ / ออกจากระบบ</h2>
+        <p>index.html — หน้าล็อกอิน</p>
+      </div>
+    </div>
 
-  <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#1e3a8a">🔧 ปุ่มเครื่องมือ</h3>
-  <div class="feature-card"><div class="f-icon bg-blue"><i class="fas fa-keyboard"></i></div><div><div class="f-title">⌨️ กรอกรหัส</div><div class="f-desc">พิมพ์เลขรหัสนักเรียนเพื่อค้นหาโดยตรง</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-purple"><i class="fas fa-camera"></i></div><div><div class="f-title">📸 ถ่ายรูป QR</div><div class="f-desc">ถ่ายรูป QR Code ของนักเรียนจากกล้อง</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-orange"><i class="fas fa-qrcode"></i></div><div><div class="f-title">📱 สแกน QR</div><div class="f-desc">เปิดกล้องสแกน QR Code แบบเรียลไทม์</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-green"><i class="fas fa-users"></i></div><div><div class="f-title">🔍 ค้นหานักเรียน</div><div class="f-desc">ค้นหาจากรายชื่อทั้งหมด กรองตามชั้นเรียน</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-orange"><i class="fas fa-file-alt"></i></div><div><div class="f-title">📋 รายงานสรุป</div><div class="f-desc">ดูสรุปการหัก/เพิ่มคะแนน ดาวน์โหลด PDF/CSV</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-cyan"><i class="fas fa-user-check"></i></div><div><div class="f-title">👔 ตรวจแต่งกาย</div><div class="f-desc">เลือกห้อง เช็คเล็บ/ผม/เสื้อผ้า ส่งผลทีเดียว</div></div></div>
+    <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#581c87">👥 ประเภทผู้ใช้งาน</h3>
+    <table class="rtable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>ประเภท</th>
+          <th>ข้อมูลที่ต้องกรอก</th>
+          <th>เข้าหน้าไหน</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🎓</td>
+          <td><b>นักเรียน</b></td>
+          <td>รหัสนักเรียน + รหัสผ่าน</td>
+          <td>หน้านักเรียน</td>
+        </tr>
+        <tr>
+          <td>👨‍🏫</td>
+          <td><b>อาจารย์</b></td>
+          <td>ชื่อผู้ใช้ + รหัสผ่าน</td>
+          <td>หน้าครูที่ปรึกษา</td>
+        </tr>
+        <tr>
+          <td>🛡️</td>
+          <td><b>ผู้ดูแล</b></td>
+          <td>ชื่อผู้ดูแล + รหัสผ่าน</td>
+          <td>หน้าผู้ดูแลระบบ</td>
+        </tr>
+        <tr>
+          <td>📋</td>
+          <td><b>กรรมการ</b></td>
+          <td>รหัสกรรมการ + รหัสผ่าน</td>
+          <td>หน้ากรรมการ</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#1e3a8a">➖ วิธีหักคะแนน / เพิ่มคะแนนนักเรียน</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">1</div><div><div class="step-title">ค้นหานักเรียน</div><div class="step-desc">กรอกรหัส / สแกน QR / ค้นหาจากชื่อ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">2</div><div><div class="step-title">นักเรียนจะปรากฏในรายการ</div><div class="step-desc">เมื่อเลือกนักเรียนแล้ว จะมีแถบแสดงชื่อ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">3</div><div><div class="step-title">กดปุ่ม + หรือ -</div><div class="step-desc">กด + เพื่อเพิ่มคะแนน หรือ - เพื่อหักคะแนน</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">4</div><div><div class="step-title">เลือกเหตุผล</div><div class="step-desc">เลือกหมวดหมู่ เช่น มาสาย, ทะเลาะวิวาท, แต่งกายไม่ถูกระเบียบ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">5</div><div><div class="step-title">กดปุ่ม "บันทึกข้อมูล"</div><div class="step-desc">คะแนนจะถูกอัปเดตทันที นักเรียนจะเห็นคะแนนเปลี่ยน</div></div></div>
-  <div class="tip-box tip-red"><i class="fas fa-exclamation-triangle"></i><div><b>ข้อควรระวัง:</b> เมื่อกดบันทึกแล้วจะแก้ไขไม่ได้ กรุณาตรวจสอบให้แน่ใจก่อนกดบันทึก</div></div>
+    <h3 style="margin:20px 0 10px;font-size:1.1rem;color:#581c87">🔑 ขั้นตอนการเข้าสู่ระบบ (Login)</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">1</div>
+      <div>
+        <div class="step-title">เปิดเว็บไซต์</div>
+        <div class="step-desc">เปิดเบราว์เซอร์ (Chrome, Safari, Firefox) แล้วไปที่หน้าเว็บระบบ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">2</div>
+      <div>
+        <div class="step-title">เลือกประเภทผู้ใช้</div>
+        <div class="step-desc">กดแท็บที่ตรงกับบทบาทของท่าน: นักเรียน, คุณครู, ผู้ดูแล, หรือกรรมการ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">3</div>
+      <div>
+        <div class="step-title">กรอกรหัสผู้ใช้</div>
+        <div class="step-desc">พิมพ์รหัสนักเรียน หรือ ชื่อผู้ใช้ ลงในช่องแรก</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">4</div>
+      <div>
+        <div class="step-title">กรอกรหัสผ่าน</div>
+        <div class="step-desc">พิมพ์รหัสผ่านลงในช่องที่สอง</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">5</div>
+      <div>
+        <div class="step-title">กดปุ่ม "เข้าสู่ระบบ"</div>
+        <div class="step-desc">ระบบจะพาท่านไปยังหน้าที่ตรงกับบทบาทโดยอัตโนมัติ</div>
+      </div>
+    </div>
 
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#1e3a8a">👔 วิธีตรวจแต่งกาย</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">1</div><div><div class="step-title">กดปุ่ม "ตรวจแต่งกาย"</div><div class="step-desc">ปุ่มสีฟ้า มีไอคอนรูปคนเช็คถูก</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">2</div><div><div class="step-title">เลือกห้องเรียน + เดือน + รอบ</div><div class="step-desc">เลือกห้อง, เดือน, ปี, และรอบที่ตรวจ (ครั้งที่ 1 หรือ 2)</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">3</div><div><div class="step-title">กด "โหลดรายชื่อ"</div><div class="step-desc">รายชื่อนักเรียนทั้งห้องจะปรากฏขึ้น</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">4</div><div><div class="step-title">ติ๊กช่องที่ไม่ผ่าน</div><div class="step-desc">เล็บยาว → ติ๊กช่องเล็บ, ผมยาว → ติ๊กช่องผม, ชุดไม่ถูกระเบียบ → ติ๊กช่องเสื้อผ้า</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">5</div><div><div class="step-title">กด "ส่งผลตรวจ"</div><div class="step-desc">คะแนนจะถูกหักจากนักเรียนที่ไม่ผ่านอัตโนมัติ</div></div></div>
+    <div class="tip-box tip-green"><i class="fas fa-cookie-bite"></i>
+      <div><b>ระบบจดจำการเข้าสู่ระบบ:</b> หลังจาก Login สำเร็จ ครั้งต่อไปที่เปิดเว็บ ระบบจะเข้าสู่ระบบให้อัตโนมัติ
+        โดยไม่ต้องกรอกรหัสใหม่</div>
+    </div>
 
-  <div class="screenshot-container" style="margin-top:20px">
-    <img src="report-images/screenshot_docs_teacher.png" alt="หน้าคู่มือครู">
-    <p class="screenshot-caption">รูปที่ 4.1 — หน้าคู่มือการใช้งานสำหรับครูที่ปรึกษา</p>
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#581c87">🚪 ขั้นตอนการออกจากระบบ (Logout)</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">1</div>
+      <div>
+        <div class="step-title">กดปุ่มออกจากระบบ</div>
+        <div class="step-desc">อยู่ด้านขวาบนของหน้าจอ เป็นไอคอนรูปประตู</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">2</div>
+      <div>
+        <div class="step-title">กดยืนยัน</div>
+        <div class="step-desc">จะมีหน้าต่างถาม "ต้องการออกจากระบบหรือไม่?" กด "ใช่ ออกจากระบบ"</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">3</div>
+      <div>
+        <div class="step-title">กลับไปหน้าล็อกอิน</div>
+        <div class="step-desc">ระบบจะพาท่านกลับไปหน้าเข้าสู่ระบบ ครั้งต่อไปต้องกรอกรหัสใหม่</div>
+      </div>
+    </div>
+
+    <div class="tip-box tip-yellow"><i class="fas fa-exclamation-triangle"></i>
+      <div><b>สำคัญ:</b> ถ้าใช้คอมพิวเตอร์สาธารณะ ควรออกจากระบบทุกครั้งที่ใช้เสร็จ</div>
+    </div>
+
+    <div class="screenshot-container" style="margin-top:20px">
+      <img src="report-images/screenshot_docs_login.png" alt="หน้าคู่มือการเข้าสู่ระบบ">
+      <p class="screenshot-caption">รูปที่ 2.1 — หน้าคู่มือวิธีเข้าสู่ระบบ</p>
+    </div>
   </div>
-</div>
 
-<!-- ==================== CHAPTER 5: ADMIN ==================== -->
-<div class="section-page page-break">
-  <div class="section-header c-orange" style="border-color:#f59e0b">
-    <div class="section-header-icon bg-orange"><i class="fas fa-user-shield"></i></div>
-    <div><h2>บทที่ 5 — คู่มือสำหรับผู้ดูแลระบบ</h2><p>teacher-dashboard.html — แดชบอร์ด Admin</p></div>
+  <!-- ==================== CHAPTER 3: STUDENT ==================== -->
+  <div class="section-page page-break">
+    <div class="section-header c-green" style="border-color:#22c55e">
+      <div class="section-header-icon bg-green"><i class="fas fa-user-graduate"></i></div>
+      <div>
+        <h2>บทที่ 3 — คู่มือสำหรับนักเรียน</h2>
+        <p>home.html — แดชบอร์ดนักเรียน</p>
+      </div>
+    </div>
+
+    <div class="desc-box" style="border-color:#22c55e">เมื่อนักเรียนเข้าสู่ระบบ จะเห็น<b>คะแนนพฤติกรรม</b>ของตนเอง
+      พร้อมเมนูต่างๆ</div>
+
+    <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#166534">📋 เมนูหลัก</h3>
+    <div class="feature-card">
+      <div class="f-icon bg-blue"><i class="fas fa-chart-line"></i></div>
+      <div>
+        <div class="f-title">📊 คะแนนพฤติกรรม</div>
+        <div class="f-desc">แสดงคะแนนปัจจุบัน จากคะแนนเต็ม 100 อัปเดตทุก 3 วินาที</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-purple"><i class="fas fa-history"></i></div>
+      <div>
+        <div class="f-title">📖 ประวัติคะแนน</div>
+        <div class="f-desc">ดูว่าถูกหักคะแนนเมื่อไหร่ เพราะอะไร หรือได้เพิ่มคะแนนจากเรื่องอะไร</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-cyan"><i class="fas fa-qrcode"></i></div>
+      <div>
+        <div class="f-title">📷 QR Code ส่วนตัว</div>
+        <div class="f-desc">แสดง QR Code ของตัวเอง ให้ครูสแกนเพื่อค้นหาข้อมูล</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-orange"><i class="fas fa-bell"></i></div>
+      <div>
+        <div class="f-title">🔔 การแจ้งเตือน</div>
+        <div class="f-desc">ติดตามสถานะคำขอเพิ่มคะแนน อนุมัติหรือปฏิเสธแล้วหรือยัง</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-red"><i class="fas fa-bullhorn"></i></div>
+      <div>
+        <div class="f-title">📢 แจ้งเหตุด่วน</div>
+        <div class="f-desc">รายงานพฤติกรรมไม่เหมาะสมที่พบเห็นให้ครูทราบทันที</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-green"><i class="fas fa-plus-circle"></i></div>
+      <div>
+        <div class="f-title">✅ ขอเพิ่มคะแนน (ทำความดี)</div>
+        <div class="f-desc">ส่งหลักฐานการทำความดี พร้อมแนบรูปถ่าย</div>
+      </div>
+    </div>
+
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#166534">📝 วิธีขอเพิ่มคะแนน (ทำความดี)</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">1</div>
+      <div>
+        <div class="step-title">กดปุ่ม "กฎระเบียบ"</div>
+        <div class="step-desc">อยู่ในหน้าหลัก จะมีไอคอนรูปหนังสือ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">2</div>
+      <div>
+        <div class="step-title">เลื่อนลงมาข้างล่าง</div>
+        <div class="step-desc">จะมีปุ่ม "ส่งขอเพิ่มคะแนน" กดปุ่มนั้น</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">3</div>
+      <div>
+        <div class="step-title">เลือกประเภท</div>
+        <div class="step-desc">เลือกว่าทำความดี "ในโรงเรียน" หรือ "นอกโรงเรียน"</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">4</div>
+      <div>
+        <div class="step-title">เขียนรายละเอียด</div>
+        <div class="step-desc">อธิบายว่าทำอะไร เช่น "กวาดลานหน้าอาคาร 3"</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">5</div>
+      <div>
+        <div class="step-title">แนบรูปถ่าย</div>
+        <div class="step-desc">ถ่ายรูป ก่อนทำ 1 รูป และ หลังทำ 1 รูป แล้วแนบเข้าไป</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#16a34a,#22c55e)">6</div>
+      <div>
+        <div class="step-title">กดปุ่ม "บันทึกผลงาน"</div>
+        <div class="step-desc">ข้อมูลจะถูกส่งให้ผู้ดูแลตรวจสอบ เมื่ออนุมัติแล้วคะแนนจะเพิ่มขึ้น</div>
+      </div>
+    </div>
+
+    <div class="tip-box tip-blue"><i class="fas fa-lightbulb"></i>
+      <div><b>เคล็ดลับ:</b> หลังส่งคำขอ สามารถกดปุ่ม "การแจ้งเตือน" เพื่อดูว่าผู้ดูแลอนุมัติหรือยัง</div>
+    </div>
+
+    <div class="screenshot-container" style="margin-top:20px">
+      <img src="report-images/screenshot_docs_student.png" alt="หน้าคู่มือนักเรียน">
+      <p class="screenshot-caption">รูปที่ 3.1 — หน้าคู่มือการใช้งานสำหรับนักเรียน</p>
+    </div>
   </div>
 
-  <div class="desc-box" style="border-color:#f59e0b">ผู้ดูแลระบบสามารถดูข้อมูลนักเรียนทั้งโรงเรียน อนุมัติคำขอ และดาวน์โหลดรายงานต่างๆ</div>
+  <!-- ==================== CHAPTER 4: TEACHER ==================== -->
+  <div class="section-page page-break">
+    <div class="section-header c-blue" style="border-color:#3b82f6">
+      <div class="section-header-icon bg-blue"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div>
+        <h2>บทที่ 4 — คู่มือสำหรับครูที่ปรึกษา</h2>
+        <p>th.html — หน้าจัดการคะแนน</p>
+      </div>
+    </div>
 
-  <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#9a3412">⚙️ ฟีเจอร์หลัก</h3>
-  <div class="feature-card"><div class="f-icon bg-orange"><i class="fas fa-tachometer-alt"></i></div><div><div class="f-title">📊 สถิติภาพรวม</div><div class="f-desc">จำนวนนักเรียนทั้งหมด, จำนวนที่ถูกหักคะแนน, สถานะเสี่ยง/ปรับปรุงด่วน</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-blue"><i class="fas fa-clipboard-list"></i></div><div><div class="f-title">📋 รายการรอตรวจสอบ</div><div class="f-desc">ดูรายการคำขอจากนักเรียนที่ส่งมา รอการอนุมัติ</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-green"><i class="fas fa-check-double"></i></div><div><div class="f-title">✅ อนุมัติ / ปฏิเสธ</div><div class="f-desc">ตรวจสอบหลักฐาน กดอนุมัติเพื่อเพิ่มคะแนน หรือปฏิเสธ</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-purple"><i class="fas fa-chart-bar"></i></div><div><div class="f-title">📈 รายงานสรุป</div><div class="f-desc">สรุปข้อมูลแยกตามห้อง/เดือน ดาวน์โหลดเป็น PDF/CSV</div></div></div>
-  <div class="feature-card"><div class="f-icon bg-cyan"><i class="fas fa-trophy"></i></div><div><div class="f-title">🏆 รายชื่อทำความดี</div><div class="f-desc">ดูรายชื่อนักเรียนที่ส่งผลงานทำความดี ทั้งในและนอกโรงเรียน</div></div></div>
+    <div class="desc-box" style="border-color:#3b82f6">เมื่อครูเข้าสู่ระบบ จะเห็นรายชื่อนักเรียนทั้งหมด
+      ด้านบนจะมี<b>ปุ่มเครื่องมือ</b>สำหรับจัดการคะแนน</div>
 
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#9a3412">✅ วิธีอนุมัติคำขอเพิ่มคะแนน</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">1</div><div><div class="step-title">ดูรายการที่รอตรวจ</div><div class="step-desc">เมื่อเข้าสู่ระบบ จะเห็นรายการคำขอที่รออยู่ในหน้าหลัก</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">2</div><div><div class="step-title">กดเข้าไปดูรายละเอียด</div><div class="step-desc">คลิกที่รายการ จะเห็นชื่อนักเรียน รายละเอียด และรูปถ่ายหลักฐาน</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">3</div><div><div class="step-title">ตัดสินใจ: อนุมัติ หรือ ปฏิเสธ</div><div class="step-desc">หลักฐานครบ → กด "อนุมัติ" (คะแนนเพิ่มทันที) | ไม่เพียงพอ → กด "ปฏิเสธ" พร้อมเหตุผล</div></div></div>
+    <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#1e3a8a">🔧 ปุ่มเครื่องมือ</h3>
+    <div class="feature-card">
+      <div class="f-icon bg-blue"><i class="fas fa-keyboard"></i></div>
+      <div>
+        <div class="f-title">⌨️ กรอกรหัส</div>
+        <div class="f-desc">พิมพ์เลขรหัสนักเรียนเพื่อค้นหาโดยตรง</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-purple"><i class="fas fa-camera"></i></div>
+      <div>
+        <div class="f-title">📸 ถ่ายรูป QR</div>
+        <div class="f-desc">ถ่ายรูป QR Code ของนักเรียนจากกล้อง</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-orange"><i class="fas fa-qrcode"></i></div>
+      <div>
+        <div class="f-title">📱 สแกน QR</div>
+        <div class="f-desc">เปิดกล้องสแกน QR Code แบบเรียลไทม์</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-green"><i class="fas fa-users"></i></div>
+      <div>
+        <div class="f-title">🔍 ค้นหานักเรียน</div>
+        <div class="f-desc">ค้นหาจากรายชื่อทั้งหมด กรองตามชั้นเรียน</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-orange"><i class="fas fa-file-alt"></i></div>
+      <div>
+        <div class="f-title">📋 รายงานสรุป</div>
+        <div class="f-desc">ดูสรุปการหัก/เพิ่มคะแนน ดาวน์โหลด PDF/CSV</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-cyan"><i class="fas fa-user-check"></i></div>
+      <div>
+        <div class="f-title">👔 ตรวจแต่งกาย</div>
+        <div class="f-desc">เลือกห้อง เช็คเล็บ/ผม/เสื้อผ้า ส่งผลทีเดียว</div>
+      </div>
+    </div>
 
-  <div class="tip-box tip-blue"><i class="fas fa-lightbulb"></i><div><b>เคล็ดลับ:</b> เมื่ออนุมัติหรือปฏิเสธแล้ว นักเรียนจะเห็นผลทันทีในหน้า "การแจ้งเตือน"</div></div>
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#1e3a8a">➖ วิธีหักคะแนน / เพิ่มคะแนนนักเรียน</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">1</div>
+      <div>
+        <div class="step-title">ค้นหานักเรียน</div>
+        <div class="step-desc">กรอกรหัส / สแกน QR / ค้นหาจากชื่อ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">2</div>
+      <div>
+        <div class="step-title">นักเรียนจะปรากฏในรายการ</div>
+        <div class="step-desc">เมื่อเลือกนักเรียนแล้ว จะมีแถบแสดงชื่อ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">3</div>
+      <div>
+        <div class="step-title">กดปุ่ม + หรือ -</div>
+        <div class="step-desc">กด + เพื่อเพิ่มคะแนน หรือ - เพื่อหักคะแนน</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">4</div>
+      <div>
+        <div class="step-title">เลือกเหตุผล</div>
+        <div class="step-desc">เลือกหมวดหมู่ เช่น มาสาย, ทะเลาะวิวาท, แต่งกายไม่ถูกระเบียบ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">5</div>
+      <div>
+        <div class="step-title">กดปุ่ม "บันทึกข้อมูล"</div>
+        <div class="step-desc">คะแนนจะถูกอัปเดตทันที นักเรียนจะเห็นคะแนนเปลี่ยน</div>
+      </div>
+    </div>
+    <div class="tip-box tip-red"><i class="fas fa-exclamation-triangle"></i>
+      <div><b>ข้อควรระวัง:</b> เมื่อกดบันทึกแล้วจะแก้ไขไม่ได้ กรุณาตรวจสอบให้แน่ใจก่อนกดบันทึก</div>
+    </div>
 
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#9a3412">📥 วิธีดาวน์โหลดรายงาน</h3>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">1</div><div><div class="step-title">เลือกตัวกรอง</div><div class="step-desc">เลือกปีการศึกษา, เดือน, ห้องเรียนที่ต้องการ</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">2</div><div><div class="step-title">กดดูรายงาน</div><div class="step-desc">ระบบจะแสดงรายชื่อนักเรียน คะแนน และรายละเอียด</div></div></div>
-  <div class="step-item"><div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">3</div><div><div class="step-title">ดาวน์โหลด</div><div class="step-desc">กดปุ่ม PDF เพื่อดาวน์โหลดเป็นเอกสาร หรือ CSV เพื่อเปิดใน Excel</div></div></div>
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#1e3a8a">👔 วิธีตรวจแต่งกาย</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">1</div>
+      <div>
+        <div class="step-title">กดปุ่ม "ตรวจแต่งกาย"</div>
+        <div class="step-desc">ปุ่มสีฟ้า มีไอคอนรูปคนเช็คถูก</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">2</div>
+      <div>
+        <div class="step-title">เลือกห้องเรียน + เดือน + รอบ</div>
+        <div class="step-desc">เลือกห้อง, เดือน, ปี, และรอบที่ตรวจ (ครั้งที่ 1 หรือ 2)</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">3</div>
+      <div>
+        <div class="step-title">กด "โหลดรายชื่อ"</div>
+        <div class="step-desc">รายชื่อนักเรียนทั้งห้องจะปรากฏขึ้น</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">4</div>
+      <div>
+        <div class="step-title">ติ๊กช่องที่ไม่ผ่าน</div>
+        <div class="step-desc">เล็บยาว → ติ๊กช่องเล็บ, ผมยาว → ติ๊กช่องผม, ชุดไม่ถูกระเบียบ → ติ๊กช่องเสื้อผ้า</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">5</div>
+      <div>
+        <div class="step-title">กด "ส่งผลตรวจ"</div>
+        <div class="step-desc">คะแนนจะถูกหักจากนักเรียนที่ไม่ผ่านอัตโนมัติ</div>
+      </div>
+    </div>
 
-  <div class="screenshot-container" style="margin-top:20px">
-    <img src="report-images/screenshot_docs_admin.png" alt="หน้าคู่มือผู้ดูแล">
-    <p class="screenshot-caption">รูปที่ 5.1 — หน้าคู่มือการใช้งานสำหรับผู้ดูแลระบบ</p>
+    <div class="screenshot-container" style="margin-top:20px">
+      <img src="report-images/screenshot_docs_teacher.png" alt="หน้าคู่มือครู">
+      <p class="screenshot-caption">รูปที่ 4.1 — หน้าคู่มือการใช้งานสำหรับครูที่ปรึกษา</p>
+    </div>
   </div>
-</div>
 
-<!-- ==================== CHAPTER 6: TECHNICAL ==================== -->
-<div class="section-page page-break">
-  <div class="section-header c-blue" style="border-color:#0891b2">
-    <div class="section-header-icon bg-cyan"><i class="fas fa-server"></i></div>
-    <div><h2>บทที่ 6 — ข้อมูลทางเทคนิค</h2><p>โครงสร้างไฟล์และวิธีเริ่มต้นใช้งาน</p></div>
+  <!-- ==================== CHAPTER 5: ADMIN ==================== -->
+  <div class="section-page page-break">
+    <div class="section-header c-orange" style="border-color:#f59e0b">
+      <div class="section-header-icon bg-orange"><i class="fas fa-user-shield"></i></div>
+      <div>
+        <h2>บทที่ 5 — คู่มือสำหรับผู้ดูแลระบบ</h2>
+        <p>teacher-dashboard.html — แดชบอร์ด Admin</p>
+      </div>
+    </div>
+
+    <div class="desc-box" style="border-color:#f59e0b">ผู้ดูแลระบบสามารถดูข้อมูลนักเรียนทั้งโรงเรียน อนุมัติคำขอ
+      และดาวน์โหลดรายงานต่างๆ</div>
+
+    <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#9a3412">⚙️ ฟีเจอร์หลัก</h3>
+    <div class="feature-card">
+      <div class="f-icon bg-orange"><i class="fas fa-tachometer-alt"></i></div>
+      <div>
+        <div class="f-title">📊 สถิติภาพรวม</div>
+        <div class="f-desc">จำนวนนักเรียนทั้งหมด, จำนวนที่ถูกหักคะแนน, สถานะเสี่ยง/ปรับปรุงด่วน</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-blue"><i class="fas fa-clipboard-list"></i></div>
+      <div>
+        <div class="f-title">📋 รายการรอตรวจสอบ</div>
+        <div class="f-desc">ดูรายการคำขอจากนักเรียนที่ส่งมา รอการอนุมัติ</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-green"><i class="fas fa-check-double"></i></div>
+      <div>
+        <div class="f-title">✅ อนุมัติ / ปฏิเสธ</div>
+        <div class="f-desc">ตรวจสอบหลักฐาน กดอนุมัติเพื่อเพิ่มคะแนน หรือปฏิเสธ</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-purple"><i class="fas fa-chart-bar"></i></div>
+      <div>
+        <div class="f-title">📈 รายงานสรุป</div>
+        <div class="f-desc">สรุปข้อมูลแยกตามห้อง/เดือน ดาวน์โหลดเป็น PDF/CSV</div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon bg-cyan"><i class="fas fa-trophy"></i></div>
+      <div>
+        <div class="f-title">🏆 รายชื่อทำความดี</div>
+        <div class="f-desc">ดูรายชื่อนักเรียนที่ส่งผลงานทำความดี ทั้งในและนอกโรงเรียน</div>
+      </div>
+    </div>
+
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#9a3412">✅ วิธีอนุมัติคำขอเพิ่มคะแนน</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">1</div>
+      <div>
+        <div class="step-title">ดูรายการที่รอตรวจ</div>
+        <div class="step-desc">เมื่อเข้าสู่ระบบ จะเห็นรายการคำขอที่รออยู่ในหน้าหลัก</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">2</div>
+      <div>
+        <div class="step-title">กดเข้าไปดูรายละเอียด</div>
+        <div class="step-desc">คลิกที่รายการ จะเห็นชื่อนักเรียน รายละเอียด และรูปถ่ายหลักฐาน</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">3</div>
+      <div>
+        <div class="step-title">ตัดสินใจ: อนุมัติ หรือ ปฏิเสธ</div>
+        <div class="step-desc">หลักฐานครบ → กด "อนุมัติ" (คะแนนเพิ่มทันที) | ไม่เพียงพอ → กด "ปฏิเสธ" พร้อมเหตุผล</div>
+      </div>
+    </div>
+
+    <div class="tip-box tip-blue"><i class="fas fa-lightbulb"></i>
+      <div><b>เคล็ดลับ:</b> เมื่ออนุมัติหรือปฏิเสธแล้ว นักเรียนจะเห็นผลทันทีในหน้า "การแจ้งเตือน"</div>
+    </div>
+
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#9a3412">📥 วิธีดาวน์โหลดรายงาน</h3>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">1</div>
+      <div>
+        <div class="step-title">เลือกตัวกรอง</div>
+        <div class="step-desc">เลือกปีการศึกษา, เดือน, ห้องเรียนที่ต้องการ</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">2</div>
+      <div>
+        <div class="step-title">กดดูรายงาน</div>
+        <div class="step-desc">ระบบจะแสดงรายชื่อนักเรียน คะแนน และรายละเอียด</div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-num" style="background:linear-gradient(135deg,#ea580c,#f59e0b)">3</div>
+      <div>
+        <div class="step-title">ดาวน์โหลด</div>
+        <div class="step-desc">กดปุ่ม PDF เพื่อดาวน์โหลดเป็นเอกสาร หรือ CSV เพื่อเปิดใน Excel</div>
+      </div>
+    </div>
+
+    <div class="screenshot-container" style="margin-top:20px">
+      <img src="report-images/screenshot_docs_admin.png" alt="หน้าคู่มือผู้ดูแล">
+      <p class="screenshot-caption">รูปที่ 5.1 — หน้าคู่มือการใช้งานสำหรับผู้ดูแลระบบ</p>
+    </div>
   </div>
 
-  <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#0891b2">📦 ไฟล์สำคัญในระบบ</h3>
-  <table class="file-table">
-    <thead><tr><th>ไฟล์</th><th>หน้าที่</th></tr></thead>
-    <tbody>
-      <tr><td><code>server.js</code></td><td>เซิร์ฟเวอร์หลักของระบบ</td></tr>
-      <tr><td><code>index.html</code></td><td>หน้าเข้าสู่ระบบ (Login)</td></tr>
-      <tr><td><code>home.html</code></td><td>หน้าแดชบอร์ดนักเรียน</td></tr>
-      <tr><td><code>th.html</code></td><td>หน้าจัดการคะแนน (ครูที่ปรึกษา)</td></tr>
-      <tr><td><code>teacher-dashboard.html</code></td><td>หน้าแดชบอร์ดผู้ดูแลระบบ</td></tr>
-      <tr><td><code>cd.html</code></td><td>หน้าคณะกรรมการ</td></tr>
-      <tr><td><code>user2.1.json</code></td><td>ข้อมูลนักเรียนทั้งหมด (ชื่อ, รหัส, คะแนน, สถานะ)</td></tr>
-      <tr><td><code>th.json</code></td><td>ข้อมูลบัญชีครู</td></tr>
-      <tr><td><code>TPAC.json</code></td><td>ข้อมูลบัญชีผู้ดูแลระบบ</td></tr>
-      <tr><td><code>cd.json</code></td><td>ข้อมูลบัญชีคณะกรรมการ</td></tr>
-      <tr><td><code>log.json</code></td><td>บันทึกการหัก/เพิ่มคะแนนทั้งหมด</td></tr>
-      <tr><td><code>toadmin.json</code></td><td>รายการคำขอรอตรวจสอบ</td></tr>
-      <tr><td><code>cookie.json</code></td><td>ข้อมูล Session สำหรับจดจำการเข้าสู่ระบบ</td></tr>
-    </tbody>
-  </table>
+  <!-- ==================== CHAPTER 6: TECHNICAL ==================== -->
+  <div class="section-page page-break">
+    <div class="section-header c-blue" style="border-color:#0891b2">
+      <div class="section-header-icon bg-cyan"><i class="fas fa-server"></i></div>
+      <div>
+        <h2>บทที่ 6 — ข้อมูลทางเทคนิค</h2>
+        <p>โครงสร้างไฟล์และวิธีเริ่มต้นใช้งาน</p>
+      </div>
+    </div>
 
-  <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#0891b2">🚀 วิธีเริ่มต้นใช้งาน</h3>
-  <div style="background:#1e293b;color:#e2e8f0;padding:20px 24px;border-radius:14px;font-family:monospace;font-size:0.9rem;line-height:2">
-    <span style="color:#94a3b8"># 1. เปิด Terminal ที่โฟลเดอร์โปรเจกต์</span><br>
-    <span style="color:#60a5fa">cd</span> d:\TP<br><br>
-    <span style="color:#94a3b8"># 2. รันเซิร์ฟเวอร์</span><br>
-    <span style="color:#60a5fa">node</span> server.js<br><br>
-    <span style="color:#94a3b8"># 3. เปิดเบราว์เซอร์ไปที่</span><br>
-    <span style="color:#4ade80">http://localhost:3000/index.html</span>
-  </div>
+    <h3 style="margin:15px 0 10px;font-size:1.1rem;color:#0891b2">📦 ไฟล์สำคัญในระบบ</h3>
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>ไฟล์</th>
+          <th>หน้าที่</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>server.js</code></td>
+          <td>เซิร์ฟเวอร์หลักของระบบ</td>
+        </tr>
+        <tr>
+          <td><code>index.html</code></td>
+          <td>หน้าเข้าสู่ระบบ (Login)</td>
+        </tr>
+        <tr>
+          <td><code>home.html</code></td>
+          <td>หน้าแดชบอร์ดนักเรียน</td>
+        </tr>
+        <tr>
+          <td><code>th.html</code></td>
+          <td>หน้าจัดการคะแนน (ครูที่ปรึกษา)</td>
+        </tr>
+        <tr>
+          <td><code>teacher-dashboard.html</code></td>
+          <td>หน้าแดชบอร์ดผู้ดูแลระบบ</td>
+        </tr>
+        <tr>
+          <td><code>cd.html</code></td>
+          <td>หน้าคณะกรรมการ</td>
+        </tr>
+        <tr>
+          <td><code>user2.1.json</code></td>
+          <td>ข้อมูลนักเรียนทั้งหมด (ชื่อ, รหัส, คะแนน, สถานะ)</td>
+        </tr>
+        <tr>
+          <td><code>th.json</code></td>
+          <td>ข้อมูลบัญชีครู</td>
+        </tr>
+        <tr>
+          <td><code>TPAC.json</code></td>
+          <td>ข้อมูลบัญชีผู้ดูแลระบบ</td>
+        </tr>
+        <tr>
+          <td><code>cd.json</code></td>
+          <td>ข้อมูลบัญชีคณะกรรมการ</td>
+        </tr>
+        <tr>
+          <td><code>log.json</code></td>
+          <td>บันทึกการหัก/เพิ่มคะแนนทั้งหมด</td>
+        </tr>
+        <tr>
+          <td><code>toadmin.json</code></td>
+          <td>รายการคำขอรอตรวจสอบ</td>
+        </tr>
+        <tr>
+          <td><code>cookie.json</code></td>
+          <td>ข้อมูล Session สำหรับจดจำการเข้าสู่ระบบ</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <div class="screenshot-container" style="margin-top:25px">
-    <img src="report-images/screenshot_docs_hub.png" alt="หน้าคู่มือรวม">
-    <p class="screenshot-caption">รูปที่ 6.1 — หน้าเลือกคู่มือตามบทบาทผู้ใช้</p>
-  </div>
+    <h3 style="margin:25px 0 10px;font-size:1.1rem;color:#0891b2">🚀 วิธีเริ่มต้นใช้งาน</h3>
+    <div
+      style="background:#1e293b;color:#e2e8f0;padding:20px 24px;border-radius:14px;font-family:monospace;font-size:0.9rem;line-height:2">
+      <span style="color:#94a3b8"># 1. เปิด Terminal ที่โฟลเดอร์โปรเจกต์</span><br>
+      <span style="color:#60a5fa">cd</span> d:\TP<br><br>
+      <span style="color:#94a3b8"># 2. รันเซิร์ฟเวอร์</span><br>
+      <span style="color:#60a5fa">node</span> server.js<br><br>
+      <span style="color:#94a3b8"># 3. เปิดเบราว์เซอร์ไปที่</span><br>
+      <span style="color:#4ade80">http://localhost:3000/index.html</span>
+    </div>
 
-  <div class="page-footer" style="margin-top:40px">
-    <p style="font-size:1rem;color:#1e3a5f;font-weight:700">© 2568 TPAC Digital Score — โรงเรียนเทพา จังหวัดสงขลา</p>
-    <p>จัดทำโดย นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี</p>
-    <p>เวอร์ชัน TPAC v2.0 | ปีการศึกษา 2568</p>
+    <div class="screenshot-container" style="margin-top:25px">
+      <img src="report-images/screenshot_docs_hub.png" alt="หน้าคู่มือรวม">
+      <p class="screenshot-caption">รูปที่ 6.1 — หน้าเลือกคู่มือตามบทบาทผู้ใช้</p>
+    </div>
+
+    <div class="page-footer" style="margin-top:40px">
+      <p style="font-size:1rem;color:#1e3a5f;font-weight:700">© 2569 TPAC Digital Score — โรงเรียนเทพา จังหวัดสงขลา</p>
+      <p>จัดทำโดย นางสาวสโรชา เมืองมุสิก & ด.ช.เทิดศักดิ์ สุวรรณมาลี</p>
+      <p>เวอร์ชัน TPAC v2.0 | ปีการศึกษา 2569</p>
+    </div>
   </div>
-</div>
 
 </body>
+
 </html>
