@@ -2101,9 +2101,9 @@
     "name": "สุประดิษฐ์  แก้วมณี",
     "password": "13746",
     "status": "normal",
-    "score": 100,
+    "score": 90,
     "class": 201,
-    "statuspoint": "excellent"
+    "statuspoint": "normal"
   },
   {
     "id": "13747",
@@ -5971,9 +5971,9 @@
     "name": "กฤษฎากรณ์ สามารถ",
     "password": "13119",
     "status": "normal",
-    "score": 100,
+    "score": 90,
     "class": 401,
-    "statuspoint": "excellent"
+    "statuspoint": "normal"
   },
   {
     "id": "13086",

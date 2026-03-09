@@ -1,3 +1,20 @@
 [
-  
+  {
+    "student_id": "13746",
+    "student_name": "สุประดิษฐ์  แก้วมณี",
+    "reason": "มาสาย (หัก 10 คะแนน)",
+    "deduction": 10,
+    "new_score": 90,
+    "timestamp": "2026-02-25T07:28:05.204Z",
+    "type": "deduction"
+  },
+  {
+    "student_id": "13119",
+    "student_name": "กฤษฎากรณ์ สามารถ",
+    "reason": "มาสาย (หัก 10 คะแนน)",
+    "deduction": 10,
+    "new_score": 90,
+    "timestamp": "2026-02-25T07:28:37.525Z",
+    "type": "deduction"
+  }
 ]
